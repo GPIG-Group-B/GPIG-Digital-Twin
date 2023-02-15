@@ -24,10 +24,10 @@ class TCPWorker(multiprocessing.Process):
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self._ip, self._port))
-            print(f"Waiting for connection on IP : {self._ip} | PORT : {self._ip}")
+            print(f"Waiting for connection on IP : {self._ip} | PORT : {self._port}")
             s.listen(1)
             connection, _ = s.accept()
-            print(f"Accepted connection on IP : {self._ip} | PORT : {self._ip}")
+            print(f"Accepted connection on IP : {self._ip} | PORT : {self._port}")
 
         sender_worker = TCPSenderWorker(connection=connection, connection_close_flag=self._close_connection_flag)
         receiver_worker = TCPReceiverWorker(connection=connection, connection_close_flag=self._close_connection_flag)
