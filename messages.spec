@@ -1,21 +1,27 @@
 init_string : "GPIG-Group-B"
 
 Motor:
-    id : 0
-    positive_direction : str
-    gears : list[int]
-    reset_angle : bool
-    speed : int
-    angle : int
-    load : str
+    device_id_type: 0
+
+    info:
+        id : 0
+        output:
+            positive_direction : str
+            gears : list[int]
+            reset_angle : bool
+            speed : int
+            angle : int
+            load : str
+        input:
+
 
     stop:
-        id : 0
+        id : 1
 
     brake:
-        id = 1
+        id = 2
 
     hold:
-        id = 2
+        id = 3
 
 
