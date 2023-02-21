@@ -1,4 +1,8 @@
-from pybricks.parameters import Port
+try:
+    from pybricks.parameters import Port
+except:
+    from mock_pybricks import Port
+
 
 
 def convert_str_to_port(
