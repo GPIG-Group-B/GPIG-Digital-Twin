@@ -23,8 +23,9 @@ class TCPWorker(multiprocessing.Process):
             try:
                 self.connection.connect((self._ip, self._port))
                 break
-            except:
-                print("Connection refused.  Trying again in 3 seconds")
+            except Exception as e:
+                print(e)
+                print("Connection refused. Trying again in 3 seconds")
                 time.sleep(3)
         print(f"Accepted connection on IP : {self._ip} | PORT : {self._port}")
         self.connection.sendall("GPIG-Group-B".encode())
