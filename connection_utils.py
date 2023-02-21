@@ -1,9 +1,13 @@
 import json
 import socket
 import time
+
 INIT_STRING = "GPIG-Group-B".encode()
 
-def setup_server_connction(ip, port, num_connections=1):
+
+def setup_server_connction(ip,
+                           port,
+                           num_connections=1):
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
         try:
@@ -24,19 +28,49 @@ def setup_server_connction(ip, port, num_connections=1):
             print("Received expected init string. Accepting connection")
     return connection, additional_data
 
-def send_json_message(connection : socket.socket, message_dict : dict, message_id : int):
-    connection.sendall(message_id.to_bytes(length=2, byteorder="big"))
+
+def send_json_message(connection: socket.socket,
+                      message_dict: dict,
+                      message_id: int):
+    connection.sendall(message_id.to_bytes(length=2,
+                                           byteorder="big"))
     data = json.dumps(message_dict).encode()
-    connection.sendall(len(data).to_bytes(length=2, byteorder="big"))
+    connection.sendall(len(data).to_bytes(length=2,
+                                          byteorder="big"))
     connection.sendall(data)
 
-def send_device_type_id(connection : socket.socket, device_type_id : int):
-    connection.sendall((device_type_id).to_bytes(length=2, byteorder="big"))
+
+def send_device_type_id(connection: socket.socket,
+                        device_type_id: int):
+    connection.sendall((device_type_id).to_bytes(length=2,
+                                                 byteorder="big"))
 
 
-def receive_data(connection, length, data=b""):
+def receive_data(connection,
+                 length,
+                 data=b""):
     while len(data) < length:
         data += connection.recv(length - len(data))
         if not data:
             raise Exception("Connection was closed")
     return data[:length], data[length:]
+
+
+def receive_json(connection: socket,
+                 header_size : int=2,
+                 additional_data : bytes =b""):
+    message_type, additional_data = receive_data(connection=connection,
+                                                 length=header_size,
+                                                 data=additional_data)
+    message_type = int.from_bytes(message_type, byteorder="big")
+    message_length, additional_data = receive_data(connection=connection,
+                                                   length=header_size,
+                                                   data=additional_data)
+    message_length = int.from_bytes(message_length,
+                                    byteorder="big")
+    json_data, additional_data = receive_data(connection=connection,
+                                              length=message_length,
+                                              data=additional_data)
+    json_data = json.loads(json_data.decode())
+
+    return json_data, additional_data, message_type
