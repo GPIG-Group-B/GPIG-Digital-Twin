@@ -1,4 +1,4 @@
-from connection_utils import setup_server_connction, send_json_message, send_device_type_id
+from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
 
 
 class Port:
@@ -34,6 +34,11 @@ class PybricksDevice:
         send_json_message(connection=self._port,
                           message_dict=data,
                           message_id=message_id)
+        json_data, self._additional_data, received_message_id = receive_json(connection=self._port,
+                                                                               additional_data=self._additional_data)
+        if received_message_id != message_id:
+            raise ValueError(f"Message ID : {message_id}. Received message id back of {received_message_id}")
+        return json_data
 
 
 class Motor(PybricksDevice):
@@ -101,3 +106,15 @@ class Motor(PybricksDevice):
 
 
 
+class UltrasonicSensorPybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=1)
+
+    def distance(self):
+        MESSAGE_ID = 1
+        response_message = self.send_message(data={},
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
