@@ -1,9 +1,10 @@
+import json
 import socket
 import threading
 import multiprocessing
 import time
 
-from connection_utils import receive_data
+from connection_utils import receive_data, receive_json, send_json_message
 
 
 class TCPWorker(multiprocessing.Process):
@@ -36,20 +37,14 @@ class TCPWorker(multiprocessing.Process):
         self._device_type_id = int.from_bytes(self._device_type_id, byteorder="big")
 
         while True:
-            self._receive_json()
+            json_data, self._additional_data, message_id = receive_json(connection=self.connection,
+                                                                   additional_data=self._additional_data)
+            print(f"Received message of type : {message_id}")
+            print(f"Json received : {json_data}")
+            if message_id == 0:
+                send_json_message(connection=self.connection,
+                                  message_dict={},
+                                  message_id=message_id)
 
 
-    def _receive_json(self):
-        message_type, self._additional_data = receive_data(connection=self.connection,
-                                                         length=2,
-                                                         data=self._additional_data)
-        print(f"Message type : {int.from_bytes(message_type, byteorder='big')}")
-        message_length, self._additional_data = receive_data(connection=self.connection,
-                                                             length=2,
-                                                             data=self._additional_data)
-        message_length = int.from_bytes(message_length, byteorder="big")
-        json_data, self._additional_data = receive_data(connection=self.connection,
-                                                        length=message_length,
-                                                        data=self._additional_data)
-        print(json_data)
 
