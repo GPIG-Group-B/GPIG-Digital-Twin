@@ -2,7 +2,9 @@ import json
 import socket
 import time
 
-INIT_STRING = "GPIG-Group-B".encode()
+ACKNOWLEDGEMENT_CONNECTION_STRING = "GPIG-Group-B-Server".encode()
+INIT_CONNECTION_STRING = "GPIG-Group-B-Client".encode()
+
 
 
 def setup_server_connction(ip,
@@ -20,12 +22,13 @@ def setup_server_connction(ip,
         connection, _ = s.accept()
         print(f"Accepted connection on IP : {ip} | PORT : {port}")
         data, additional_data = receive_data(connection=connection,
-                                             length=len(INIT_STRING))
-        if data != INIT_STRING:
-            print(f"Expected init string : {INIT_STRING}. Received {data} Closing connection")
+                                             length=len(INIT_CONNECTION_STRING))
+        if data != INIT_CONNECTION_STRING:
+            print(f"Expected init string : {INIT_CONNECTION_STRING}. Received {data} Closing connection")
             connection.close()
         else:
-            print("Received expected init string. Accepting connection")
+            print("Received expected init string. Accepting connection. Sending confirmation string")
+            connection.sendall(ACKNOWLEDGEMENT_CONNECTION_STRING)
     return connection, additional_data
 
 
