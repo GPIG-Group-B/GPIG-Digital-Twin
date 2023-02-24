@@ -103,18 +103,18 @@ class Motor(PybricksDevice):
 
 
 
-
-
-
-class UltrasonicSensorPybricksDevice):
-
-    def __init__(self,
-                 port):
-        super().__init__(port=port,
-                         device_type_id=1)
-
-    def distance(self):
-        MESSAGE_ID = 1
-        response_message = self.send_message(data={},
-                                             message_id=MESSAGE_ID)
-        return response_message["distance"]
+#
+#
+#
+# class UltrasonicSensorPybricksDevice):
+#
+#     def __init__(self,
+#                  port):
+#         super().__init__(port=port,
+#                          device_type_id=1)
+#
+#     def distance(self):
+#         MESSAGE_ID = 1
+#         response_message = self.send_message(data={},
+#                                              message_id=MESSAGE_ID)
+#         return response_message["distance"]
