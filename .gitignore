@@ -129,12 +129,12 @@ dmypy.json
 .pyre/
 
 #UNITY
-.digital_twin_unity\.vs\GPIG - v0.1\v16
-.digital_twin_unity\Library
-.digital_twin_unity\Logs
-.digital_twin_unity\obj
-.digital_twin_unity\Packages
-.digital_twin_unity\UserSettings
-.digital_twin_unity\.vsconfig
-.digital_twin_unity\Assembly-CSharp.csproj
-.digital_twin_unity\GPIG - v0.1.sln
+.digital_twin_unity/.vs/GPIG - v0.1/v16
+.digital_twin_unity/Library
+.digital_twin_unity/Logs
+.digital_twin_unity/obj
+.digital_twin_unity/Packages
+.digital_twin_unity/UserSettings
+.digital_twin_unity/.vsconfig
+.digital_twin_unity/Assembly-CSharp.csproj
+.digital_twin_unity/GPIG - v0.1.sln
