@@ -50,7 +50,7 @@ class Motor(PybricksDevice):
                  reset_angle: bool):
         super().__init__(port,
                          device_type_id=0)
-        self._DEVICE_TYPE_ID = 0
+        self._DEVICE_TYPE_ID = 1
         self._positive_direction = positive_direction
         self._gears = gears
         self._reset_angle = reset_angle
