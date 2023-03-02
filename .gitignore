@@ -139,3 +139,9 @@ digital_twin_unity/.vsconfig
 digital_twin_unity/Assembly-CSharp.csproj
 digital_twin_unity/GPIG - v0.1.sln
 
+/.vs
+/.idea
+/digital_twin_unity/.vs/digital_twin_unity/FileContentIndex
+/digital_twin_unity/Temp
+*.sln
+/digital_twin_unity/UpgradeLog.htm
