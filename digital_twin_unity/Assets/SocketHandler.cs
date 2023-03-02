@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System;
 using System.Linq;
 
-public class SocketControl
+public class SocketHandler
 {
 
 
@@ -15,10 +15,10 @@ public class SocketControl
 
 
     private Socket client;
-    private byte[] Acknowledgement_message =  System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Server");
-    private byte[] Connection_init_message = System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Client");
+    private byte[] encoded_acknowledgement_message =  System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Server");
+    private byte[] encoded_connection_init_message = System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Client");
 
-    public SocketControl(string ip, int port)
+    public SocketHandler(string ip, int port)
     {
         this.ip = ip;
         this.port = port;
@@ -78,15 +78,15 @@ public class SocketControl
         }
 
         //send initialisation code
-        Send(Connection_init_message);
+        Send(encoded_connection_init_message);
 
         //received bytes
-        byte[] received_acknowledgement_message = ReceiveData(Acknowledgement_message.Length);
+        byte[] received_acknowledgement_message = ReceiveData(encoded_acknowledgement_message.Length);
 
         // just for first message
-        if (!received_acknowledgement_message.SequenceEqual(Acknowledgement_message)) // make sure this is right
+        if (!received_acknowledgement_message.SequenceEqual(encoded_acknowledgement_message)) // make sure this is right
         {
-            Debug.Log("The wrong initialisation array was received. Expected: " + BitConverter.ToString(Acknowledgement_message));
+            Debug.Log("The wrong initialisation array was received. Expected: " + BitConverter.ToString(encoded_acknowledgement_message));
             Debug.Log("received: " + BitConverter.ToString(received_acknowledgement_message));
             client.Close();
         }

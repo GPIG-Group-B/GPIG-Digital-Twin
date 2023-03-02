@@ -8,7 +8,7 @@ using System.Linq;
 public abstract class Devices
 { 
 
-    private SocketControl Socket;
+    private SocketHandler Socket;
 
 
     protected int port;
@@ -22,7 +22,7 @@ public abstract class Devices
         this.ip = ip;
         this.port = port;
         this.device_id = device_id;
-        this.Socket = new SocketControl(ip: this.ip, port: this.port);
+        this.Socket = new SocketHandler(ip: this.ip, port: this.port);
         Int16 received_device_id = this.Socket.setupSocket();
         // check right device id
         if (received_device_id != device_id)
