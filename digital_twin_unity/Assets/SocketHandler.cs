@@ -13,15 +13,18 @@ public class SocketHandler
 
     private int port; // port to connect socket 
 
+    private static int HEADER_SIZE = 2;
+
 
     private Socket client;
-    private byte[] encoded_acknowledgement_message =  System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Server");
-    private byte[] encoded_connection_init_message = System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Client");
+    private byte[] encodedAcknowledgementMessage =  System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Server");
+    private byte[] encodedConnectionInitMessage = System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Client");
 
     public SocketHandler(string ip, int port)
     {
         this.ip = ip;
         this.port = port;
+        SetupSocket();
     }
 
 
@@ -32,29 +35,29 @@ public class SocketHandler
     }
 
     //function for receiving data, takes length of data to receive as parameter, returns the bytes received as byte[]
-    public byte[] ReceiveData(int Length_of_data_to_receive)
+    public byte[] ReceiveData(int lengthOfDataToReceive)
     {
 
-        int num_bytes_received = 0;
+        int numBytesReceived = 0;
         //allocate and receive bytes
-        byte[] bytesreceived = new byte[Length_of_data_to_receive];
+        byte[] bytesReceived = new byte[lengthOfDataToReceive];
 
-        while (num_bytes_received < Length_of_data_to_receive) {
-            num_bytes_received += client.Receive(buffer: bytesreceived, offset: num_bytes_received, socketFlags: SocketFlags.None, size: Length_of_data_to_receive - num_bytes_received) ;
-            if (num_bytes_received == 0)
+        while (numBytesReceived < lengthOfDataToReceive) {
+            numBytesReceived += client.Receive(buffer: bytesReceived, offset: numBytesReceived, socketFlags: SocketFlags.None, size: lengthOfDataToReceive - numBytesReceived) ;
+            if (numBytesReceived == 0)
             {
                 Debug.Log("NO BYTES received. CONNECTION CLOSED.");
             }
         }
         
 
-        Debug.Log("The number of bytes received is: " +num_bytes_received);
+        Debug.Log("The number of bytes received is: " +numBytesReceived);
 
-        Debug.Log("The bytes converted to a string is: " + BitConverter.ToString(bytesreceived));
+        Debug.Log("The bytes converted to a string is: " + BitConverter.ToString(bytesReceived));
 
         
 
-        return bytesreceived;
+        return bytesReceived;
     }
 
 
@@ -63,54 +66,42 @@ public class SocketHandler
     //sends connection init message
     //checks Acknowledgement message is correct
     //gets device id checks its correct
-    public Int16 setupSocket()
+    public void SetupSocket()
     {
 
         //set up the new socket
         client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //attempt to connect to the port
-        client.Connect(ip, port);
-        // output an error if cannot connect
-        if (!client.Connected)
+        try 
         {
-            Debug.LogError("Could not connect To Socket.");
-            //return null;
+            client.Connect(ip, port); 
+        }
+        catch (System.Net.Sockets.SocketException e)
+        { 
+            Debug.LogException(e);
+            Debug.Log(String.Format("Error connecting to IP : {0} | PORT : {1}. Waiting 3 seconds then retying",
+                this.ip, this.port));
+            System.Threading.Thread.Sleep(3000);
         }
 
         //send initialisation code
-        Send(encoded_connection_init_message);
+        Send(encodedConnectionInitMessage);
 
         //received bytes
-        byte[] received_acknowledgement_message = ReceiveData(encoded_acknowledgement_message.Length);
+        byte[] received_acknowledgement_message = ReceiveData(encodedAcknowledgementMessage.Length);
 
-        // just for first message
-        if (!received_acknowledgement_message.SequenceEqual(encoded_acknowledgement_message)) // make sure this is right
-        {
-            Debug.Log("The wrong initialisation array was received. Expected: " + BitConverter.ToString(encoded_acknowledgement_message));
-            Debug.Log("received: " + BitConverter.ToString(received_acknowledgement_message));
-            client.Close();
-        }
-        else
-        {
-            Debug.Log("Connection successful.");
-            Int16 device_type_id = BitConverter.ToInt16(ReceiveData(Length_of_data_to_receive: 2),0); // first receive is for the class type 
-            return device_type_id;
-
-
-        }
-        return -1;// TODO deal with later
     }
 
 
     public (Int16 message_id,byte[] device_message) get_device_message()
     {
-        Int16 message_id = BitConverter.ToInt16(ReceiveData(Length_of_data_to_receive: 2), 0);
-        Int16 message_size = BitConverter.ToInt16(ReceiveData(Length_of_data_to_receive: 2), 0);
+        Int16 messageID = BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
+        Int16 messageSize = BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
 
-        byte[] device_message = ReceiveData(Length_of_data_to_receive: message_size);
+        byte[] deviceMessage = ReceiveData(lengthOfDataToReceive: messageSize);
 
 
-        return (message_id, device_message);
+        return (messageID, deviceMessage);
     }
 
 
