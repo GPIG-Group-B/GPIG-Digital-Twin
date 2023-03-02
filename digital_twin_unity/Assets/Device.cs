@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System;
 using System.Linq;
 
-public abstract class Devices
+public abstract class Device
 { 
 
     private SocketHandler Socket;
@@ -17,7 +17,7 @@ public abstract class Devices
 
 
 
-    public void init_device(string ip,int port,int device_id)
+    public Device(string ip,int port,int device_id)
     {
         this.ip = ip;
         this.port = port;
