@@ -16,7 +16,7 @@ public class SocketHandler
     private static int HEADER_SIZE = 2;
 
 
-    private Socket client;
+    private Socket socket;
     private byte[] encodedAcknowledgementMessage =  System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Server");
     private byte[] encodedConnectionInitMessage = System.Text.Encoding.UTF8.GetBytes("GPIG-Group-B-Client");
 
@@ -31,7 +31,7 @@ public class SocketHandler
     //function for sending data
     public void Send(byte[] Data_to_send)
     {
-        client.Send(Data_to_send);
+        socket.Send(Data_to_send);
     }
 
     //function for receiving data, takes length of data to receive as parameter, returns the bytes received as byte[]
@@ -43,7 +43,7 @@ public class SocketHandler
         byte[] bytesReceived = new byte[lengthOfDataToReceive];
 
         while (numBytesReceived < lengthOfDataToReceive) {
-            numBytesReceived += client.Receive(buffer: bytesReceived, offset: numBytesReceived, socketFlags: SocketFlags.None, size: lengthOfDataToReceive - numBytesReceived) ;
+            numBytesReceived += socket.Receive(buffer: bytesReceived, offset: numBytesReceived, socketFlags: SocketFlags.None, size: lengthOfDataToReceive - numBytesReceived) ;
             if (numBytesReceived == 0)
             {
                 Debug.Log("NO BYTES received. CONNECTION CLOSED.");
@@ -65,18 +65,17 @@ public class SocketHandler
     //connects to ip,port
     //sends connection init message
     //checks Acknowledgement message is correct
-    //gets device id checks its correct
     public void SetupSocket()
     {
 
         //set up the new socket
-        client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //attempt to connect to the port
         try 
         {
-            client.Connect(ip, port); 
+            socket.Connect(ip, port); 
         }
-        catch (System.Net.Sockets.SocketException e)
+        catch (SocketException e)
         { 
             Debug.LogException(e);
             Debug.Log(String.Format("Error connecting to IP : {0} | PORT : {1}. Waiting 3 seconds then retying",
@@ -93,15 +92,20 @@ public class SocketHandler
     }
 
 
-    public (Int16 message_id,byte[] device_message) get_device_message()
+    public (Int16, string) get_device_message()
     {
-        Int16 messageID = BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
-        Int16 messageSize = BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
+        Int16 messageID = GetHeaderData();
+        Int16 messageSize = GetHeaderData();
 
-        byte[] deviceMessage = ReceiveData(lengthOfDataToReceive: messageSize);
+        String message_json_string = System.Text.Encoding.UTF8.GetString(ReceiveData(lengthOfDataToReceive: messageSize));
 
 
-        return (messageID, deviceMessage);
+        return (messageID, message_json_string);
+    }
+
+    public Int16 GetHeaderData() 
+    {
+        return BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
     }
 
 
@@ -109,7 +113,7 @@ public class SocketHandler
     //helper function to close connection
     public void closeConnection()
     {
-        client.Close();
+        socket.Close();
     }
 
 
