@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class Rover : MonoBehaviour
@@ -8,8 +10,17 @@ public class Rover : MonoBehaviour
 
     private void Start()
     {
-        Motor driving_motor = new Motor(ip: "localhost", port : 65432);
-        
+        throw new NotImplementedException();
+
+
+    }
+
+    public static void sub_thread_device(Type deviceType) 
+    {
+
+        DeviceType instance = (DeviceType)Activator.CreateInstance(deviceType);
     }
 
 }
+
+
