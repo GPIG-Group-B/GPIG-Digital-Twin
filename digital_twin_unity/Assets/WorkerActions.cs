@@ -22,7 +22,7 @@ public class WorkerActions : MonoBehaviour
     void Awake()
     {
         SocketControlScript = GetComponent<SocketHandler>();
-        SocketControlScript.setupSocket();
+        SocketControlScript.SetupSocket();
         SocketControlScript.closeConnection(); // for testing only
     }
 
