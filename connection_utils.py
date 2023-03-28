@@ -36,17 +36,17 @@ def send_json_message(connection: socket.socket,
                       message_dict: dict,
                       message_id: int):
     connection.sendall(message_id.to_bytes(length=2,
-                                           byteorder="big"))
+                                           byteorder="little"))
     data = json.dumps(message_dict).encode()
     connection.sendall(len(data).to_bytes(length=2,
-                                          byteorder="big"))
+                                          byteorder="little"))
     connection.sendall(data)
 
 
 def send_device_type_id(connection: socket.socket,
                         device_type_id: int):
     connection.sendall((device_type_id).to_bytes(length=2,
-                                                 byteorder="big"))
+                                                 byteorder="little"))
 
 
 def receive_data(connection,
@@ -54,6 +54,7 @@ def receive_data(connection,
                  data=b""):
     while len(data) < length:
         data += connection.recv(length - len(data))
+        print(data)
         if not data:
             raise Exception("Connection was closed")
     return data[:length], data[length:]
@@ -62,18 +63,18 @@ def receive_data(connection,
 def receive_json(connection: socket,
                  header_size : int=2,
                  additional_data : bytes =b""):
-    message_type, additional_data = receive_data(connection=connection,
+     message_type, additional_data = receive_data(connection=connection,
                                                  length=header_size,
                                                  data=additional_data)
-    message_type = int.from_bytes(message_type, byteorder="big")
-    message_length, additional_data = receive_data(connection=connection,
+     message_type = int.from_bytes(message_type, byteorder="little")
+     message_length, additional_data = receive_data(connection=connection,
                                                    length=header_size,
                                                    data=additional_data)
-    message_length = int.from_bytes(message_length,
-                                    byteorder="big")
-    json_data, additional_data = receive_data(connection=connection,
+
+     message_length = int.from_bytes(message_length,
+                                    byteorder="little")
+     json_data, additional_data = receive_data(connection=connection,
                                               length=message_length,
                                               data=additional_data)
-    json_data = json.loads(json_data.decode())
-
-    return json_data, additional_data, message_type
+     json_data = json.loads(json_data.decode("utf-8"))
+     return json_data, additional_data, message_type
