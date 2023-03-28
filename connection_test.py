@@ -1,3 +1,4 @@
+import time
 def main():
     from connections import TCPWorker
     from mock_pybricks import Motor, Port, Direction
@@ -7,7 +8,13 @@ def main():
                     positive_direction=Direction.CLOCKWISE,
                     gears=[],
                     reset_angle=False)
+    print("RUNNING MOTOR")
     test_motor.run(4)
+    print("Waiting")
+    time.sleep(4)
+    print("FInished waiting. Sending shutdown message")
+    test_motor.send_shutdown_message()
+    print("Finished sending shutdown message. End of program")
     # test_worker.join()
 
 if __name__ == "__main__":
