@@ -54,7 +54,6 @@ def receive_data(connection,
                  data=b""):
     while len(data) < length:
         data += connection.recv(length - len(data))
-        print(data)
         if not data:
             raise Exception("Connection was closed")
     return data[:length], data[length:]
@@ -76,5 +75,5 @@ def receive_json(connection: socket,
      json_data, additional_data = receive_data(connection=connection,
                                               length=message_length,
                                               data=additional_data)
-     json_data = json.loads(json_data.decode("utf-8"))
+     json_data = json.loads(json_data.decode())
      return json_data, additional_data, message_type
