@@ -8,7 +8,7 @@ using System.Linq;
 public class SocketHandler
 {
 
-
+    
     private string ip;// IP address to connect socket 
 
     private int port; // port to connect socket 
@@ -34,12 +34,25 @@ public class SocketHandler
         socket.Send(Data_to_send);
     }
 
+    public void SendJSONMessage(Int16 messageID, string jsonMessage) 
+    {
+        Byte[] encodedMessageID =  BitConverter.GetBytes(messageID);
+        Byte[] encodedJSONMessage = System.Text.Encoding.UTF8.GetBytes(jsonMessage);
+        Int16 messageLength = (Int16) encodedJSONMessage.Length;
+        Byte[] encodedMessageLength = BitConverter.GetBytes(messageLength);
+        this.Send(encodedMessageID);
+        this.Send(encodedMessageLength);
+        this.Send(encodedJSONMessage);
+
+    }
+
     //function for receiving data, takes length of data to receive as parameter, returns the bytes received as byte[]
     public byte[] ReceiveData(int lengthOfDataToReceive)
     {
 
         int numBytesReceived = 0;
         //allocate and receive bytes
+        Debug.Log("Length of data to receive : " + lengthOfDataToReceive.ToString());
         byte[] bytesReceived = new byte[lengthOfDataToReceive];
 
         while (numBytesReceived < lengthOfDataToReceive) {
@@ -88,6 +101,7 @@ public class SocketHandler
 
         //received bytes
         byte[] received_acknowledgement_message = ReceiveData(encodedAcknowledgementMessage.Length);
+        Debug.Log("Received acknowledgement message : {}" + received_acknowledgement_message.ToString());
 
     }
 
