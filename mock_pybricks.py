@@ -1,5 +1,5 @@
 from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
-
+import socket
 
 class Port:
     A = {"ip" : "localhost", "port" : 65432}
@@ -23,22 +23,35 @@ class PybricksDevice:
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
 
     def _send_info_message(self):
-        MESSAGE_ID = 0
-        EXCLUDE_FROM_INFO_MESSAGE = ["_port", "_additional_data"]
+        MESSAGE_ID = 1
+        EXCLUDE_FROM_INFO_MESSAGE = ["_port", "_additional_data", "_DEVICE_TYPE_ID"]
         self.send_message(data=vars(self),
                           exclusions=EXCLUDE_FROM_INFO_MESSAGE,
                           message_id=MESSAGE_ID)
 
-    def send_message(self, data : dict, message_id : int, exclusions = None):
+    def send_message(self, data : dict, message_id : int, exclusions = None, expect_response = True):
         data = {key.strip("_") : val for key,val in data.items() if key not in exclusions}
         send_json_message(connection=self._port,
                           message_dict=data,
                           message_id=message_id)
-        json_data, self._additional_data, received_message_id = receive_json(connection=self._port,
-                                                                               additional_data=self._additional_data)
-        if received_message_id != message_id:
-            raise ValueError(f"Message ID : {message_id}. Received message id back of {received_message_id}")
-        return json_data
+        if expect_response:
+            json_data, self._additional_data, received_message_id = receive_json(connection=self._port,
+                                                                                   additional_data=self._additional_data)
+            if received_message_id != message_id:
+                raise ValueError(f"Message ID : {message_id}. Received message id back of {received_message_id}")
+            return json_data
+        else:
+            return None
+
+    def send_shutdown_message(self):
+        MESSAGE_ID = 0
+        print("Sending shutdown message")
+        self.send_message(data={}, message_id=MESSAGE_ID, expect_response=False)
+        print("Shutting down socket")
+        self._port.shutdown(socket.SHUT_RDWR)
+        print("Closing down socket")
+        self._port.close()
+        print("Completed socket close")
 
 
 class Motor(PybricksDevice):
@@ -50,7 +63,6 @@ class Motor(PybricksDevice):
                  reset_angle: bool):
         super().__init__(port,
                          device_type_id=0)
-        self._DEVICE_TYPE_ID = 1
         self._positive_direction = positive_direction
         self._gears = gears
         self._reset_angle = reset_angle
@@ -69,34 +81,34 @@ class Motor(PybricksDevice):
         self._angle = angle
 
     def stop(self):
-        MESSAGE_ID = 1
+        MESSAGE_ID = 2
         self.send_message(data={},
                           message_id=MESSAGE_ID)
 
 
     def brake(self):
-        MESSAGE_ID = 2
+        MESSAGE_ID = 3
         self.send_message(data={},
                           message_id=MESSAGE_ID)
     def hold(self):
-        MESSAGE_ID = 3
+        MESSAGE_ID = 4
         self.send_message(data={},
                           message_id=MESSAGE_ID)
 
     def run(self, speed : int):
-        MESSAGE_ID = 4
-        self.send_message(data=locals(),
-                          exclusions=["self"],
-                          message_id=MESSAGE_ID)
-
-    def run_time(self, speed : int, time : int, then = None, wait = True):
         MESSAGE_ID = 5
         self.send_message(data=locals(),
                           exclusions=["self"],
                           message_id=MESSAGE_ID)
 
-    def run_angle(self, speed : int, rotation_angle : int, then = None, wait=True):
+    def run_time(self, speed : int, time : int, then = None, wait = True):
         MESSAGE_ID = 6
+        self.send_message(data=locals(),
+                          exclusions=["self"],
+                          message_id=MESSAGE_ID)
+
+    def run_angle(self, speed : int, rotation_angle : int, then = None, wait=True):
+        MESSAGE_ID = 7
         self.send_message(data=locals(),
                           exclusions=["self"],
                           message_id=MESSAGE_ID)

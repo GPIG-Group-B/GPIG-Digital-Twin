@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class WorkerActions : MonoBehaviour
 {
-    public SocketControl SocketControlScript;
+    public SocketHandler SocketControlScript;
     private byte[] MotorDeviceID= System.Text.Encoding.UTF8.GetBytes("0");
     /*private byte[] MotorDeviceID = System.Text.Encoding.UTF8.GetBytes("1");
     private byte[] MotorDeviceID = System.Text.Encoding.UTF8.GetBytes("2");
@@ -21,8 +21,8 @@ public class WorkerActions : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        SocketControlScript = GetComponent<SocketControl>();
-        SocketControlScript.setupSocket();
+        SocketControlScript = GetComponent<SocketHandler>();
+        SocketControlScript.SetupSocket();
         SocketControlScript.closeConnection(); // for testing only
     }
 
