@@ -98,19 +98,19 @@ class Motor(PybricksDevice):
     def run(self, speed : int):
         MESSAGE_ID = 5
         self.send_message(data=locals(),
-                          exclusions=["self"],
+                          exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
 
     def run_time(self, speed : int, time : int, then = None, wait = True):
         MESSAGE_ID = 6
         self.send_message(data=locals(),
-                          exclusions=["self"],
+                          exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
 
     def run_angle(self, speed : int, rotation_angle : int, then = None, wait=True):
         MESSAGE_ID = 7
         self.send_message(data=locals(),
-                          exclusions=["self"],
+                          exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
 
 
