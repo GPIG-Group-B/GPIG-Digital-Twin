@@ -13,21 +13,21 @@ public class Motor : Device
     private Int16 _angle;
     private string _load;
 
+    public WheelCollider wheelCollider;
 
 
-
-    public Motor(string ip, int port) : base(ip: ip, port: port, deviceID: DEVICE_ID)
+    protected override void Start() 
     {
+        this.deviceID = DEVICE_ID;
         this.message_dict.Add(1, Info);
         this.message_dict.Add(2, Stop);
         this.message_dict.Add(3, Brake);
         this.message_dict.Add(4, Hold);
         this.message_dict.Add(5, Run);
         this.message_dict.Add(6, RunTime);
-
-
-
+        base.Start();
     }
+
 
     private string Info(string message_string)
     {
@@ -41,13 +41,15 @@ public class Motor : Device
         _angle = message.angle;
         _load = message.load;
         Debug.Log(message_string);
-
         return JsonUtility.ToJson(new InfoReturnMessage());
 
 
 
 
     }
+
+
+
 
     private string Stop(string message_string)
     {
@@ -75,7 +77,11 @@ public class Motor : Device
     {
         Debug.Log("Motor Run");
         //Implement Hold
+        Debug.Log(message_string);
         RunMessage message = JsonUtility.FromJson<RunMessage>(message_string);
+        wheelCollider.motorTorque = message.speed;
+        Debug.Log("Set motor speed to : " + message.speed);
+        Debug.Log(wheelCollider.rpm);
 
         return JsonUtility.ToJson(new RunReturnMessage());
     }
@@ -91,26 +97,26 @@ public class Motor : Device
 
     private class RunMessage
     {
-        public int speed { get; set; }
+        public int speed;
     }
 
     private class RunTimeMessage
     {
-        public int speed { get; set; }
-        public int time { get; set; }
-        public bool wait { get; set; }
-        public string then { get; set; }
+        public int speed;
+        public int time;
+        public bool wait;
+        public string then;
 
     }
 
     private class InfoMessage
     {
-        public string positive_direction { get; set; }
-        public Int16[] gears { get; set; }
-        public Int16 reset_angle { get; set; }
-        public Int16 speed { get; set; }
-        public Int16 angle { get; set; }
-        public string load { get; set; }
+        public string positive_direction;
+        public Int16[] gears;
+        public Int16 reset_angle;
+        public Int16 speed;
+        public Int16 angle;
+        public string load; 
 
     }
 
