@@ -202,18 +202,26 @@ class DriveBase(PybricksDevice):
     def done(self):
         return self._ongoing_command
 
-#
-#
-#
-# class UltrasonicSensorPybricksDevice):
-#
-#     def __init__(self,
-#                  port):
-#         super().__init__(port=port,
-#                          device_type_id=1)
-#
-#     def distance(self):
-#         MESSAGE_ID = 1
-#         response_message = self.send_message(data={},
-#                                              message_id=MESSAGE_ID)
-#         return response_message["distance"]
+
+class ultrasonicsensor(PybricksDevice):
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=1)
+        self.lights = Light()
+
+    def distance(self):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
+
+ 
+class Light():
+
+    def on(self):
+        raise NotImplementedError()
+
+    def off(self):
+        raise NotImplementedError()
