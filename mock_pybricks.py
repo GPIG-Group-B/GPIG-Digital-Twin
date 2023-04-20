@@ -69,6 +69,7 @@ class Motor(PybricksDevice):
         self._speed = 0
         self._angle = 0
         self._load = "unknown"
+        self._ongoing_command = False
         self._send_info_message()
 
     def speed(self):
@@ -82,36 +83,77 @@ class Motor(PybricksDevice):
 
     def stop(self):
         MESSAGE_ID = 2
+        self._ongoing_command = True
         self.send_message(data={},
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
 
 
     def brake(self):
         MESSAGE_ID = 3
+        self._ongoing_command = True
         self.send_message(data={},
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
     def hold(self):
         MESSAGE_ID = 4
+        self._ongoing_command = True
         self.send_message(data={},
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
 
     def run(self, speed : int):
         MESSAGE_ID = 5
+        self._ongoing_command = True
         self.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
 
     def run_time(self, speed : int, time : int, then = None, wait = True):
         MESSAGE_ID = 6
+        self._ongoing_command = True
         self.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
 
     def run_angle(self, speed : int, rotation_angle : int, then = None, wait=True):
         MESSAGE_ID = 7
+        self._ongoing_command = True
         self.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def run_target(self,
+                   speed : int,
+                   target_angle : int,
+                   then = None,
+                   wait : bool = True):
+        MESSAGE_ID = 8
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def track_target(self,
+                     target_angle : int):
+        MESSAGE_ID = 9
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def run_until_stalled(self):
+        raise NotImplementedError()
+
+    def done(self):
+        return self._ongoing_command
+
 
 class DriveBase(PybricksDevice):
 
