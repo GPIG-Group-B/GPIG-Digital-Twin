@@ -113,7 +113,94 @@ class Motor(PybricksDevice):
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
 
+class DriveBase(PybricksDevice):
 
+    def __init__(self,
+                 left_motor : Motor,
+                 right_motor : Motor,
+                 wheel_diameter : int,
+                 axle_track : int,
+                 positive_direction : Direction):
+        self._left_motor = left_motor
+        self._right_motor = right_motor
+        self._wheel_diameter = wheel_diameter
+        self._axle_track = axle_track
+        self._positive_direction = positive_direction
+        self._ongoing_command = False
+
+    def straight(self,
+                 distance : int,
+                 then=None,
+                 wait : bool =True):
+        MESSAGE_ID = 2
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+
+    def turn(self,
+             angle : int,
+             then=None,
+             wait : bool =True):
+        MESSAGE_ID = 3
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def curve(self,
+              radius : int,
+              angle : int,
+              then=None,
+              wait : bool =True):
+        MESSAGE_ID = 4
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def drive(self,
+              speed : int,
+              turn_rate : int):
+        MESSAGE_ID = 5
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+
+    def stop(self):
+        MESSAGE_ID = 6
+        self._ongoing_command = True
+        self.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._ongoing_command = False
+
+    def distance(self):
+        raise NotImplementedError()
+
+    def angle(self):
+        raise NotImplementedError()
+
+    def state(self):
+        raise NotImplementedError()
+
+    def reset(self):
+        raise NotImplementedError()
+
+
+    def settings(self,
+                 straight_speed : int = None,
+                 straight_acceleration : int = None,
+                 turn_rate : int = None,
+                 turn_acceleration : int = None):
+        raise NotImplementedError()
+
+    def done(self):
+        return self._ongoing_command
 
 #
 #
