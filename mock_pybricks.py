@@ -259,6 +259,13 @@ class ultrasonicsensor(PybricksDevice):
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
 
+    def presence(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["presence"]
+
  
 class Light():
 
