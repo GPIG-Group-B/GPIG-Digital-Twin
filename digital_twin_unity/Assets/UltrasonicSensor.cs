@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,15 +26,15 @@ public class UltrasonicSensor : Device
 
     }
 
-    private string Distance() 
+    private string Distance(string message_string) 
     {
-        Debug.Log("US Sensor Distance")
+        Debug.Log("US Sensor Distance");
         DistanceMessage message = JsonUtility.FromJson<DistanceMessage>(message_string);
         return JsonUtility.ToJson(new DistanceReturnMessage());
     }
-    private string Presence()
+    private string Presence(string message_string)
     {
-        Debug.Log("US Sensor Presence")
+        Debug.Log("US Sensor Presence");
         PresenceMessage message = JsonUtility.FromJson<PresenceMessage>(message_string);
         return JsonUtility.ToJson(new PresenceReturnMessage());
     }
