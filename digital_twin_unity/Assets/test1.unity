@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1495,6 +1495,7 @@ GameObject:
   - component: {fileID: 4713216301863067404}
   - component: {fileID: 4904401945171628116}
   - component: {fileID: 3812387192605937095}
+  - component: {fileID: 4904401945171628117}
   m_Layer: 0
   m_Name: RIght Motor
   m_TagString: Untagged
@@ -1736,6 +1737,7 @@ GameObject:
   - component: {fileID: 532595489590121209}
   - component: {fileID: 8866419586139847025}
   - component: {fileID: 6283619326025119242}
+  - component: {fileID: 8866419586139847026}
   m_Layer: 0
   m_Name: Steering Motor
   m_TagString: Untagged
@@ -1751,6 +1753,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3687656838794611166}
   m_Mesh: {fileID: 8729914667655528977, guid: 4099a31a180a28f43b3b356688784ccb, type: 3}
+--- !u!114 &4904401945171628117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3687656838794611166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e03fa4f8d49c20243938a05b171eb5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 65433
+  ip: localhost
+  wheelCollider: {fileID: 418903055}
 --- !u!4 &4909949699404586344
 Transform:
   m_ObjectHideFlags: 0
@@ -2575,6 +2592,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4811561993400366175}
   m_Mesh: {fileID: -1663534585640802642, guid: 4099a31a180a28f43b3b356688784ccb, type: 3}
+--- !u!114 &8866419586139847026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4811561993400366175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf0b5778eb6f4444f88fb75bcb8526f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 65434
+  ip: localhost
+  rightWheelCollider: {fileID: 1512490314}
+  leftWheelCollider: {fileID: 745301112}
 --- !u!23 &9039591649746693200
 MeshRenderer:
   m_ObjectHideFlags: 0
