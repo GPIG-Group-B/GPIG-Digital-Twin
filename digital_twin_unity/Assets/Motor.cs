@@ -117,7 +117,7 @@ public class Motor : Device
     {
         Debug.Log("Motor Track Target");
         TrackTargetMessage message = JsonUtility.FromJson<TrackTargetMessage>(message_string);
-        return JsonUtility.ToJson(new TrackTargetMessage(TrackTargetMessage));
+        return JsonUtility.ToJson(new TrackTargetMessage());
     }
 
     private class RunMessage
@@ -152,7 +152,7 @@ public class Motor : Device
 
     private class TrackTargetMessage 
     {
-        public int target_angle
+        public int target_angle;
     }
 
 
