@@ -25,6 +25,9 @@ public class Motor : Device
         this.message_dict.Add(4, Hold);
         this.message_dict.Add(5, Run);
         this.message_dict.Add(6, RunTime);
+        this.message_dict.Add(7, RunAngle);
+        this.message_dict.Add(8, RunTarget);
+        this.message_dict.Add(9, TrackTarget);
         base.Start();
     }
 
