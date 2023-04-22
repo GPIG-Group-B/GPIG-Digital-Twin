@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Motor : Device
+public class WheelMotor : Device
 {
     private static Int16 DEVICE_ID = 0;
     private string _positiveDirection;
