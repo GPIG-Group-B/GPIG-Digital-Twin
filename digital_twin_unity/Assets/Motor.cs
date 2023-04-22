@@ -88,11 +88,33 @@ public class Motor : Device
 
     private string RunTime(string message_string)
     {
-        Debug.Log("Motor Run");
+        Debug.Log("Motor Run Time");
         //Implement Hold
         RunTimeMessage message = JsonUtility.FromJson<RunTimeMessage>(message_string);
 
         return JsonUtility.ToJson(new RunTimeReturnMessage());
+    }
+
+    private string RunAngle(string message_string) 
+    {
+        Debug.Log("Motor Run Angle");
+        RunAngleMessage message = JsonUtility.FromJson<RunAngleMessage>(message_string);
+        return JsonUtility.ToJson(new RunAngleMessage());
+
+    }
+
+    private string RunTarget(string message_string) 
+    {
+        Debug.Log("Motor Run Target");
+        RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
+        return JsonUtility.ToJson(new RunTargetMessage()); 
+    }
+
+    private string TrackTarget(string message_string) 
+    {
+        Debug.Log("Motor Track Target");
+        TrackTargetMessage message = JsonUtility.FromJson<TrackTargetMessage>(message_string);
+        return JsonUtility.ToJson(new TrackTargetMessage(TrackTargetMessage));
     }
 
     private class RunMessage
@@ -108,6 +130,28 @@ public class Motor : Device
         public string then;
 
     }
+
+    private class RunAngleMessage 
+    {
+        public int speed;
+        public int rotation_angle;
+        public bool wait;
+        public string then;
+    }
+
+    private class RunTargetMessage
+    {
+        public int speed;
+        public int target_angle;
+        public bool wait;
+        public string then;
+    }
+
+    private class TrackTargetMessage 
+    {
+        public int target_angle
+    }
+
 
     private class InfoMessage
     {
@@ -130,7 +174,13 @@ public class Motor : Device
 
     private class RunReturnMessage { }
 
-    private class RunTimeReturnMessage { } 
+    private class RunTimeReturnMessage { }
+
+    private class RunAngleReturnMessage { }
+
+    private class RunTargetReturnMessage { }
+
+    private class TrackTargetReturnMessage { }
 
 
 
