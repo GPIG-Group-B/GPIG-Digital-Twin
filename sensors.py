@@ -1,6 +1,9 @@
-from pybricks.parameters import Direction
-from pybricks.pupdevices import Motor, UltrasonicSensor
-
+try:
+    from pybricks.parameters import Direction
+    from pybricks.pupdevices import Motor, UltrasonicSensor
+except:
+    from mock_pybricks import Direction
+    from mock_pybricks import Motor, UltrasonicSensor
 from utils import convert_str_to_port
 
 
@@ -40,8 +43,12 @@ class UltrasonicScanner:
             gear_ratio:
                 Gear ratio used on motor
         """
+        print(f"Initialising sensor motor on {motor_port}")
         self._motor = Motor(port=convert_str_to_port(motor_port),
-                            positive_direction=Direction.CLOCKWISE)
+                            positive_direction=Direction.CLOCKWISE,
+                            gears=[gear_ratio],
+                            reset_angle=False)
+        print("Completed initialising sensor motor")
         self._sensor = UltrasonicSensor(port=convert_str_to_port(sensor_port))
         self._gear_ratio = gear_ratio
         self._default_scan_start_deg = default_scan_start_deg
@@ -62,13 +69,15 @@ class UltrasonicScanner:
             list[Tuple(angle, distance))] : List of angles and distance tuples
         """
         self._motor.run_target(360,
-                               scan_start_deg * self._gear_ratio)
+                               scan_start_deg)
+        print(f"Moving US Sensor to {scan_start_deg} degrees")
         self._motor.run_target(200,
-                               scan_end_deg * self._gear_ratio,
+                               scan_end_deg,
                                wait=False)
         self._sensor.lights.on(100)
         scan_data = []
-        while self._motor.angle() != (scan_end_deg * self._gear_ratio):
+        while self._motor.angle() != (scan_end_deg):
+            print(self._motor.angle())
             scan_data.append(self.poll())
         self._sensor.lights.off()
         self._motor.run_target(360,
@@ -103,4 +112,4 @@ class UltrasonicScanner:
             float : Current angle the sensor is at (not the same as the motor angle)
 
         """
-        return self._motor.angle() / self._gear_ratio
+        return self._motor.angle()
