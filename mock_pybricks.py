@@ -63,6 +63,7 @@ class Motor(PybricksDevice):
                  reset_angle: bool):
         super().__init__(port,
                          device_type_id=0)
+        print("Finished setup of port")
         self._positive_direction = positive_direction
         self._gears = gears
         self._reset_angle = reset_angle
@@ -76,7 +77,10 @@ class Motor(PybricksDevice):
         return self._speed
 
     def angle(self):
-        return self._angle
+        MESSAGE_ID = 10
+        return_message = self.send_message(data={},
+                 message_id=MESSAGE_ID)
+        return return_message["angle"]
 
     def reset_angle(self, angle : int):
         self._angle = angle
@@ -245,7 +249,7 @@ class DriveBase(PybricksDevice):
         return self._ongoing_command
 
 
-class ultrasonicsensor(PybricksDevice):
+class UltrasonicSensor(PybricksDevice):
     def __init__(self,
                  port):
         super().__init__(port=port,
@@ -269,8 +273,8 @@ class ultrasonicsensor(PybricksDevice):
  
 class Light():
 
-    def on(self):
-        raise NotImplementedError()
+    def on(self, brightness : int):
+        print("Warning : Lights on is not implemented")
 
     def off(self):
-        raise NotImplementedError()
+        print("Warning : Lights off is not implemented")
