@@ -24,9 +24,9 @@ def main():
                                         default_scan_end_deg=constants.SCAN_END,
                                         gear_ratio=constants.GEAR_RATIO)
     print("RUNNING MOTOR")
-    test_motor_left.run(100)
-    test_motor_right.run(100)
-    test_steering_motor.track_target(45)
+    #test_motor_left.run(100)
+    #test_motor_right.run(100)
+    #test_steering_motor.track_target(45)
     test_us_scanner.sweep()
     print("Waiting")
     time.sleep(2)
