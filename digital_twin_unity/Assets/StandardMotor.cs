@@ -19,32 +19,42 @@ public class StandardMotor : Device
     public bool rotate_y;
     public bool rotate_z;
 
+    private static UInt16 _INFO_MESSAGE_ID = 1;
+    private static UInt16 _STOP_MESSAGE_ID = 2;
+    private static UInt16 _BRAKE_MESSAGE_ID = 3;
+    private static UInt16 _HOLD_MESSAGE_ID = 4;
+    private static UInt16 _RUN_MESSAGE_ID = 5;
+    private static UInt16 _RUN_TIME_MESSAGE_ID = 6;
+    private static UInt16 _RUN_ANGLE_MESSAGE_ID = 7;
+    private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
+    private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
+    private static UInt16 _ANGLE_MESSAGE_ID = 10;
+
 
 
 
     protected override void Start()
     {
         this.deviceID = DEVICE_ID;
-        this.message_dict.Add(1, Info);
-        this.message_dict.Add(2, Stop);
-        this.message_dict.Add(3, Brake);
-        this.message_dict.Add(4, Hold);
-        this.message_dict.Add(5, Run);
-        this.message_dict.Add(6, RunTime);
-        this.message_dict.Add(7, RunAngle);
-        this.message_dict.Add(8, RunTarget);
-        this.message_dict.Add(9, TrackTarget);
-        this.message_dict.Add(10, Angle);
+        this.message_dict.Add(_INFO_MESSAGE_ID, Info);
+        this.message_dict.Add(_STOP_MESSAGE_ID, Stop);
+        this.message_dict.Add(_BRAKE_MESSAGE_ID, Brake);
+        this.message_dict.Add(_HOLD_MESSAGE_ID, Hold);
+        this.message_dict.Add(_RUN_MESSAGE_ID, Run);
+        this.message_dict.Add(_RUN_TIME_MESSAGE_ID, RunTime);
+        this.message_dict.Add(_RUN_ANGLE_MESSAGE_ID, RunAngle);
+        this.message_dict.Add(_RUN_TARGET_MESSAGE_ID, RunTarget);
+        this.message_dict.Add(_TRACK_TARGET_MESSAGE_ID, TrackTarget);
+        this.message_dict.Add(_ANGLE_MESSAGE_ID, Angle);
         if (rotate_x) { _rotationAxis = Vector3.right; }
         if (rotate_y) { _rotationAxis = Vector3.up; }
         if (rotate_z) { _rotationAxis = Vector3.forward; }
-        Debug.Log("ROTATION VECTOR : " + _rotationAxis.ToString());
         
         base.Start();
     }
 
 
-    private string Info(string message_string)
+    private void Info(string message_string)
     {
         Debug.Log("Info Message");
         InfoMessage message = JsonUtility.FromJson<InfoMessage>(message_string);
@@ -57,7 +67,9 @@ public class StandardMotor : Device
         _angle = message.angle;
         _load = message.load;
         Debug.Log(message_string);
-        return JsonUtility.ToJson(new InfoReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new InfoReturnMessage()),
+                                        messageID : _INFO_MESSAGE_ID);
+        
         
 
 
@@ -84,79 +96,92 @@ public class StandardMotor : Device
         }
     }
 
-    private string Angle(string message_string)
+    private void Angle(string message_string)
     {
         float angle = GetCurrentRotationAngle();
         Debug.Log("ANGLE : " + angle);
         AngleReturnMessage returnMessage = new AngleReturnMessage();
         returnMessage.angle = (int) angle;
-        return JsonUtility.ToJson(returnMessage);
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage),
+                                        messageID: _ANGLE_MESSAGE_ID);
     }
 
 
-    private string Stop(string message_string)
+    private void Stop(string message_string)
     {
         Debug.Log("Motor Stop");
         //Implement stop
 
-        return JsonUtility.ToJson(new StopReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new StopReturnMessage()), _STOP_MESSAGE_ID);
     }
-    private string Brake(string message_string)
+    private void Brake(string message_string)
     {
         Debug.Log("Motor Brake");
         //Implement Brake
 
-        return JsonUtility.ToJson(new BrakeReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new BrakeReturnMessage()), _BRAKE_MESSAGE_ID);
     }
 
-    private string Hold(string message_string)
+    private void Hold(string message_string)
     {
         Debug.Log("Motor Hold");
         //Implement Brake
 
-        return JsonUtility.ToJson(new HoldReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new HoldReturnMessage()), _HOLD_MESSAGE_ID);
     }
-    private string Run(string message_string)
+    private void Run(string message_string)
     {
         Debug.Log("Motor Run");
         //Implement Hold
         Debug.Log(message_string);
         RunMessage message = JsonUtility.FromJson<RunMessage>(message_string);
-        return JsonUtility.ToJson(new RunReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunReturnMessage()), _RUN_MESSAGE_ID);
     }
 
-    private string RunTime(string message_string)
+    private void RunTime(string message_string)
     {
         Debug.Log("Motor Run Time");
         //Implement Hold
         RunTimeMessage message = JsonUtility.FromJson<RunTimeMessage>(message_string);
 
-        return JsonUtility.ToJson(new RunTimeReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTimeReturnMessage()), _RUN_TIME_MESSAGE_ID);
     }
 
-    private string RunAngle(string message_string)
+    private void RunAngle(string message_string)
     {
         Debug.Log("Motor Run Angle");
         RunAngleMessage message = JsonUtility.FromJson<RunAngleMessage>(message_string);
-        return JsonUtility.ToJson(new RunAngleMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunAngleMessage()), _RUN_ANGLE_MESSAGE_ID);
 
     }
 
-    private string RunTarget(string message_string)
+    private void RunTarget(string message_string)
     {
         Debug.Log("Motor Run Target");
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
-        StartCoroutine(RotateSmoothly(targetAngle : message.target_angle,
-                                      degreesPerSecond : message.speed));
-        return JsonUtility.ToJson(new RunTargetMessage());
+        StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
+                                      degreesPerSecond: message.speed));
+        if (message.wait) 
+        {
+            Debug.Log("Must WAIT");
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
+                                          degreesPerSecond: message.speed,
+                                          messageID: _RUN_TARGET_MESSAGE_ID,
+                                          message: JsonUtility.ToJson(new RunTargetMessage()))); 
+        }
+        else
+        {
+            Debug.Log("Does not have to wait");
+            AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
+        }
     }
 
-    private string TrackTarget(string message_string)
+    private void TrackTarget(string message_string)
     {
         Debug.Log("Motor Track Target");
         TrackTargetMessage message = JsonUtility.FromJson<TrackTargetMessage>(message_string);
         attachedObject.transform.localRotation = Quaternion.Euler(_rotationAxis * message.target_angle);
-        return JsonUtility.ToJson(new TrackTargetMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new TrackTargetMessage()), _TRACK_TARGET_MESSAGE_ID);
     }
 
     private class RunMessage
@@ -233,19 +258,46 @@ public class StandardMotor : Device
 
     IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond)
     {
+        int directionFactor;
+        if (targetAngle < 0) { directionFactor = -1; }
+        else { directionFactor = 1; }
         Quaternion desired_angle = Quaternion.Euler(_rotationAxis * targetAngle);
         while (true) {
-            attachedObject.transform.Rotate(_rotationAxis * degreesPerSecond * Time.deltaTime);
-            if (Quaternion.Angle(attachedObject.transform.localRotation, desired_angle) <= 0.1) 
+            if (Quaternion.Angle(attachedObject.transform.localRotation, desired_angle) <= 1) 
             {
                 attachedObject.transform.localRotation = desired_angle;
                 Debug.Log("Hit required angle");
                 break;
             }
-            yield return new WaitForSeconds(0.0001f);
             Debug.Log("Not hit angle. Difference is : " + Quaternion.Angle(attachedObject.transform.localRotation, desired_angle));
+            attachedObject.transform.Rotate(_rotationAxis * degreesPerSecond * Time.deltaTime * directionFactor);
+            yield return new WaitForSeconds(0.000001f);
 
         }
+        yield return null;
+    }
+
+    // TODO: Make this method less wasteful 
+    IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond, UInt16 messageID, string message)
+    {
+        int directionFactor;
+        if (targetAngle < 0) { directionFactor = -1; }
+        else { directionFactor = 1; }
+        Quaternion desired_angle = Quaternion.Euler(_rotationAxis * targetAngle);
+        while (true)
+        {
+            if (Quaternion.Angle(attachedObject.transform.localRotation, desired_angle) <= 1)
+            {
+                attachedObject.transform.localRotation = desired_angle;
+                Debug.Log("Hit required angle");
+                break;
+            }
+            attachedObject.transform.Rotate(_rotationAxis * degreesPerSecond * Time.deltaTime * directionFactor);
+            Debug.Log("Not hit angle. Difference is : " + Quaternion.Angle(attachedObject.transform.localRotation, desired_angle));
+            yield return new WaitForSeconds(0.000001f);
+
+        }
+        AddReturnMessageToOutboundQueue(message, messageID);
         yield return null;
     }
 
