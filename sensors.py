@@ -77,7 +77,6 @@ class UltrasonicScanner:
         self._sensor.lights.on(100)
         scan_data = []
         while self._motor.angle() != (scan_end_deg):
-            print(self._motor.angle())
             scan_data.append(self.poll())
         self._sensor.lights.off()
         self._motor.run_target(360,
@@ -113,3 +112,7 @@ class UltrasonicScanner:
 
         """
         return self._motor.angle()
+
+    def send_shutdown_message(self):
+        self._motor.send_shutdown_message()
+        self._sensor.send_shutdown_message()
