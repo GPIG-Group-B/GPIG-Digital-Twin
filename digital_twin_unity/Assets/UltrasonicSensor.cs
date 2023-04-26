@@ -7,36 +7,40 @@ public class UltrasonicSensor : Device
 {
     private static Int16 DEVICE_ID = 1;
 
+    private static UInt16 _INFO_MESSAGE_ID = 1;
+    private static UInt16 _DISTANCE_MESSAGE_ID = 2;
+    private static UInt16 _PRESENCE_MESSAGE_ID = 3;
+
     protected override void Start()
     {
         this.deviceID = DEVICE_ID;
         //TODO : Move this into the device, make info an overridable method 
-        this.message_dict.Add(1, Info);
-        this.message_dict.Add(2, Distance);
-        this.message_dict.Add(3, Presence);
+        this.message_dict.Add(_INFO_MESSAGE_ID, Info);
+        this.message_dict.Add(_DISTANCE_MESSAGE_ID, Distance);
+        this.message_dict.Add(_PRESENCE_MESSAGE_ID, Presence);
         base.Start();
     }
 
 
-    private string Info(string message_string)
+    private void Info(string message_string)
     {
         Debug.Log("US Sensor Info Message");
         InfoMessage message = JsonUtility.FromJson<InfoMessage>(message_string);
-        return JsonUtility.ToJson(new InfoReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new InfoReturnMessage()), _INFO_MESSAGE_ID);
 
     }
 
-    private string Distance(string message_string) 
+    private void Distance(string message_string) 
     {
         Debug.Log("US Sensor Distance");
         DistanceMessage message = JsonUtility.FromJson<DistanceMessage>(message_string);
-        return JsonUtility.ToJson(new DistanceReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new DistanceReturnMessage()), _DISTANCE_MESSAGE_ID);
     }
-    private string Presence(string message_string)
+    private void Presence(string message_string)
     {
         Debug.Log("US Sensor Presence");
         PresenceMessage message = JsonUtility.FromJson<PresenceMessage>(message_string);
-        return JsonUtility.ToJson(new PresenceReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new PresenceReturnMessage()), _PRESENCE_MESSAGE_ID);
     }
 
 

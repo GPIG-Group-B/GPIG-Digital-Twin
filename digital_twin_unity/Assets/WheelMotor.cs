@@ -15,24 +15,38 @@ public class WheelMotor : Device
 
     public WheelCollider wheelCollider;
 
+    private static UInt16 _INFO_MESSAGE_ID = 1;
+    private static UInt16 _STOP_MESSAGE_ID = 2;
+    private static UInt16 _BRAKE_MESSAGE_ID = 3;
+    private static UInt16 _HOLD_MESSAGE_ID = 4;
+    private static UInt16 _RUN_MESSAGE_ID = 5;
+    private static UInt16 _RUN_TIME_MESSAGE_ID = 6;
+    private static UInt16 _RUN_ANGLE_MESSAGE_ID = 7;
+    private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
+    private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
 
-    protected override void Start() 
+
+
+
+
+    protected override void Start()
     {
         this.deviceID = DEVICE_ID;
-        this.message_dict.Add(1, Info);
-        this.message_dict.Add(2, Stop);
-        this.message_dict.Add(3, Brake);
-        this.message_dict.Add(4, Hold);
-        this.message_dict.Add(5, Run);
-        this.message_dict.Add(6, RunTime);
-        this.message_dict.Add(7, RunAngle);
-        this.message_dict.Add(8, RunTarget);
-        this.message_dict.Add(9, TrackTarget);
+        this.message_dict.Add(_INFO_MESSAGE_ID, Info);
+        this.message_dict.Add(_STOP_MESSAGE_ID, Stop);
+        this.message_dict.Add(_BRAKE_MESSAGE_ID, Brake);
+        this.message_dict.Add(_HOLD_MESSAGE_ID, Hold);
+        this.message_dict.Add(_RUN_MESSAGE_ID, Run);
+        this.message_dict.Add(_RUN_TIME_MESSAGE_ID, RunTime);
+        this.message_dict.Add(_RUN_ANGLE_MESSAGE_ID, RunAngle);
+        this.message_dict.Add(_RUN_TARGET_MESSAGE_ID, RunTarget);
+        this.message_dict.Add(_TRACK_TARGET_MESSAGE_ID, TrackTarget);
+
         base.Start();
     }
 
 
-    private string Info(string message_string)
+    private void Info(string message_string)
     {
         Debug.Log("Info Message");
         InfoMessage message = JsonUtility.FromJson<InfoMessage>(message_string);
@@ -44,7 +58,7 @@ public class WheelMotor : Device
         _angle = message.angle;
         _load = message.load;
         Debug.Log(message_string);
-        return JsonUtility.ToJson(new InfoReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new InfoReturnMessage()), _INFO_MESSAGE_ID);
 
 
 
@@ -54,29 +68,29 @@ public class WheelMotor : Device
 
 
 
-    private string Stop(string message_string)
+    private void Stop(string message_string)
     {
         Debug.Log("Motor Stop");
         //Implement stop
 
-        return JsonUtility.ToJson(new StopReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new StopReturnMessage()), _STOP_MESSAGE_ID);
     }
-    private string Brake(string message_string)
+    private void Brake(string message_string)
     {
         Debug.Log("Motor Brake");
         //Implement Brake
 
-        return JsonUtility.ToJson(new BrakeReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new BrakeReturnMessage()), _BRAKE_MESSAGE_ID);
     }
 
-    private string Hold(string message_string)
+    private void Hold(string message_string)
     {
         Debug.Log("Motor Hold");
         //Implement Brake
 
-        return JsonUtility.ToJson(new HoldReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new HoldReturnMessage()), _HOLD_MESSAGE_ID);
     }
-    private string Run(string message_string)
+    private void Run(string message_string)
     {
         Debug.Log("Motor Run");
         //Implement Hold
@@ -86,38 +100,38 @@ public class WheelMotor : Device
         Debug.Log("Set motor speed to : " + message.speed);
         Debug.Log(wheelCollider.rpm);
 
-        return JsonUtility.ToJson(new RunReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunReturnMessage()), _RUN_MESSAGE_ID);
     }
 
-    private string RunTime(string message_string)
+    private void RunTime(string message_string)
     {
         Debug.Log("Motor Run Time");
         //Implement Hold
         RunTimeMessage message = JsonUtility.FromJson<RunTimeMessage>(message_string);
 
-        return JsonUtility.ToJson(new RunTimeReturnMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTimeReturnMessage()), _RUN_TIME_MESSAGE_ID);
     }
 
-    private string RunAngle(string message_string) 
+    private void RunAngle(string message_string) 
     {
         Debug.Log("Motor Run Angle");
         RunAngleMessage message = JsonUtility.FromJson<RunAngleMessage>(message_string);
-        return JsonUtility.ToJson(new RunAngleMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunAngleMessage()), _RUN_ANGLE_MESSAGE_ID);
 
     }
 
-    private string RunTarget(string message_string) 
+    private void RunTarget(string message_string) 
     {
         Debug.Log("Motor Run Target");
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
-        return JsonUtility.ToJson(new RunTargetMessage()); 
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID); 
     }
 
-    private string TrackTarget(string message_string) 
+    private void TrackTarget(string message_string) 
     {
         Debug.Log("Motor Track Target");
         TrackTargetMessage message = JsonUtility.FromJson<TrackTargetMessage>(message_string);
-        return JsonUtility.ToJson(new TrackTargetMessage());
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new TrackTargetMessage()), _TRACK_TARGET_MESSAGE_ID);
     }
 
     private class RunMessage

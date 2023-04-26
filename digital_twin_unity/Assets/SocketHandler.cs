@@ -34,7 +34,7 @@ public class SocketHandler
         socket.Send(Data_to_send);
     }
 
-    public void SendJSONMessage(Int16 messageID, string jsonMessage) 
+    public void SendJSONMessage(UInt16 messageID, string jsonMessage) 
     {
         Byte[] encodedMessageID =  BitConverter.GetBytes(messageID);
         Byte[] encodedJSONMessage = System.Text.Encoding.UTF8.GetBytes(jsonMessage);
@@ -106,10 +106,10 @@ public class SocketHandler
     }
 
 
-    public (Int16, string) get_device_message()
+    public (UInt16, string) get_device_message()
     {
-        Int16 messageID = GetHeaderData();
-        Int16 messageSize = GetHeaderData();
+        UInt16 messageID = GetHeaderData();
+        UInt16 messageSize = GetHeaderData();
 
         String message_json_string = System.Text.Encoding.UTF8.GetString(ReceiveData(lengthOfDataToReceive: messageSize));
 
@@ -117,9 +117,9 @@ public class SocketHandler
         return (messageID, message_json_string);
     }
 
-    public Int16 GetHeaderData() 
+    public UInt16 GetHeaderData() 
     {
-        return BitConverter.ToInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
+        return BitConverter.ToUInt16(ReceiveData(lengthOfDataToReceive: HEADER_SIZE), 0);
     }
 
 

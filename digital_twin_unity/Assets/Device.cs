@@ -16,7 +16,7 @@ public abstract class Device : MonoBehaviour
     public string ip;
     protected int deviceID;
     protected SocketHandler socketHandler;
-    protected Dictionary<Int16, Func<string, string>> message_dict = new Dictionary<Int16, Func<string, string>>();
+    protected Dictionary<UInt16, Action<string>> message_dict = new Dictionary<UInt16, Action<string>>();
     protected BlockingCollection<Message> inboundMessageQueue = new BlockingCollection<Message>(new ConcurrentQueue<Message>());
     protected BlockingCollection<Message> outboundMessageQueue = new BlockingCollection<Message>(new ConcurrentQueue<Message>());
     private Thread socketThread;
@@ -33,17 +33,22 @@ public abstract class Device : MonoBehaviour
         Message inboundMessage;
         if (inboundMessageQueue.TryTake(out inboundMessage)) 
         {
-            string returnMessage = message_dict[inboundMessage.messageID](inboundMessage.jsonString);
-            Message outboundMessage = new Message();
-            outboundMessage.jsonString = returnMessage;
-            outboundMessage.messageID = inboundMessage.messageID;
-            outboundMessageQueue.Add(outboundMessage);
+            message_dict[inboundMessage.messageID](inboundMessage.jsonString);
+            
         }
+    }
+
+    protected void AddReturnMessageToOutboundQueue(string returnMessage, UInt16 messageID) 
+    {
+        Message outboundMessage = new Message();
+        outboundMessage.jsonString = returnMessage;
+        outboundMessage.messageID = messageID;
+        outboundMessageQueue.Add(outboundMessage);
     }
 
     protected virtual void CheckDeviceID() 
     {
-        Int16 received_device_id = this.socketHandler.GetHeaderData();
+        UInt16 received_device_id = this.socketHandler.GetHeaderData();
         if (received_device_id != deviceID)
         {
             throw new Exception("receive device id: " + received_device_id + ". Expected deviceID:" + deviceID);
@@ -109,7 +114,7 @@ public abstract class Device : MonoBehaviour
 
     protected struct Message 
     {
-        public Int16 messageID;
+        public UInt16 messageID;
         public string jsonString;
     }
 
