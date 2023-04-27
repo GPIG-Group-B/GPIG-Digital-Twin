@@ -149,11 +149,13 @@ class Rover:
 
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
                                         target_angle=angle)
-
-        rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
-        arc = 360 * (distance / (2 * math.pi * rad))
-        self._drive_base.curve(radius=rad,
-                               angle=arc)
+        if angle == 0:
+            self._drive_base.straight(distance=distance)
+        else:
+            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
+            arc = 360 * (distance / (2 * math.pi * rad))
+            self._drive_base.curve(radius=rad,
+                                   angle=arc)
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
