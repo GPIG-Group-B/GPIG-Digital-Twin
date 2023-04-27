@@ -107,7 +107,7 @@ public class WheelMotor : Device
     {
         Debug.Log("Motor Run Time");
         //Implement Hold
-        string returnMessage = JsonUtility.ToJson(new RunTimeReturnMessage())
+        string returnMessage = JsonUtility.ToJson(new RunTimeReturnMessage());
         RunTimeMessage message = JsonUtility.FromJson<RunTimeMessage>(message_string);
         if (message.wait)
         {
