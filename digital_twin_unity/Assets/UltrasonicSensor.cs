@@ -34,7 +34,25 @@ public class UltrasonicSensor : Device
     {
         Debug.Log("US Sensor Distance");
         DistanceMessage message = JsonUtility.FromJson<DistanceMessage>(message_string);
-        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new DistanceReturnMessage()), _DISTANCE_MESSAGE_ID);
+        DistanceReturnMessage returnMessage = new DistanceReturnMessage();
+
+        RaycastHit hit;
+        Vector3 fwd = transform.TransformDirection(transform.forward);
+
+        // 2 as max distance for sensor is 2000mm = 200cm = 2meteres (1 unit is 1 meter in unity)
+        if (Physics.Raycast(transform.position,fwd, out hit, 2))
+        {
+            print("There is something in front of the object!");
+            Debug.DrawRay(transform.position, fwd * hit.distance, Color.yellow);
+            returnMessage.distance = (Int16) (hit.distance * 1000);
+        }
+        else 
+        {
+            print("There is nothing. Returning 2000mm");
+            returnMessage.distance = 2000;
+            Debug.DrawRay(transform.position, fwd * 2, Color.white);
+        }
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage), _DISTANCE_MESSAGE_ID);
     }
     private void Presence(string message_string)
     {
