@@ -4,8 +4,16 @@ def main():
     from mock_pybricks import Motor, Port, Direction
     from sensors import UltrasonicScanner
     import constants
+    from map import Map
+
+    minimap = Map(size_x = 1,
+                  size_y = 1,
+                  resolution=0.01,
+                  starting_position_x=0,
+                  starting_position_y=0.025)
     # test_worker = TCPWorker()
     # test_worker.start()
+
     test_motor_left = Motor(port = Port.A,
                     positive_direction=Direction.CLOCKWISE,
                     gears=[],
@@ -27,7 +35,8 @@ def main():
     #test_motor_left.run(100)
     #test_motor_right.run(100)
     #test_steering_motor.track_target(45)
-    test_us_scanner.sweep()
+    scan_data = test_us_scanner.sweep()
+    print(scan_data)
     print("Waiting")
     time.sleep(2)
     #test_steering_motor.track_target(-45)
