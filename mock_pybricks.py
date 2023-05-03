@@ -9,7 +9,8 @@ class Direction:
 class PybricksDevice:
 
     def __init__(self, port, device_type_id):
-        self._port, self._additional_data = setup_server_connction(**port,
+        self._port, self._additional_data = setup_server_connction(ip=port.ip,
+                                                                   port = port.port,
                                                                    num_connections=1)
         self._DEVICE_TYPE_ID = device_type_id
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
@@ -51,8 +52,8 @@ class Motor(PybricksDevice):
     def __init__(self,
                  port: dict,
                  positive_direction: Direction,
-                 gears: list,
-                 reset_angle: bool):
+                 gears : list = None,
+                 reset_angle: bool = False):
         super().__init__(port,
                          device_type_id=0)
         print("Finished setup of port")
@@ -151,7 +152,7 @@ class Motor(PybricksDevice):
         return self._ongoing_command
 
 
-class DriveBase(PybricksDevice):
+class DriveBase():
 
     def __init__(self,
                  left_motor : Motor,
@@ -171,9 +172,8 @@ class DriveBase(PybricksDevice):
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
-        self.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
+        self._left_motor.run(55)
+        self._right_motor.run(55)
 
     def turn(self,
              angle : int,
@@ -181,7 +181,10 @@ class DriveBase(PybricksDevice):
              wait : bool =True):
         MESSAGE_ID = 3
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -193,7 +196,10 @@ class DriveBase(PybricksDevice):
               wait : bool =True):
         MESSAGE_ID = 4
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -203,7 +209,10 @@ class DriveBase(PybricksDevice):
               turn_rate : int):
         MESSAGE_ID = 5
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -212,7 +221,10 @@ class DriveBase(PybricksDevice):
     def stop(self):
         MESSAGE_ID = 6
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
