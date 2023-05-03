@@ -99,7 +99,6 @@ public class StandardMotor : Device
     private void Angle(string message_string)
     {
         float angle = GetCurrentRotationAngle();
-        Debug.Log("ANGLE : " + angle);
         AngleReturnMessage returnMessage = new AngleReturnMessage();
         returnMessage.angle = (int) angle;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage),
@@ -159,11 +158,10 @@ public class StandardMotor : Device
     {
         Debug.Log("Motor Run Target");
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
-        StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
-                                      degreesPerSecond: message.speed));
+
         if (message.wait) 
         {
-            Debug.Log("Must WAIT");
+
             StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
                                           degreesPerSecond: message.speed,
                                           messageID: _RUN_TARGET_MESSAGE_ID,
@@ -171,7 +169,9 @@ public class StandardMotor : Device
         }
         else
         {
-            Debug.Log("Does not have to wait");
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
+                              degreesPerSecond: message.speed));
+
             AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
         }
     }
@@ -259,46 +259,81 @@ public class StandardMotor : Device
     IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond)
     {
         int directionFactor;
-        if (targetAngle < 0) { directionFactor = -1; }
+        float alpha = targetAngle - GetCurrentRotationAngle();
+        float beta = alpha + 360;
+        float gamma = alpha - 360;
+        float[] possibleValues = { alpha, beta, gamma };
+        float currentMinAbsValue = Mathf.Abs(possibleValues[0]);
+        float currentShortestValue = possibleValues[0];
+        for (int i = 1; i < 3; i++)
+        {
+            float absVal = Mathf.Abs(possibleValues[i]);
+            if (absVal < currentMinAbsValue)
+            {
+                currentMinAbsValue = absVal;
+                currentShortestValue = possibleValues[i];
+            }
+        }
+
+
+        if (currentShortestValue < 0) { directionFactor = -1; }
         else { directionFactor = 1; }
         Quaternion desired_angle = Quaternion.Euler(_rotationAxis * targetAngle);
         while (true) {
-            if (Quaternion.Angle(attachedObject.transform.localRotation, desired_angle) <= 1) 
+            float angleDiff = Quaternion.Angle(attachedObject.transform.localRotation, desired_angle);
+            if ( angleDiff <= 1) 
             {
                 attachedObject.transform.localRotation = desired_angle;
-                Debug.Log("Hit required angle");
-                break;
+
+                yield break;
             }
-            Debug.Log("Not hit angle. Difference is : " + Quaternion.Angle(attachedObject.transform.localRotation, desired_angle));
+
             attachedObject.transform.Rotate(_rotationAxis * degreesPerSecond * Time.deltaTime * directionFactor);
-            yield return new WaitForSeconds(0.000001f);
+            yield return null;
 
         }
-        yield return null;
     }
 
     // TODO: Make this method less wasteful 
     IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond, UInt16 messageID, string message)
     {
         int directionFactor;
-        if (targetAngle < 0) { directionFactor = -1; }
+        float alpha = targetAngle - GetCurrentRotationAngle();
+        float beta = alpha + 360;
+        float gamma = alpha - 360;
+        float[] possibleValues = { alpha, beta, gamma };
+        float currentMinAbsValue = Mathf.Abs(possibleValues[0]);
+        float currentShortestValue = possibleValues[0];
+        for (int i = 1; i < 3; i++) 
+        {
+            float absVal = Mathf.Abs(possibleValues[i]);
+            if (absVal < currentMinAbsValue) 
+            {
+                currentMinAbsValue = absVal;
+                currentShortestValue = possibleValues[i];
+            }
+        }
+
+
+
+        if (currentShortestValue < 0) { directionFactor = -1; }
         else { directionFactor = 1; }
+        Debug.Log("DIRECTION FACTOR : " + directionFactor);
         Quaternion desired_angle = Quaternion.Euler(_rotationAxis * targetAngle);
         while (true)
         {
             if (Quaternion.Angle(attachedObject.transform.localRotation, desired_angle) <= 1)
             {
                 attachedObject.transform.localRotation = desired_angle;
-                Debug.Log("Hit required angle");
-                break;
+                AddReturnMessageToOutboundQueue(message, messageID);
+                yield break;
             }
             attachedObject.transform.Rotate(_rotationAxis * degreesPerSecond * Time.deltaTime * directionFactor);
-            Debug.Log("Not hit angle. Difference is : " + Quaternion.Angle(attachedObject.transform.localRotation, desired_angle));
-            yield return new WaitForSeconds(0.000001f);
+            yield return null;
 
         }
-        AddReturnMessageToOutboundQueue(message, messageID);
-        yield return null;
+
+
     }
 
 

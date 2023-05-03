@@ -107,9 +107,22 @@ public class WheelMotor : Device
     {
         Debug.Log("Motor Run Time");
         //Implement Hold
+        string returnMessage = JsonUtility.ToJson(new RunTimeReturnMessage());
         RunTimeMessage message = JsonUtility.FromJson<RunTimeMessage>(message_string);
-
-        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTimeReturnMessage()), _RUN_TIME_MESSAGE_ID);
+        if (message.wait)
+        {
+            StartCoroutine(ApplyTorqueTime(torque: message.speed,
+                                           seconds: message.time,
+                                           messageID : _RUN_TIME_MESSAGE_ID,
+                                           message : returnMessage));
+        }
+        else 
+        {
+            StartCoroutine(ApplyTorqueTime(torque: message.speed, seconds: message.time));
+            AddReturnMessageToOutboundQueue(returnMessage,
+                                            _RUN_TIME_MESSAGE_ID);
+        }
+        
     }
 
     private void RunAngle(string message_string) 
@@ -201,6 +214,36 @@ public class WheelMotor : Device
 
 
 
+    IEnumerator ApplyTorqueTime(int torque, int seconds)
+    {
+        wheelCollider.motorTorque = torque;
+        bool completed = false;
+        if (!completed)
+        {
+            completed = true;
+            yield return new WaitForSeconds(seconds);
+
+        }
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 100;
+        yield return null;
+    }
+
+    IEnumerator ApplyTorqueTime(int torque, int seconds, UInt16 messageID, string message)
+    {
+        wheelCollider.motorTorque = torque;
+        bool completed = false;
+        if (!completed)
+        {
+            completed = true;
+            yield return new WaitForSeconds(seconds);
+
+        }
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 100;
+        AddReturnMessageToOutboundQueue(message, messageID);
+        yield return null;
+    }
 
 
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Net.Sockets;
 using System;
 using System.Linq;
+using UnityEditor.Networking.PlayerConnection;
 
 public class SocketHandler
 {
@@ -84,16 +85,20 @@ public class SocketHandler
         //set up the new socket
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //attempt to connect to the port
-        try 
+        while (true)
         {
-            socket.Connect(ip, port); 
-        }
-        catch (SocketException e)
-        { 
-            Debug.LogException(e);
-            Debug.Log(String.Format("Error connecting to IP : {0} | PORT : {1}. Waiting 3 seconds then retying",
-                this.ip, this.port));
-            System.Threading.Thread.Sleep(3000);
+            try
+            {
+                socket.Connect(ip, port);
+                break;
+            }
+            catch (SocketException e)
+            {
+                Debug.LogException(e);
+                Debug.Log(String.Format("Error connecting to IP : {0} | PORT : {1}. Waiting 3 seconds then retying",
+                    this.ip, this.port));
+                System.Threading.Thread.Sleep(3000);
+            }
         }
 
         //send initialisation code

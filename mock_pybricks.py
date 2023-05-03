@@ -1,14 +1,6 @@
 from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
 import socket
 
-class Port:
-    A = {"ip" : "localhost", "port" : 65432}
-    B = {"ip" : "localhost", "port" : 65433}
-    C = {"ip" : "localhost", "port" : 65434}
-    D = {"ip" : "localhost", "port" : 65435}
-    E = {"ip" : "localhost", "port" : 65436}
-    F = {"ip" : "localhost", "port" : 65437}
-
 class Direction:
 
     COUNTER_CLOCKWISE = "counter_clockwise"
@@ -17,7 +9,8 @@ class Direction:
 class PybricksDevice:
 
     def __init__(self, port, device_type_id):
-        self._port, self._additional_data = setup_server_connction(**port,
+        self._port, self._additional_data = setup_server_connction(ip=port.ip,
+                                                                   port = port.port,
                                                                    num_connections=1)
         self._DEVICE_TYPE_ID = device_type_id
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
@@ -59,8 +52,8 @@ class Motor(PybricksDevice):
     def __init__(self,
                  port: dict,
                  positive_direction: Direction,
-                 gears: list,
-                 reset_angle: bool):
+                 gears : list = None,
+                 reset_angle: bool = False):
         super().__init__(port,
                          device_type_id=0)
         print("Finished setup of port")
@@ -159,7 +152,7 @@ class Motor(PybricksDevice):
         return self._ongoing_command
 
 
-class DriveBase(PybricksDevice):
+class DriveBase():
 
     def __init__(self,
                  left_motor : Motor,
@@ -179,9 +172,8 @@ class DriveBase(PybricksDevice):
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
-        self.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
+        self._left_motor.run(55)
+        self._right_motor.run(55)
 
     def turn(self,
              angle : int,
@@ -189,7 +181,10 @@ class DriveBase(PybricksDevice):
              wait : bool =True):
         MESSAGE_ID = 3
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -201,7 +196,10 @@ class DriveBase(PybricksDevice):
               wait : bool =True):
         MESSAGE_ID = 4
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -211,7 +209,10 @@ class DriveBase(PybricksDevice):
               turn_rate : int):
         MESSAGE_ID = 5
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -220,7 +221,10 @@ class DriveBase(PybricksDevice):
     def stop(self):
         MESSAGE_ID = 6
         self._ongoing_command = True
-        self.send_message(data=locals(),
+        self._left_motor.send_message(data=locals(),
+                          exclusions=["self", "MESSAGE_ID"],
+                          message_id=MESSAGE_ID)
+        self._right_motor.send_message(data=locals(),
                           exclusions=["self", "MESSAGE_ID"],
                           message_id=MESSAGE_ID)
         self._ongoing_command = False
@@ -254,7 +258,7 @@ class UltrasonicSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=1)
-        self.lights = Light()
+        self.light = Light()
 
     def distance(self):
         MESSAGE_ID = 2
@@ -278,3 +282,107 @@ class Light():
 
     def off(self):
         print("Warning : Lights off is not implemented")
+
+class ColorSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=2)
+
+    def color(self, surface : bool = True):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["colour"]
+
+    def reflection(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["reflection"]
+
+    def ambient(self):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["ambient_light"]
+
+
+class ForceSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=3)
+
+    def force(self):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["force"]
+
+    def distance(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
+
+    def pressed(self, force : int = 3):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["is_pressed"]
+
+    def touched(self):
+        MESSAGE_ID = 5
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["touched"]
+
+
+class ColorDistanceSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=4)
+        self.light = Light()
+
+    def color(self, surface : bool = True):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["colour"]
+
+    def reflection(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["reflection"]
+
+    def ambient(self):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["ambient_light"]
+
+
+    def distance(self):
+        MESSAGE_ID = 5
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
+
+

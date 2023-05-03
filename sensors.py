@@ -4,7 +4,7 @@ try:
 except:
     from mock_pybricks import Direction
     from mock_pybricks import Motor, UltrasonicSensor
-from utils import convert_str_to_port
+
 
 
 class UltrasonicScanner:
@@ -25,8 +25,8 @@ class UltrasonicScanner:
     """
 
     def __init__(self,
-                 motor_port: str,
-                 sensor_port: str,
+                 motor_port,
+                 sensor_port,
                  default_scan_start_deg: int,
                  default_scan_end_deg: int,
                  gear_ratio: float):
@@ -44,12 +44,12 @@ class UltrasonicScanner:
                 Gear ratio used on motor
         """
         print(f"Initialising sensor motor on {motor_port}")
-        self._motor = Motor(port=convert_str_to_port(motor_port),
+        self._motor = Motor(port=motor_port,
                             positive_direction=Direction.CLOCKWISE,
                             gears=[gear_ratio],
                             reset_angle=False)
         print("Completed initialising sensor motor")
-        self._sensor = UltrasonicSensor(port=convert_str_to_port(sensor_port))
+        self._sensor = UltrasonicSensor(port=sensor_port)
         self._gear_ratio = gear_ratio
         self._default_scan_start_deg = default_scan_start_deg
         self._default_scan_end_deg = default_scan_end_deg
@@ -68,20 +68,25 @@ class UltrasonicScanner:
         Returns:
             list[Tuple(angle, distance))] : List of angles and distance tuples
         """
-        self._motor.run_target(360,
+        self._motor.run_target(50,
                                scan_start_deg)
         print(f"Moving US Sensor to {scan_start_deg} degrees")
-        self._motor.run_target(200,
-                               scan_end_deg,
-                               wait=False)
-        self._sensor.lights.on(100)
+        self._sensor.light.on(100)
         scan_data = []
-        while self._motor.angle() != (scan_end_deg):
-            scan_data.append(self.poll())
-        self._sensor.lights.off()
-        self._motor.run_target(360,
-                               0,
-                               wait=True)
+        for degree in range(scan_start_deg, scan_end_deg):
+            self._motor.run_target(25,
+                                   degree)
+            angle_list = []
+            distance_list = []
+            for poll_scan in range(3):
+                angle, detection_distance = self.poll()
+                angle_list.append(angle)
+                distance_list.append(detection_distance)
+            average_angle = sum(angle_list) / len(angle_list)
+            average_distance = sum(distance_list) / len(distance_list)
+            scan_data.append((average_angle, average_distance))
+
+        self._sensor.light.off()
         return scan_data
 
 
@@ -91,8 +96,8 @@ class UltrasonicScanner:
         Returns:
             list[Tuple(angle, distance))] : List of angles and distance tuples
         """
-        self.custom_sweep(scan_start_deg=self._default_scan_start_deg,
-                          scan_end_deg=self._default_scan_end_deg)
+        return self.custom_sweep(scan_start_deg=self._default_scan_start_deg,
+                                 scan_end_deg=self._default_scan_end_deg)
 
     def poll(self):
         """ Run a poll of the ultrasonic sensor
@@ -100,7 +105,7 @@ class UltrasonicScanner:
         Returns:
             angle sensor currently at, distance of object sensor detected
         """
-        true_angle = self.get_true_angle
+        true_angle = self.get_true_angle()
         detection_distance = self._sensor.distance()
         return true_angle, detection_distance
 
