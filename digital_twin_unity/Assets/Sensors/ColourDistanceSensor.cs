@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ColourSensor : Device
+public class ColourDistanceSensor : Device
 {
     private static Int16 DEVICE_ID = 2;
 
@@ -22,7 +22,7 @@ public class ColourSensor : Device
         this.message_dict.Add(_COLOUR_MESSAGE_ID, Colour);
         this.message_dict.Add(_REFLECTION_MESSAGE_ID, Reflection);
         this.message_dict.Add(_AMBIENT_MESSAGE_ID, Ambient);
-        this.message_dict.Add(_TOUCHED_MESSAGE_ID, Distance)
+        this.message_dict.Add(_DISTANCE_MESSAGE_ID, Distance);
         base.Start();
     }
 
