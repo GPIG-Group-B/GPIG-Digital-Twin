@@ -1,14 +1,6 @@
 from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
 import socket
 
-class Port:
-    A = {"ip" : "localhost", "port" : 65432}
-    B = {"ip" : "localhost", "port" : 65433}
-    C = {"ip" : "localhost", "port" : 65434}
-    D = {"ip" : "localhost", "port" : 65435}
-    E = {"ip" : "localhost", "port" : 65436}
-    F = {"ip" : "localhost", "port" : 65437}
-
 class Direction:
 
     COUNTER_CLOCKWISE = "counter_clockwise"
@@ -254,7 +246,7 @@ class UltrasonicSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=1)
-        self.lights = Light()
+        self.light = Light()
 
     def distance(self):
         MESSAGE_ID = 2
@@ -278,3 +270,107 @@ class Light():
 
     def off(self):
         print("Warning : Lights off is not implemented")
+
+class ColorSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=2)
+
+    def color(self, surface : bool = True):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["colour"]
+
+    def reflection(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["reflection"]
+
+    def ambient(self):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["ambient_light"]
+
+
+class ForceSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=3)
+
+    def force(self):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["force"]
+
+    def distance(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
+
+    def pressed(self, force : int = 3):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["is_pressed"]
+
+    def touched(self):
+        MESSAGE_ID = 5
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["touched"]
+
+
+class ColorDistanceSensor(PybricksDevice):
+
+    def __init__(self,
+                 port):
+        super().__init__(port=port,
+                         device_type_id=4)
+        self.light = Light()
+
+    def color(self, surface : bool = True):
+        MESSAGE_ID = 2
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["colour"]
+
+    def reflection(self):
+        MESSAGE_ID = 3
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["reflection"]
+
+    def ambient(self):
+        MESSAGE_ID = 4
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["ambient_light"]
+
+
+    def distance(self):
+        MESSAGE_ID = 5
+        response_message = self.send_message(data=locals(),
+                                             exclusions=["self", "MESSAGE_ID"],
+                                             message_id=MESSAGE_ID)
+        return response_message["distance"]
+
+
