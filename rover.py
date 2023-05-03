@@ -1,10 +1,14 @@
 import umath as math
-from pybricks.parameters import Direction
-from pybricks.pupdevices import Motor
-from pybricks.robotics import DriveBase
+try:
+    from pybricks.parameters import Direction
+    from pybricks.pupdevices import Motor
+    from pybricks.robotics import DriveBase
+except ImportError:
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor
 
+import constants
 from sensors import UltrasonicScanner
-from utils import convert_str_to_port
+from utils import LegoSpikeHub, PoweredUpHub
 
 
 class Rover:
@@ -38,10 +42,6 @@ class Rover:
     def __init__(self,
                  wheel_diam: int,
                  axle_track: int,
-                 left_motor_port: str,
-                 right_motor_port: str,
-                 steering_motor_port: str,
-                 ultrasonic_scanner: UltrasonicScanner,
                  height: int = None,
                  width: int = None,
                  depth: int = None,
@@ -78,15 +78,22 @@ class Rover:
         self._wheel_diam = wheel_diam
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
-        self._left_motor, self._right_motor, self._steering_motor = self._setup_motors(left_motor_port=left_motor_port,
-                                                                                       right_motor_port=right_motor_port,
-                                                                                       steering_motor_port=steering_motor_port)
+        self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
+        self._lego_spike_hub = LegoSpikeHub()
+        self._powered_up_hub = LegoSpikeHub()
 
         self._drive_base = DriveBase(left_motor=self._left_motor,
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
-        self.ultrasonic_scanner = ultrasonic_scanner
+        self.ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
+                                                    sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
+                                                    default_scan_start_deg=constants.SCAN_START,
+                                                    default_scan_end_deg=constants.SCAN_END,
+                                                    gear_ratio=constants.GEAR_RATIO)
+        self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
+        self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
+        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
 
     def set_max_turn_angle(self,
                            new_max_angle: int):
@@ -102,10 +109,7 @@ class Rover:
         """
         self._max_turn_angle = new_max_angle
 
-    def _setup_motors(self,
-                      left_motor_port: str,
-                      right_motor_port: str,
-                      steering_motor_port: str):
+    def _setup_motors(self):
         """Utility method to setup motors when Rover __init__ func is called
 
         Args:
@@ -119,19 +123,17 @@ class Rover:
         Returns:
             three Motor objects corresponding to the left motor, right motor and steering motor respectively
         """
-        l_motor = Motor(port=convert_str_to_port(left_motor_port),
-                                 positive_direction=Direction.CLOCKWISE)
-        r_motor = Motor(port=convert_str_to_port(right_motor_port),
-                                  positive_direction=Direction.COUNTERCLOCKWISE)
-        steering_motor = Motor(port=convert_str_to_port(steering_motor_port),
-                                     positive_direction=Direction.COUNTERCLOCKWISE)
+        l_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.LEFT_MOTOR_PORT),
+                        positive_direction=Direction.CLOCKWISE)
+        r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
+                        positive_direction=Direction.COUNTERCLOCKWISE)
+        steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
+                               positive_direction=Direction.COUNTERCLOCKWISE)
         return l_motor, r_motor, steering_motor
-
-
 
     def drive(self,
               angle: int,
-              distance : int):
+              distance: int):
         """ Utility function to drive rover in a certain direction for a set distance
 
         Args:
