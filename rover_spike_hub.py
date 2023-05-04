@@ -3,6 +3,7 @@ try:
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
+    from pybricks.experimental import Broadcast
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
 
@@ -11,7 +12,7 @@ from sensors import UltrasonicScanner
 from utils import LegoSpikeHub, PoweredUpHub
 
 
-class Rover:
+class RoverSpikeHub:
     """Rover class for controlling the lego spike rover
 
     Attributes:
@@ -79,14 +80,9 @@ class Rover:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._lego_spike_hub = LegoSpikeHub()
-        self._powered_up_hub = PoweredUpHub()
-        self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
 
-        self._drive_base = DriveBase(left_motor=self._left_motor,
-                                     right_motor=self._right_motor,
-                                     wheel_diameter=self._wheel_diam,
-                                     axle_track=self._axle_track,
-                                     positive_direction=Direction.CLOCKWISE)
+        self._radio = Broadcast(topics=["drivebase", "shutdown"])
+
         self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
                                                      sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
                                                      default_scan_start_deg=constants.SCAN_START,
@@ -98,14 +94,12 @@ class Rover:
 
     def shutdown(self):
         try:
-            self._left_motor.send_shutdown_message()
-            self._right_motor.send_shutdown_message()
-            self._steering_motor.send_shutdown_message()
             self._ultrasonic_scanner.send_shutdown_message()
             self._colour_sensor.send_shutdown_message()
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
         except:
+            self._radio.send("shutdown", (True))
             pass
 
     def set_max_turn_angle(self,
@@ -122,27 +116,7 @@ class Rover:
         """
         self._max_turn_angle = new_max_angle
 
-    def _setup_motors(self):
-        """Utility method to setup motors when Rover __init__ func is called
 
-        Args:
-            left_motor_port:
-                Port letter assignment for left motor
-            right_motor_port:
-                Port letter assignment for right motor
-            steering_motor_port:
-                Steering letter assignment for steering motor
-
-        Returns:
-            three Motor objects corresponding to the left motor, right motor and steering motor respectively
-        """
-        l_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.LEFT_MOTOR_PORT),
-                        positive_direction=Direction.CLOCKWISE)
-        r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
-                        positive_direction=Direction.COUNTER_CLOCKWISE)
-        steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.COUNTER_CLOCKWISE)
-        return l_motor, r_motor, steering_motor
 
     def drive(self,
               angle: int,
@@ -158,19 +132,8 @@ class Rover:
         Returns:
             None
         """
-        if abs(angle) > self._max_turn_angle:
-            raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
-        DEFAULT_SPEED = 100
-
-        self._steering_motor.run_target(speed=DEFAULT_SPEED,
-                                        target_angle=angle)
-        if angle == 0:
-            self._drive_base.straight(distance=distance)
-        else:
-            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * math.pi * rad))
-            self._drive_base.curve(radius=rad,
-                                   angle=arc)
+        self._radio.send("drivebase",
+                         (angle, distance))
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
