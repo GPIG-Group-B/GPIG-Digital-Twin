@@ -4,6 +4,7 @@ from sensors import UltrasonicScanner
 
 
 def main():
+    print("----------------------")
 
     rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
                   axle_track=constants.AXLE_TRACK,
@@ -12,11 +13,15 @@ def main():
                   height=constants.ROVER_HEIGHT,
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
-
+    print("Pre-scan")
+    rover.scan_surroundings()
+    print("Scan complete")
+    print("Pre-Drive")
     rover.drive(angle=0,
                 distance=100)
-    # rover.scan_surroundings()
+    print("Driven")
     rover.shutdown()
+    print("All done!")
 
 
 
