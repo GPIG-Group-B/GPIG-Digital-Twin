@@ -87,8 +87,7 @@ class RoverPoweredUpHub:
         self._drive_base = DriveBase(left_motor=self._left_motor,
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
-                                     axle_track=self._axle_track,
-                                     positive_direction=Direction.CLOCKWISE)
+                                     axle_track=self._axle_track)
 
     def shutdown(self):
         try:
@@ -129,9 +128,9 @@ class RoverPoweredUpHub:
         l_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.LEFT_MOTOR_PORT),
                         positive_direction=Direction.CLOCKWISE)
         r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
-                        positive_direction=Direction.COUNTER_CLOCKWISE)
+                        positive_direction=Direction.COUNTERCLOCKWISE)
         steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.COUNTER_CLOCKWISE)
+                               positive_direction=Direction.COUNTERCLOCKWISE)
         return l_motor, r_motor, steering_motor
 
     def run(self):

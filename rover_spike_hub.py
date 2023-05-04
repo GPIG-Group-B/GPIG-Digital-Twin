@@ -1,11 +1,12 @@
-try:
-    import umath as math
-    from pybricks.parameters import Direction
-    from pybricks.pupdevices import Motor
-    from pybricks.robotics import DriveBase
-    from pybricks.experimental import Broadcast
-except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+# try:
+import umath as math
+from pybricks.parameters import Direction
+from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
+from pybricks.robotics import DriveBase
+from pybricks.experimental import Broadcast
+
+# except ImportError:
+    # from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
 
 import constants
 from sensors import UltrasonicScanner
@@ -81,16 +82,18 @@ class RoverSpikeHub:
         self._wheelbase = wheelbase
         self._lego_spike_hub = LegoSpikeHub()
 
-        self._radio = Broadcast(topics=["drivebase", "shutdown"])
-
+        self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
+        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
         self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
                                                      sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
                                                      default_scan_start_deg=constants.SCAN_START,
                                                      default_scan_end_deg=constants.SCAN_END,
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
-        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+
+        self._radio = Broadcast(topics=["drivebase", "shutdown"])
+
+
 
     def shutdown(self):
         try:
@@ -99,7 +102,7 @@ class RoverSpikeHub:
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
         except:
-            self._radio.send("shutdown", (True))
+            self._radio.send("shutdown", [True])
             pass
 
     def set_max_turn_angle(self,
