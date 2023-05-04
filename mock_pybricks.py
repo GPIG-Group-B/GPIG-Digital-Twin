@@ -3,7 +3,7 @@ import socket
 
 class Direction:
 
-    COUNTER_CLOCKWISE = "counter_clockwise"
+    COUNTERCLOCKWISE = "COUNTERCLOCKWISE"
     CLOCKWISE = "clockwise"
 
 class PybricksDevice:

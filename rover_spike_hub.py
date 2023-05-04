@@ -1,7 +1,7 @@
 try:
     import umath as math
     from pybricks.parameters import Direction
-    from pybricks.pupdevices import Motor
+    from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
     from pybricks.robotics import DriveBase
     from pybricks.experimental import Broadcast
 except ImportError:
@@ -99,7 +99,7 @@ class RoverSpikeHub:
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
         except:
-            self._radio.send("shutdown", (True))
+            self._radio.send("shutdown", True)
             pass
 
     def set_max_turn_angle(self,
