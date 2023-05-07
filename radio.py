@@ -23,15 +23,21 @@ class Radio:
 
     def send(self,
              topic: str,
-             message: str) -> None:
+             message: tuple) -> None:
+        
+        print("Message:", message)
         
         if topic not in self._topics:
             raise ValueError("Topic not in list of topics")
         
         t = self._timer.time()
 
+        print("t =", t)
+
         # Send the message
-        self._radio.send(topic, (t, message))
+        message = (t,) + message
+        print("Sending", topic, message)
+        self._radio.send(topic, message)
 
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
@@ -39,6 +45,8 @@ class Radio:
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
     
+        print("acknowledged", acknowledged)
+
     def receive(self,
                 topic: str) -> str:
         
@@ -52,11 +60,15 @@ class Radio:
         if message is None:
             return None
         else:
-            t, message = message
+            t, *message = message
+
+        print(t, topic, message)
 
         # Check if message is a duplicate
         if t == self._previous_message_time:
             return None
+
+        
 
         # Send acknowledgement
         self._radio.send(self.ACKOWLEDGE_TOPIC, t)

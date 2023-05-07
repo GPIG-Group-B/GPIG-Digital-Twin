@@ -4,12 +4,14 @@ try:
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
     from pybricks.experimental import Broadcast
+    from pybricks.tools import wait
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
 
 import constants
 from sensors import UltrasonicScanner
 from utils import LegoSpikeHub, PoweredUpHub
+from radio import Radio
 
 
 class RoverPoweredUpHub:
@@ -80,7 +82,7 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Broadcast(topics=["drivebase", "shutdown"])
+        self._radio = Radio(topics=["drivebase", "shutdown"])
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
 
@@ -143,6 +145,7 @@ class RoverPoweredUpHub:
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown:
                 print("Shutting down")
+                wait(10) # Wait enough time for the other hub to get the acknowledgement
                 return
 
     def drive(self,

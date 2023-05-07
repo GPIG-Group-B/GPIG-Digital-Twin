@@ -14,7 +14,6 @@ def main():
                   depth=constants.ROVER_DEPTH)
 
     rover.run()
-    # rover.scan_surroundings()
     rover.shutdown()
     print("YAY")
 

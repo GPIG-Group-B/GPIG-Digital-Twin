@@ -11,6 +11,7 @@ from pybricks.experimental import Broadcast
 import constants
 from sensors import UltrasonicScanner
 from utils import LegoSpikeHub, PoweredUpHub
+from radio import Radio
 
 
 class RoverSpikeHub:
@@ -91,18 +92,18 @@ class RoverSpikeHub:
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
 
-        self._radio = Broadcast(topics=["drivebase", "shutdown"])
+        self._radio = Radio(topics=["drivebase", "shutdown"])
 
 
 
     def shutdown(self):
+        self._radio.send("shutdown", (1,))
         try:
             self._ultrasonic_scanner.send_shutdown_message()
             self._colour_sensor.send_shutdown_message()
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
         except:
-            self._radio.send("shutdown", [True])
             pass
 
     def set_max_turn_angle(self,
