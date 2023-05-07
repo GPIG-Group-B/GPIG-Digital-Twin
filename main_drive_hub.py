@@ -1,4 +1,4 @@
-from rover_powered_up_hub import RoverPoweredUpHub
+from rover_drive_hub import RoverPoweredUpHub
 import constants
 from sensors import UltrasonicScanner
 
@@ -13,9 +13,10 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
 
+    print("Let's-a go!")
     rover.run()
     rover.shutdown()
-    print("YAY")
+    print("Goodnight!")
 
 
 
