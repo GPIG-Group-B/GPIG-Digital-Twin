@@ -13,6 +13,7 @@ def setup_server_connection(ip,
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
         while True:
+            print(f"Attempting to connect to ip : {ip} | port : {port}")
             try:
                 s.bind((ip, port))
                 break
@@ -35,24 +36,24 @@ def setup_server_connection(ip,
 
 def setup_client_connection(ip,
                            port):
-    with socket.socket(socket.AF_INET,
-                       socket.SOCK_STREAM) as s:
-        while True:
-            try:
-                s.connect((ip, port))
-                break
-            except OSError as e:
-                print(f"Got error {e}. Retrying in 3 seconds")
-                time.sleep(3)
-        print(f"Accepted connection on IP : {ip} | PORT : {port}")
-        s.sendall(INIT_CONNECTION_STRING)
-        data, additional_data = receive_data(connection=s,
-                                             length=len(ACKNOWLEDGEMENT_CONNECTION_STRING))
-        if data != INIT_CONNECTION_STRING:
-            print(f"Expected init string : {ACKNOWLEDGEMENT_CONNECTION_STRING}. Received {data} Closing connection")
-            s.close()
-        else:
-            print("Received expected init string. Accepting connection. Sending confirmation string")
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    while True:
+        print(f"Attempting to connect to ip : {ip} | port : {port}")
+        try:
+            s.connect((ip, port))
+            break
+        except OSError as e:
+            print(f"Got error {e}. Retrying in 3 seconds")
+            time.sleep(3)
+    print(f"Accepted connection on IP : {ip} | PORT : {port}")
+    s.sendall(INIT_CONNECTION_STRING)
+    data, additional_data = receive_data(connection=s,
+                                         length=len(ACKNOWLEDGEMENT_CONNECTION_STRING))
+    if data != ACKNOWLEDGEMENT_CONNECTION_STRING:
+        s.close()
+        raise ValueError(f"Expected init string : {ACKNOWLEDGEMENT_CONNECTION_STRING}. Received {data} Closing connection")
+    else:
+        print("Received expected init string. Accepting connection. Sending confirmation string")
     return s, additional_data
 
 
@@ -79,7 +80,7 @@ def receive_data(connection,
     while len(data) < length:
         data += connection.recv(length - len(data))
         if not data:
-            raise Exception("Connection was closed")
+            raise socket.error("Connection was closed")
     return data[:length], data[length:]
 
 
