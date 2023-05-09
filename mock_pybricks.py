@@ -462,9 +462,9 @@ class Broadcast:
 class BroadcastHost(Broadcast):
 
     def __init__(self, topics):
-        connection, additional_data = setup_server_connction(ip=constants.BROADCAST_IP,
-                                                             port=constants.BROADCAST_PORT,
-                                                             num_connections=1)
+        connection, additional_data = setup_server_connection(ip=constants.BROADCAST_IP,
+                                                              port=constants.BROADCAST_PORT,
+                                                              num_connections=1)
 
         super().__init__(topics = topics,
                          connection = connection,
@@ -474,8 +474,8 @@ class BroadcastHost(Broadcast):
 class BroadcastClient(Broadcast):
 
     def __init__(self, topics):
-        connection, additional_data = setup_client_connction(ip=constants.BROADCAST_IP,
-                                                             port = constants.BROADCAST_PORT)
+        connection, additional_data = setup_client_connection(ip=constants.BROADCAST_IP,
+                                                              port = constants.BROADCAST_PORT)
 
         super().__init__(topics = topics,
                          connection = connection,
