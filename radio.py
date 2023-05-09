@@ -1,3 +1,5 @@
+from typing import List
+
 try:
     from pybricks.experimental import Broadcast
     from pybricks.tools import wait
@@ -10,7 +12,7 @@ class Radio:
     ACKOWLEDGE_TOPIC = "acknowledge"
 
     def __init__(self,
-                 topics: list[str],
+                 topics: List[str],
                  broadcast_func) -> None:
         
         # Set up the radio
