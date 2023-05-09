@@ -42,13 +42,13 @@ class PybricksDevice:
 
     def send_shutdown_message(self):
         MESSAGE_ID = 0
-        print("Sending shutdown message")
+        # print("Sending shutdown message")
         self.send_message(data={}, message_id=MESSAGE_ID, expect_response=False)
-        print("Shutting down socket")
+        # print("Shutting down socket")
         self._port.shutdown(socket.SHUT_RDWR)
-        print("Closing down socket")
+        # print("Closing down socket")
         self._port.close()
-        print("Completed socket close")
+        # print("Completed socket close")
 
 
 class Motor(PybricksDevice):
@@ -162,13 +162,11 @@ class DriveBase():
                  left_motor : Motor,
                  right_motor : Motor,
                  wheel_diameter : int,
-                 axle_track : int,
-                 positive_direction : Direction):
+                 axle_track : int):
         self._left_motor = left_motor
         self._right_motor = right_motor
         self._wheel_diameter = wheel_diameter
         self._axle_track = axle_track
-        self._positive_direction = positive_direction
         self._ongoing_command = False
 
     def straight(self,
@@ -176,8 +174,9 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
-        self._left_motor.run(55)
-        self._right_motor.run(55)
+        self._left_motor.run(550)
+        self._right_motor.run(550)
+        print("Running straight")
 
     def turn(self,
              angle : int,
@@ -408,7 +407,9 @@ class Broadcast:
         self._sender_thread.start()
 
     def join(self):
+        print("Sender thread joined")
         self._sender_thread.join()
+        print("REceived thread joined")
         self._receiver_thread.join()
 
 
@@ -416,28 +417,32 @@ class Broadcast:
     def sender_worker_function(self):
         while True:
             data_dict = self._outbound_queue.get(block=True)
-            if data_dict == "shutdown":
-                return
             send_json_message(connection=  self._connection,
                               message_dict=data_dict,
                               message_id=0)
+            if not self._receiver_thread.is_alive() or data_dict["topic"] == "shutdown":
+                print("Shutting down sender worker")
+                return
 
     def receiver_worker_function(self):
         while True:
-            data, self._additional_data, message_type = receive_json(connection=self._connection,
-                                                                     additional_data=self._additional_data)
-            if data["topic"] == "shutdown":
-                self._outbound_queue.put("shutdown")
-                print("Received shutdown message type. Shutting down")
+            try:
+                data, self._additional_data, message_type = receive_json(connection=self._connection,
+                                                                         additional_data=self._additional_data)
+            except socket.error:
+                print("Caught connection closed. Initiating shutdown of workers")
                 return
             self._inbound_queue.put(data)
+            if not self._sender_thread.is_alive() or data["topic"] == "shutdown":
+                print("Shutting down receiver worker")
+                return
 
-    def send(self, broadcast_data : list):
-        topic = broadcast_data[0]
-        data_to_send = broadcast_data[1:]
+    def send(self, topic, broadcast_data : list):
+        if type(broadcast_data) not in (list, tuple):
+            broadcast_data = [broadcast_data]
         if topic not in self._topics:
             raise ValueError(f"You have attempted to send on topic : {topic} but broadcast is setup with these topics : {self._topics}")
-        data_dict = OrderedDict([(data, str(type(data))) for data in data_to_send])
+        data_dict = OrderedDict([(f"value_{i}", (data, type(data).__name__)) for i, data in enumerate(broadcast_data)])
         full_json = {"topic" : topic,
                      "data" : data_dict}
         self._outbound_queue.put(full_json)
@@ -455,7 +460,11 @@ class Broadcast:
                 self._inbound_queue.put(data)
                 return None
             else:
-                return [self._known_types[each_key](each_var) for each_var, each_key in data["data"]]
+                data_to_return = [self._known_types[each_val[1]](each_val[0]) for each_val in data["data"].values()]
+                if len(data_to_return) == 1:
+                    # Fix weird ack issue
+                    data_to_return = data_to_return[0]
+                return data_to_return
 
 
 
