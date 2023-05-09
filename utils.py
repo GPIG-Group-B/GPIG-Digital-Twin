@@ -6,8 +6,6 @@ class PortIPStruct:
 
 class LegoSpikeHub:
 
-    A = "who knows"
-
     def __init__(self):
         try:
             from pybricks.parameters import Port
