@@ -70,7 +70,7 @@ class Radio:
         
 
         # Send acknowledgement
-        self._radio.send(self.ACKOWLEDGE_TOPIC, t)
+        self._radio.send(self.ACKOWLEDGE_TOPIC, index)
 
         # Update previous message time
         self._previous_message_time = index
