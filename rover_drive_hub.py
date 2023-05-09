@@ -152,9 +152,8 @@ class RoverPoweredUpHub:
             if data:
                 angle, distance = data
                 self.drive(angle, distance)
-
             should_shutdown = self._radio.receive("shutdown")
-            if should_shutdown:
+            if should_shutdown is not None:
                 print("Shutting down")
                 wait(10) # Wait enough time for the other hub to get the acknowledgement
                 return
