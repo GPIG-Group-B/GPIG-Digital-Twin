@@ -42,12 +42,9 @@ class Radio:
 
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
-        print(f"Acknowledgement received : {acknowledged}")
         while acknowledged != self._index:
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
-            print("Waiting for ack")
-            print(acknowledged)
         self._index += 1
         print("acknowledged", acknowledged)
 
