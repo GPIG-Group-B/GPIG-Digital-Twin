@@ -42,13 +42,13 @@ class PybricksDevice:
 
     def send_shutdown_message(self):
         MESSAGE_ID = 0
-        # print("Sending shutdown message")
+        print("Sending shutdown message")
         self.send_message(data={}, message_id=MESSAGE_ID, expect_response=False)
-        # print("Shutting down socket")
+        print("Shutting down socket")
         self._port.shutdown(socket.SHUT_RDWR)
-        # print("Closing down socket")
+        print("Closing down socket")
         self._port.close()
-        # print("Completed socket close")
+        print("Completed socket close")
 
 
 class Motor(PybricksDevice):
