@@ -1,6 +1,7 @@
+import constants
 from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
 import socket
-
+from collections import OrderedDict
 class Direction:
 
     COUNTERCLOCKWISE = "COUNTERCLOCKWISE"
@@ -384,5 +385,38 @@ class ColorDistanceSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
+
+
+class Broadcast:
+
+    def __init__(self, topics : list):
+        self._topics = topics
+        self._connection = None
+
+
+    def run(self):
+        raise NotImplementedError()
+
+    def send(self, broadcast_data : list):
+        topic = broadcast_data[0]
+        data_to_send = broadcast_data[1:]
+        if topic not in self._topics:
+            raise ValueError(f"You have attempted to send on topic : {topic} but broadcast is setup with these topics : {self._topics}")
+        message_json = OrderedDict[(data, type(data)) for data in data_to_send]
+        # send_json_message(self._connection, message_)
+
+
+class BroadcastHost(Broadcast):
+
+    def __init__(self, topics):
+        super().__init__(topics = topics)
+    def run(self):
+        connection = setup_server_connction(ip = constants.BROADCAST_IP,
+                                            port = constants.BROADCAST_PORT,
+                                            num_connections=1)
+        while True:
+
+
+
 
 
