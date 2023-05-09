@@ -13,9 +13,9 @@ class Direction:
 class PybricksDevice:
 
     def __init__(self, port, device_type_id):
-        self._port, self._additional_data = setup_server_connction(ip=port.ip,
-                                                                   port = port.port,
-                                                                   num_connections=1)
+        self._port, self._additional_data = setup_server_connection(ip=port.ip,
+                                                                    port = port.port,
+                                                                    num_connections=1)
         self._DEVICE_TYPE_ID = device_type_id
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
 
