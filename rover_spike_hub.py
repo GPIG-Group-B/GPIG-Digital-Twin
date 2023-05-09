@@ -1,5 +1,4 @@
 try:
-    import umath as math
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
     from pybricks.robotics import DriveBase
