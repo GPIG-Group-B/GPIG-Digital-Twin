@@ -1,7 +1,9 @@
 from rover_spike_hub import RoverSpikeHub
 import constants
-from sensors import UltrasonicScanner
-from pybricks.tools import wait
+try:
+    from pybricks.tools import wait
+except ImportError:
+    from time import sleep as wait
 
 
 def main():
