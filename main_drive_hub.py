@@ -1,6 +1,6 @@
 from rover_drive_hub import RoverPoweredUpHub
 import constants
-from sensors import UltrasonicScanner
+
 
 
 def main():
