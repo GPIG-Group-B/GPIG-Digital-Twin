@@ -2617,6 +2617,7 @@ MonoBehaviour:
   port: 65496
   ip: localhost
   wheelCollider: {fileID: 242499032}
+  wheelTransform: {fileID: 6147327520338283430}
 --- !u!1 &7145834420610355443
 GameObject:
   m_ObjectHideFlags: 0
@@ -2875,6 +2876,7 @@ MonoBehaviour:
   port: 65497
   ip: localhost
   wheelCollider: {fileID: 834240152}
+  wheelTransform: {fileID: 1734938995827653022}
 --- !u!1 &7979908005339343879
 GameObject:
   m_ObjectHideFlags: 0
