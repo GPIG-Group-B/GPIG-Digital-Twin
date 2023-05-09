@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ColourDistanceSensor : Device
 {
-    private static Int16 DEVICE_ID = 2;
+    private static Int16 DEVICE_ID = 4;
 
     private static UInt16 _INFO_MESSAGE_ID = 1;
     private static UInt16 _COLOUR_MESSAGE_ID = 2;
