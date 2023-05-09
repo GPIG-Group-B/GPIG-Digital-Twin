@@ -2,7 +2,7 @@ import threading
 from queue import Queue
 
 import constants
-from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json, setup_client_connction
+from connection_utils import setup_server_connection, send_json_message, send_device_type_id, receive_json, setup_client_connection
 import socket
 from collections import OrderedDict
 class Direction:

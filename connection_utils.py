@@ -7,9 +7,9 @@ INIT_CONNECTION_STRING = "GPIG-Group-B-Client".encode()
 
 
 
-def setup_server_connction(ip,
-                           port,
-                           num_connections=1):
+def setup_server_connection(ip,
+                            port,
+                            num_connections=1):
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
         try:
