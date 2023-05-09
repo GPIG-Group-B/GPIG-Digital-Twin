@@ -16,12 +16,12 @@ class LegoSpikeHub:
             self.port_e = Port.E
             self.port_f = Port.F
         except ImportError:
-            self.port_a = PortIPStruct(ip = "localhost", port = 65490)
-            self.port_b = PortIPStruct(ip="localhost", port=65491)
-            self.port_c = PortIPStruct(ip="localhost", port=65492)
-            self.port_d = PortIPStruct(ip="localhost", port=65493)
-            self.port_e = PortIPStruct(ip="localhost", port=65494)
-            self.port_f = PortIPStruct(ip="localhost", port=65495)
+            self.port_a = PortIPStruct(ip = "localhost", port = 60001)
+            self.port_b = PortIPStruct(ip="localhost", port=60002)
+            self.port_c = PortIPStruct(ip="localhost", port=60003)
+            self.port_d = PortIPStruct(ip="localhost", port=60004)
+            self.port_e = PortIPStruct(ip="localhost", port=60005)
+            self.port_f = PortIPStruct(ip="localhost", port=60006)
 
         self.str_conversion_dict = {"A" : self.port_a,
                                     "B" : self.port_b,
@@ -45,10 +45,10 @@ class PoweredUpHub:
             self.port_c = Port.C
             self.port_d = Port.D
         except:
-            self.port_a = PortIPStruct(ip = "localhost", port = 65496)
-            self.port_b = PortIPStruct(ip="localhost", port=65497)
-            self.port_c = PortIPStruct(ip="localhost", port=65498)
-            self.port_d = PortIPStruct(ip="localhost", port=65499)
+            self.port_a = PortIPStruct(ip = "localhost", port = 60007)
+            self.port_b = PortIPStruct(ip="localhost", port=60008)
+            self.port_c = PortIPStruct(ip="localhost", port=60009)
+            self.port_d = PortIPStruct(ip="localhost", port=60010)
 
         self.str_conversion_dict = {"A" : self.port_a,
                                     "B" : self.port_b,
