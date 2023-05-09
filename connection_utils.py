@@ -12,11 +12,13 @@ def setup_server_connection(ip,
                             num_connections=1):
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
-        try:
-            s.bind((ip, port))
-        except OSError as e:
-            print(f"Got error {e}. Retrying in 3 seconds")
-            time.sleep(3)
+        while True:
+            try:
+                s.bind((ip, port))
+                break
+            except OSError as e:
+                print(f"Got error {e}. Retrying in 3 seconds")
+                time.sleep(3)
         print(f"Waiting for connection on IP : {ip} | PORT : {port}")
         s.listen(num_connections)
         connection, _ = s.accept()
@@ -35,11 +37,13 @@ def setup_client_connection(ip,
                            port):
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
-        try:
-            s.connect((ip, port))
-        except OSError as e:
-            print(f"Got error {e}. Retrying in 3 seconds")
-            time.sleep(3)
+        while True:
+            try:
+                s.connect((ip, port))
+                break
+            except OSError as e:
+                print(f"Got error {e}. Retrying in 3 seconds")
+                time.sleep(3)
         print(f"Accepted connection on IP : {ip} | PORT : {port}")
         s.sendall(INIT_CONNECTION_STRING)
         data, additional_data = receive_data(connection=s,
