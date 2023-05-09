@@ -1,16 +1,17 @@
-# try:
-import umath as math
-from pybricks.parameters import Direction
-from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
-from pybricks.robotics import DriveBase
-from pybricks.experimental import Broadcast
+try:
+    import umath as math
+    from pybricks.parameters import Direction
+    from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
+    from pybricks.robotics import DriveBase
+    from pybricks.experimental import Broadcast
 
-# except ImportError:
-    # from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+except ImportError:
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import BroadcastHost as Broadcast
 
 import constants
 from sensors import UltrasonicScanner
-from utils import LegoSpikeHub, PoweredUpHub
+from utils import LegoSpikeHub
 from radio import Radio
 
 
@@ -92,7 +93,8 @@ class RoverSpikeHub:
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
 
-        self._radio = Radio(topics=["drivebase", "shutdown"])
+        self._radio = Radio(topics=["drivebase", "shutdown"],
+                            broadcast_func=Broadcast)
 
 
 
@@ -103,6 +105,7 @@ class RoverSpikeHub:
             self._colour_sensor.send_shutdown_message()
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
+            self._radio.shutdown()
         except:
             pass
 

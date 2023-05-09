@@ -1,24 +1,25 @@
 try:
     from pybricks.experimental import Broadcast
-    from pybricks.tools import StopWatch
     from pybricks.tools import wait
 except ImportError:
-    pass
+    from time import sleep as wait
+
 
 class Radio:
 
     ACKOWLEDGE_TOPIC = "acknowledge"
 
     def __init__(self,
-                 topics: list[str]) -> None:
+                 topics: list[str],
+                 broadcast_func) -> None:
         
         # Set up the radio
         self._topics = topics
         self._topics.append(self.ACKOWLEDGE_TOPIC)
-        self._radio = Broadcast(topics=self._topics)
+        self._radio = broadcast_func(topics=self._topics)
 
         # Set up the timer
-        self._timer = StopWatch()
+        self._index = 0
         self._previous_message_time = None
 
     def send(self,
@@ -29,22 +30,20 @@ class Radio:
         
         if topic not in self._topics:
             raise ValueError("Topic not in list of topics")
-        
-        t = self._timer.time()
 
-        print("t =", t)
+        print("message index =", self._index)
 
         # Send the message
-        message = (t,) + message
+        message = (self._index,) + message
         print("Sending", topic, message)
         self._radio.send(topic, message)
 
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
-        while acknowledged != t:
+        while acknowledged != self._index:
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
-    
+        self._index += 1
         print("acknowledged", acknowledged)
 
     def receive(self,
@@ -60,12 +59,12 @@ class Radio:
         if message is None:
             return None
         else:
-            t, *message = message
+            index, *message = message
 
-        print(t, topic, message)
+        print(index, topic, message)
 
         # Check if message is a duplicate
-        if t == self._previous_message_time:
+        if index == self._previous_message_time:
             return None
 
         
@@ -74,6 +73,10 @@ class Radio:
         self._radio.send(self.ACKOWLEDGE_TOPIC, t)
 
         # Update previous message time
-        self._previous_message_time = t
+        self._previous_message_time = index
 
         return message
+
+    def shutdown(self):
+        self._radio.send("shutdown", ("", ""))
+        self._radio.join()

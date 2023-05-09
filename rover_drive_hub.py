@@ -7,6 +7,8 @@ try:
     from pybricks.tools import wait
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import BroadcastClient as Broadcast
+    from time import sleep as wait
 
 import constants
 from sensors import UltrasonicScanner
@@ -82,7 +84,8 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Radio(topics=["drivebase", "shutdown"])
+        self._radio = Radio(topics=["drivebase", "shutdown"],
+                            broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
 
@@ -96,6 +99,7 @@ class RoverPoweredUpHub:
             self._left_motor.send_shutdown_message()
             self._right_motor.send_shutdown_message()
             self._steering_motor.send_shutdown_message()
+            self._radio.shutdown()
         except:
             pass
 

@@ -1,5 +1,8 @@
+import threading
+from queue import Queue
+
 import constants
-from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
+from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json, setup_client_connction
 import socket
 from collections import OrderedDict
 class Direction:
@@ -389,32 +392,98 @@ class ColorDistanceSensor(PybricksDevice):
 
 class Broadcast:
 
-    def __init__(self, topics : list):
+    def __init__(self, topics : list, connection : socket.socket, additional_data = b""):
         self._topics = topics
-        self._connection = None
+        self._inbound_queue = Queue()
+        self._outbound_queue = Queue()
+        self._additional_data = additional_data
+        self._connection = connection
+        self._known_types = {"int" : int,
+                             "str" : str,
+                             "float" : float,
+                             "bool" : bool}
+        self._receiver_thread = threading.Thread(target=self.receiver_worker_function)
+        self._sender_thread = threading.Thread(target=self.sender_worker_function)
+        self._receiver_thread.start()
+        self._sender_thread.start()
+
+    def join(self):
+        self._sender_thread.join()
+        self._receiver_thread.join()
 
 
-    def run(self):
-        raise NotImplementedError()
+
+    def sender_worker_function(self):
+        while True:
+            data_dict = self._outbound_queue.get(block=True)
+            if data_dict == "shutdown":
+                return
+            send_json_message(connection=  self._connection,
+                              message_dict=data_dict,
+                              message_id=0)
+
+    def receiver_worker_function(self):
+        while True:
+            data, self._additional_data, message_type = receive_json(connection=self._connection,
+                                                                     additional_data=self._additional_data)
+            if data["topic"] == "shutdown":
+                self._outbound_queue.put("shutdown")
+                print("Received shutdown message type. Shutting down")
+                return
+            self._inbound_queue.put(data)
 
     def send(self, broadcast_data : list):
         topic = broadcast_data[0]
         data_to_send = broadcast_data[1:]
         if topic not in self._topics:
             raise ValueError(f"You have attempted to send on topic : {topic} but broadcast is setup with these topics : {self._topics}")
-        message_json = OrderedDict[(data, type(data)) for data in data_to_send]
-        # send_json_message(self._connection, message_)
+        data_dict = OrderedDict([(data, str(type(data))) for data in data_to_send])
+        full_json = {"topic" : topic,
+                     "data" : data_dict}
+        self._outbound_queue.put(full_json)
+
+
+
+    def receive(self, topic):
+        if self._inbound_queue.empty():
+            return None
+        else:
+            data = self._inbound_queue.get()
+            topic_received = data["topic"]
+            if topic_received != topic:
+                #TODO: Figure out a better solution
+                self._inbound_queue.put(data)
+                return None
+            else:
+                return [self._known_types[each_key](each_var) for each_var, each_key in data["data"]]
+
 
 
 class BroadcastHost(Broadcast):
 
     def __init__(self, topics):
-        super().__init__(topics = topics)
-    def run(self):
-        connection = setup_server_connction(ip = constants.BROADCAST_IP,
-                                            port = constants.BROADCAST_PORT,
-                                            num_connections=1)
-        while True:
+        connection, additional_data = setup_server_connction(ip=constants.BROADCAST_IP,
+                                                             port=constants.BROADCAST_PORT,
+                                                             num_connections=1)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+class BroadcastClient(Broadcast):
+
+    def __init__(self, topics):
+        connection, additional_data = setup_client_connction(ip=constants.BROADCAST_IP,
+                                                             port = constants.BROADCAST_PORT)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+
+
 
 
 
