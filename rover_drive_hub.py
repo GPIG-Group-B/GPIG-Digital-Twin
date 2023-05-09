@@ -5,6 +5,8 @@ try:
     from pybricks.robotics import DriveBase
     from pybricks.experimental import Broadcast
     from pybricks.tools import wait
+    from pybricks.hubs import TechnicHub
+    from pybricks.parameters import Color
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
     from mock_pybricks import BroadcastClient as Broadcast
@@ -93,6 +95,11 @@ class RoverPoweredUpHub:
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
+        try:
+            hub = TechnicHub()
+            hub.light.on(Color.RED)
+        except:
+            pass
 
     def shutdown(self):
         try:
