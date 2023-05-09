@@ -26,6 +26,7 @@ public class SteeringMotor : Device
     private static UInt16 _RUN_ANGLE_MESSAGE_ID = 7;
     private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
     private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
+    private static UInt16 _ANGLE_MESSAGE_ID = 10;
 
 
 
