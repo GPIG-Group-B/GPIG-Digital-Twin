@@ -42,9 +42,12 @@ class Radio:
 
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
+        print(f"Acknowledgement received : {acknowledged}")
         while acknowledged != self._index:
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
+            print("Waiting for ack")
+            print(acknowledged)
         self._index += 1
         print("acknowledged", acknowledged)
 
@@ -56,15 +59,15 @@ class Radio:
 
         # Receive the message
         message = self._radio.receive(topic=topic)
-
         # Check if message is None
         if message is None:
             return None
         else:
+            print(f"Radio received message : {message}")
             index, *message = message
 
-        print(index, topic, message)
-
+        # print(index, topic, message)
+        print(f"Received index : {index}")
         # Check if message is a duplicate
         if index == self._previous_message_time:
             return None
@@ -72,6 +75,7 @@ class Radio:
         
 
         # Send acknowledgement
+        print(f"Sending ack with index : {index}")
         self._radio.send(self.ACKOWLEDGE_TOPIC, index)
 
         # Update previous message time
@@ -80,5 +84,4 @@ class Radio:
         return message
 
     def shutdown(self):
-        self._radio.send("shutdown", ("", ""))
         self._radio.join()
