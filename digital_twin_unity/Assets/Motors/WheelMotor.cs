@@ -14,6 +14,7 @@ public class WheelMotor : Device
     private string _load;
 
     public WheelCollider wheelCollider;
+    public Transform wheelTransform;
 
     private static UInt16 _INFO_MESSAGE_ID = 1;
     private static UInt16 _STOP_MESSAGE_ID = 2;
@@ -24,6 +25,7 @@ public class WheelMotor : Device
     private static UInt16 _RUN_ANGLE_MESSAGE_ID = 7;
     private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
     private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
+    private static UInt16 _ANGLE_MESSAGE_ID = 10;
 
 
 
@@ -41,6 +43,7 @@ public class WheelMotor : Device
         this.message_dict.Add(_RUN_ANGLE_MESSAGE_ID, RunAngle);
         this.message_dict.Add(_RUN_TARGET_MESSAGE_ID, RunTarget);
         this.message_dict.Add(_TRACK_TARGET_MESSAGE_ID, TrackTarget);
+        this.message_dict.Add(_ANGLE_MESSAGE_ID, Angle);
 
         base.Start();
     }
@@ -72,7 +75,8 @@ public class WheelMotor : Device
     {
         Debug.Log("Motor Stop");
         //Implement stop
-
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new StopReturnMessage()), _STOP_MESSAGE_ID);
     }
     private void Brake(string message_string)
@@ -147,6 +151,17 @@ public class WheelMotor : Device
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new TrackTargetMessage()), _TRACK_TARGET_MESSAGE_ID);
     }
 
+    private void Angle(string message_string)
+    {
+
+
+        float angle = wheelTransform.localRotation.eulerAngles.x;
+        AngleReturnMessage returnMessage = new AngleReturnMessage();
+        returnMessage.angle = (int)angle;
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage),
+                                        messageID: _ANGLE_MESSAGE_ID);
+    }
+
     private class RunMessage
     {
         public int speed;
@@ -212,6 +227,10 @@ public class WheelMotor : Device
 
     private class TrackTargetReturnMessage { }
 
+    private class AngleReturnMessage
+    {
+        public int angle;
+    }
 
 
     IEnumerator ApplyTorqueTime(int torque, int seconds)
