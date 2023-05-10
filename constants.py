@@ -7,7 +7,9 @@ AXLE_TRACK = 121
 # Maximum angle the rover can turn in degrees
 MAX_TURN_ANGLE = 22
 
+BROADCAST_IP = "localhost"
 
+BROADCAST_PORT = 60000
 
 #### POWERED UP HUB
 

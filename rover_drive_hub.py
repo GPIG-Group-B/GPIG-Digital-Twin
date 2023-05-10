@@ -3,15 +3,22 @@ try:
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
+    from pybricks.experimental import Broadcast
+    from pybricks.tools import wait
+    from pybricks.hubs import TechnicHub
+    from pybricks.parameters import Color
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import BroadcastClient as Broadcast
+    from time import sleep as wait
 
 import constants
 from sensors import UltrasonicScanner
 from utils import LegoSpikeHub, PoweredUpHub
+from radio import Radio
 
 
-class Rover:
+class RoverPoweredUpHub:
     """Rover class for controlling the lego spike rover
 
     Attributes:
@@ -78,33 +85,28 @@ class Rover:
         self._wheel_diam = wheel_diam
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
-        self._lego_spike_hub = LegoSpikeHub()
         self._powered_up_hub = PoweredUpHub()
+        self._radio = Radio(topics=["drivebase", "shutdown"],
+                            broadcast_func=Broadcast)
+
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
 
         self._drive_base = DriveBase(left_motor=self._left_motor,
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
-                                     axle_track=self._axle_track,
-                                     positive_direction=Direction.CLOCKWISE)
-        self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
-                                                     sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
-                                                     default_scan_start_deg=constants.SCAN_START,
-                                                     default_scan_end_deg=constants.SCAN_END,
-                                                     gear_ratio=constants.GEAR_RATIO)
-        self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
-        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+                                     axle_track=self._axle_track)
+        try:
+            hub = TechnicHub()
+            hub.light.on(Color.RED)
+        except:
+            pass
 
     def shutdown(self):
         try:
             self._left_motor.send_shutdown_message()
             self._right_motor.send_shutdown_message()
             self._steering_motor.send_shutdown_message()
-            self._ultrasonic_scanner.send_shutdown_message()
-            self._colour_sensor.send_shutdown_message()
-            self._force_sensor.send_shutdown_message()
-            self._colour_distance_sensor.send_shutdown_message()
+            self._radio.shutdown()
         except:
             pass
 
@@ -139,10 +141,22 @@ class Rover:
         l_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.LEFT_MOTOR_PORT),
                         positive_direction=Direction.CLOCKWISE)
         r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
-                        positive_direction=Direction.COUNTER_CLOCKWISE)
+                        positive_direction=Direction.COUNTERCLOCKWISE)
         steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.COUNTER_CLOCKWISE)
+                               positive_direction=Direction.COUNTERCLOCKWISE)
         return l_motor, r_motor, steering_motor
+
+    def run(self):
+        while True:
+            data = self._radio.receive("drivebase")
+            if data:
+                angle, distance = data
+                self.drive(angle, distance)
+            should_shutdown = self._radio.receive("shutdown")
+            if should_shutdown is not None:
+                print("Shutting down")
+                wait(10) # Wait enough time for the other hub to get the acknowledgement
+                return
 
     def drive(self,
               angle: int,
@@ -172,10 +186,3 @@ class Rover:
             self._drive_base.curve(radius=rad,
                                    angle=arc)
 
-    def scan_surroundings(self):
-        """Utility function for scanning surrounds using ultrasonic sensor using default scan range
-
-        Returns:
-            list[Tuple(angle, distance))] : List of angles and distance tuples
-        """
-        return self._ultrasonic_scanner.sweep()

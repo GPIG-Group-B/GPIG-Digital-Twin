@@ -60,7 +60,7 @@ public class StandardMotor : Device
         InfoMessage message = JsonUtility.FromJson<InfoMessage>(message_string);
         // Implement Info Message
         _positiveDirection = message.positive_direction;
-        if (_positiveDirection == "counter_clockwise") { _rotationAxis *= -1; }
+        if (_positiveDirection == "COUNTERCLOCKWISE") { _rotationAxis *= -1; }
         _gears = message.gears;
         _resetAngle = message.reset_angle;
         _speed = message.speed;
