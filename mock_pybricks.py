@@ -174,8 +174,10 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
+        self._ongoing_command = True
         self._left_motor.run(550)
         self._right_motor.run(550)
+        self._ongoing_command = False
         print("Running straight")
 
     def turn(self,
