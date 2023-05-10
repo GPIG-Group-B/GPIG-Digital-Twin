@@ -8,9 +8,8 @@ try:
     from pybricks.hubs import TechnicHub
     from pybricks.parameters import Color
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
     from mock_pybricks import BroadcastClient as Broadcast
-    from time import sleep as wait
 
 import constants
 from sensors import UltrasonicScanner
@@ -152,6 +151,7 @@ class RoverPoweredUpHub:
             if data:
                 angle, distance, command_id = data
                 self.drive(angle, distance)
+                print(f"Sending completion confirmation with command id {command_id}")
                 self._radio.send("complete", (command_id,))
 
             should_shutdown = self._radio.receive("shutdown")
@@ -190,6 +190,7 @@ class RoverPoweredUpHub:
                                    wait=False)
 
         while not self._drive_base.done():
+            print(f"drive base is done {self._drive_base.done()}")
             wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
