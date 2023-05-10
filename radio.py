@@ -4,7 +4,7 @@ try:
     from pybricks.experimental import Broadcast
     from pybricks.tools import wait
 except ImportError:
-    from time import sleep as wait
+    from mock_pybricks import wait
 
 
 class Radio:
@@ -60,11 +60,12 @@ class Radio:
         if message is None:
             return None
         else:
-            print(f"Radio received message : {message}")
-            index, *message = message
+            index, *message_data = message
+            print(f"Radio received message  with  index : {index} | message data : {message_data}")
 
+        if len(message_data) == 1:
+            message_data = message_data[0]
         # print(index, topic, message)
-        print(f"Received index : {index}")
         # Check if message is a duplicate
         if index == self._previous_message_time:
             return None
@@ -78,7 +79,7 @@ class Radio:
         # Update previous message time
         self._previous_message_time = index
 
-        return message
+        return message_data
 
     def shutdown(self):
         self._radio.join()
