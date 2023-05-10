@@ -86,7 +86,7 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Radio(topics=["drivebase", "shutdown"],
+        self._radio = Radio(topics=["drive", "shutdown"],
                             broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
@@ -148,7 +148,7 @@ class RoverPoweredUpHub:
 
     def run(self):
         while True:
-            data = self._radio.receive("drivebase")
+            data = self._radio.receive("drive")
             if data:
                 angle, distance = data
                 self.drive(angle, distance)

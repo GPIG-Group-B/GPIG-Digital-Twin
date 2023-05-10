@@ -92,7 +92,7 @@ class RoverSpikeHub:
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
 
-        self._radio = Radio(topics=["drivebase", "shutdown"],
+        self._radio = Radio(topics=["drive", "shutdown"],
                             broadcast_func=Broadcast)
 
 
@@ -138,7 +138,7 @@ class RoverSpikeHub:
         Returns:
             None
         """
-        self._radio.send("drivebase",
+        self._radio.send("drive",
                          (angle, distance))
 
     def scan_surroundings(self):
