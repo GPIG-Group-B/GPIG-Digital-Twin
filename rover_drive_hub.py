@@ -86,7 +86,7 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Radio(topics=["drive", "shutdown"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
@@ -150,8 +150,10 @@ class RoverPoweredUpHub:
         while True:
             data = self._radio.receive("drive")
             if data:
-                angle, distance = data
+                angle, distance, command_id = data
                 self.drive(angle, distance)
+                self._radio.send("complete", (command_id,))
+
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown is not None:
                 print("Shutting down")
@@ -179,10 +181,15 @@ class RoverPoweredUpHub:
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
                                         target_angle=angle)
         if angle == 0:
-            self._drive_base.straight(distance=distance)
+            self._drive_base.straight(distance=distance, wait=False)
         else:
             rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
             arc = 360 * (distance / (2 * math.pi * rad))
             self._drive_base.curve(radius=rad,
-                                   angle=arc)
+                                   angle=arc, 
+                                   wait=False)
 
+        while not self._drive_base.done():
+            wait(10)
+    
+        # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub

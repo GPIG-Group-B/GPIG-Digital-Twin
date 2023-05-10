@@ -3,10 +3,13 @@ try:
     from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
     from pybricks.robotics import DriveBase
     from pybricks.experimental import Broadcast
+    from pybricks.tools import wait
 
 except ImportError:
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
     from mock_pybricks import BroadcastHost as Broadcast
+    from time import sleep as wait
+
 
 import constants
 from sensors import UltrasonicScanner
@@ -92,9 +95,10 @@ class RoverSpikeHub:
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
 
-        self._radio = Radio(topics=["drive", "shutdown"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
-
+        
+        self._command_id = 0
 
 
     def shutdown(self):
@@ -138,8 +142,15 @@ class RoverSpikeHub:
         Returns:
             None
         """
+
+        # Send drive command to drive hub
+        self._command_id += 1
         self._radio.send("drive",
-                         (angle, distance))
+                         (angle, distance, self._command_id))
+        
+        # Until drive hub has completed driving, wait
+        while self._command_id != self._radio.receive("complete"):
+            wait(10)
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
