@@ -6,9 +6,9 @@ try:
     from pybricks.tools import wait
 
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
     from mock_pybricks import BroadcastHost as Broadcast
-    from time import sleep as wait
+
 
 
 import constants
@@ -149,7 +149,11 @@ class RoverSpikeHub:
                          (angle, distance, self._command_id))
         
         # Until drive hub has completed driving, wait
-        while self._command_id != self._radio.receive("complete"):
+        while True:
+            received_completion = self._radio.receive("complete")
+            print(received_completion)
+            if received_completion == self._command_id:
+                break
             wait(10)
 
     def scan_surroundings(self):
