@@ -189,8 +189,11 @@ class RoverPoweredUpHub:
                                    angle=arc, 
                                    wait=False)
 
-        while not self._drive_base.done():
-            print(f"drive base is done {self._drive_base.done()}")
+        while True:
+            drive_done = self._drive_base.done()
+            print(f"drive base is done = {self._drive_base.done()}")
+            if drive_done:
+                break
             wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
