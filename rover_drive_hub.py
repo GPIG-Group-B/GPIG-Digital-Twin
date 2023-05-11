@@ -85,7 +85,7 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Radio(topics=["drive", "shutdown", "complete"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete", "emergency_stop"],
                             broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
@@ -193,6 +193,10 @@ class RoverPoweredUpHub:
             drive_done = self._drive_base.done()
             print(f"drive base is done = {self._drive_base.done()}")
             if drive_done:
+                break
+            if self._radio.receive("emergency_stop"):
+                self._drive_base.stop()
+                print("EMERGENCY STOP!")
                 break
             wait(10)
     
