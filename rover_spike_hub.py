@@ -95,7 +95,7 @@ class RoverSpikeHub:
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
 
-        self._radio = Radio(topics=["drive", "shutdown", "complete"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete", "emergency_stop"],
                             broadcast_func=Broadcast)
         
         self._command_id = 0
@@ -148,13 +148,21 @@ class RoverSpikeHub:
         self._radio.send("drive",
                          (angle, distance, self._command_id))
         
-        # Until drive hub has completed driving, wait
+        # Until drive hub has completed driving, check if we need to emergency stop
         while True:
+            if self.detect_pit():
+                self._radio.send("emergency_stop", (1,))
+                print("EMERGENCY STOP!")
+                return
             received_completion = self._radio.receive("complete")
             print(received_completion)
             if received_completion == self._command_id:
                 break
             wait(10)
+
+    def detect_pit(self):
+        # TODO: Implement pit detection
+        return False
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
