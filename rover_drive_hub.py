@@ -153,11 +153,11 @@ class RoverPoweredUpHub:
                 self.drive(angle, distance)
                 print(f"Sending completion confirmation with command id {command_id}")
                 self._radio.send("complete", (command_id,))
-
+            wait(50)
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown is not None:
                 print("Shutting down")
-                wait(10) # Wait enough time for the other hub to get the acknowledgement
+                wait(1000) # Wait enough time for the other hub to get the acknowledgement
                 return
 
     def drive(self,
@@ -190,7 +190,7 @@ class RoverPoweredUpHub:
                                    wait=False)
 
         while not self._drive_base.done():
-            print(f"drive base is done {self._drive_base.done()}")
-            wait(10)
+           print(f"drive base is done {self._drive_base.done()}")
+           wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
