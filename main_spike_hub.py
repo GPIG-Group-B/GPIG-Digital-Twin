@@ -3,7 +3,7 @@ import constants
 try:
     from pybricks.tools import wait
 except ImportError:
-    from time import sleep as wait
+    from mock_pybricks import wait
 
 
 def main():

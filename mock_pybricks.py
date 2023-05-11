@@ -1,4 +1,5 @@
 import threading
+import time
 from queue import Queue
 
 import constants
@@ -153,7 +154,7 @@ class Motor(PybricksDevice):
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class DriveBase():
@@ -174,8 +175,10 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
+        self._ongoing_command = True
         self._left_motor.run(550)
         self._right_motor.run(550)
+        self._ongoing_command = False
         print("Running straight")
 
     def turn(self,
@@ -253,7 +256,7 @@ class DriveBase():
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class UltrasonicSensor(PybricksDevice):
@@ -461,6 +464,7 @@ class Broadcast:
                 return None
             else:
                 data_to_return = [self._known_types[each_val[1]](each_val[0]) for each_val in data["data"].values()]
+                print(f"Data to return : {data_to_return}")
                 if len(data_to_return) == 1:
                     # Fix weird ack issue
                     data_to_return = data_to_return[0]
@@ -496,5 +500,6 @@ class BroadcastClient(Broadcast):
 
 
 
-
+def wait(time_to_wait : int):
+    time.sleep(time_to_wait / 1000)
 
