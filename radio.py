@@ -1,9 +1,10 @@
-from typing import List
+
 
 try:
     from pybricks.experimental import Broadcast
     from pybricks.tools import wait
 except ImportError:
+    from typing import List
     from mock_pybricks import wait
 
 
@@ -43,6 +44,7 @@ class Radio:
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
         while acknowledged != self._index:
+            print(f"Ack received: {acknowledged}" )
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
         self._index += 1
