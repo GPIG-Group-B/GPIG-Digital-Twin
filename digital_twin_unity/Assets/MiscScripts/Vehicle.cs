@@ -10,7 +10,11 @@ public class Vehicle : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        foreach (Wheel eachWheel in wheels)
+        {
+            eachWheel.wheelCollider.ConfigureVehicleSubsteps(5.0f, 25, 5);
+        }
+
     }
 
     // Update is called once per frame
