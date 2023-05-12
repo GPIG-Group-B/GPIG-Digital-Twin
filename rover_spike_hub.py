@@ -89,7 +89,7 @@ class RoverSpikeHub:
 
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
         self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
-        self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GREY])
+        self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GRAY])
         self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
                                                      sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
                                                      default_scan_start_deg=constants.SCAN_START,
