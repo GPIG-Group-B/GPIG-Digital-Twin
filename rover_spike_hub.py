@@ -181,7 +181,9 @@ class RoverSpikeHub:
             wait(10)
 
     def detect_canal(self):
-        return self._colour_sensor.color(surface=True) == Color.BLACK
+        detected_color = self._colour_sensor.color(surface=True)
+        print(detected_color)
+        return False
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
