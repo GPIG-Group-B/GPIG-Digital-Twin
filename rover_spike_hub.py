@@ -96,7 +96,7 @@ class RoverSpikeHub:
                                                      default_scan_end_deg=constants.SCAN_END,
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._colour_sensor.detectable_colors([Color.BLACK])
+        self._colour_sensor.detectable_colors([Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE, Color.VIOLET, Color.MAGENTA, Color.WHITE, Color.GRAY, Color.BLACK])
 
 
         self._radio = Radio(topics=["drive", "shutdown", "complete"],
@@ -172,18 +172,20 @@ class RoverSpikeHub:
         while True:
             if self.detect_canal():
                 self._radio.send("drive", (0,0, self._command_id))
-                print("EMERGENCY STOP!")
-                return
+                print("Sent stop command!")
+                return False
+                
             received_completion = self._radio.receive("complete")
-            print(received_completion)
             if received_completion == self._command_id:
-                break
+                print(received_completion)
+                return True
             wait(10)
 
     def detect_canal(self):
-        detected_color = self._colour_sensor.color(surface=True)
-        print(detected_color)
-        return False
+        stop = self._colour_sensor.color(surface=True) == Color.BLACK
+        if stop:
+            print("EMERGENCY STOP!")
+        return stop
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range

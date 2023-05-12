@@ -150,9 +150,10 @@ class RoverPoweredUpHub:
             data = self._radio.receive("drive")
             if data:
                 angle, distance, command_id = data
-                self.drive(angle, distance)
-                print(f"Sending completion confirmation with command id {command_id}")
-                self._radio.send("complete", (command_id,))
+                successful = self.drive(angle, distance)
+                if successful:
+                    print(f"Sending completion confirmation with command id {command_id}")
+                    self._radio.send("complete", (command_id,))
             wait(50)
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown is not None:
@@ -191,15 +192,16 @@ class RoverPoweredUpHub:
 
         while True:
             drive_done = self._drive_base.done()
-            print(f"drive base is done = {self._drive_base.done()}")
+            # print(f"drive base is done = {self._drive_base.done()}")
             if drive_done:
-                break
+                return True
             stop = self._radio.receive("drive")
             if stop:
+                print("Emergency stop:", stop)
                 if stop[1] == 0:
                     self._drive_base.stop()
                     print("EMERGENCY STOP!")
-                    break
+                    return False
             wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
