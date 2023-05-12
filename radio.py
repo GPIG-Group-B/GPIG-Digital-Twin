@@ -29,12 +29,12 @@ class Radio:
              topic: str,
              message: tuple) -> None:
         
-        print("Message:", message)
+        # print("Message:", message)
         
         if topic not in self._topics:
             raise ValueError("Topic not in list of topics")
 
-        print("message index =", self._index)
+        # print("message index =", self._index)
 
         # Send the message
         message = (self._index,) + message
@@ -44,7 +44,7 @@ class Radio:
         # Wait for acknowledgement
         acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
         while acknowledged != self._index:
-            print(f"Ack received: {acknowledged}" )
+            # print(f"Ack received: {acknowledged}" )
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
         self._index += 1
@@ -63,7 +63,7 @@ class Radio:
             return None
         else:
             index, *message_data = message
-            print(f"Radio received message  with  index : {index} | message data : {message_data}")
+            # print(f"Radio received message  with  index : {index} | message data : {message_data}")
 
         if len(message_data) == 1:
             message_data = message_data[0]
