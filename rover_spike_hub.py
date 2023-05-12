@@ -99,7 +99,7 @@ class RoverSpikeHub:
         self._colour_sensor.detectable_colors([Color.BLACK])
 
 
-        self._radio = Radio(topics=["drive", "shutdown", "complete", "emergency_stop"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
         
         self._command_id = 0
@@ -171,7 +171,7 @@ class RoverSpikeHub:
         # Until drive hub has completed driving, check if we need to emergency stop
         while True:
             if self.detect_canal():
-                self._radio.send("emergency_stop", (1,))
+                self._radio.send("drive", (0,0, self._command_id))
                 print("EMERGENCY STOP!")
                 return
             received_completion = self._radio.receive("complete")
