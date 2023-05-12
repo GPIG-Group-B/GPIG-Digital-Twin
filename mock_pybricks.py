@@ -503,3 +503,34 @@ class BroadcastClient(Broadcast):
 def wait(time_to_wait : int):
     time.sleep(time_to_wait / 1000)
 
+
+class hsv:
+
+    def __init__(self,
+                 h,
+                 s,
+                 v):
+        self._h = h
+        self._s = s
+        self._v = v
+class  Color:
+
+    RED = hsv(h=0,
+              s=100,
+              v=100)
+
+    BLUE = hsv(h=240,
+               s = 100,
+               v = 100)
+
+    YELLOW = hsv(h=60,
+                 s=100,
+                 v=100)
+    GRAY = hsv(h=0,
+               s=0,
+               v=50)
+
+    BLACK = hsv(h=0,
+                s=0,
+                v=10)
+

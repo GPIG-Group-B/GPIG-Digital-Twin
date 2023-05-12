@@ -1,5 +1,5 @@
 try:
-    from pybricks.parameters import Direction
+    from pybricks.parameters import Direction, Color
     from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
     from pybricks.robotics import DriveBase
     from pybricks.experimental import Broadcast
@@ -88,12 +88,15 @@ class RoverSpikeHub:
 
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
         self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+        self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GREY])
         self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
                                                      sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
                                                      default_scan_start_deg=constants.SCAN_START,
                                                      default_scan_end_deg=constants.SCAN_END,
                                                      gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
+        self._colour_sensor.detectable_colors([Color.BLACK])
+
 
         self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
@@ -126,7 +129,23 @@ class RoverSpikeHub:
         """
         self._max_turn_angle = new_max_angle
 
+    def detect_colour_primary(self):
+        return self._colour_distance_sensor.color()
 
+    def detect_colour_secondary(self):
+        return self._colour_sensor.color()
+
+    def get_distance_forward(self):
+        return self._colour_distance_sensor.distance()
+
+    def get_force(self):
+        return self._force_sensor.force()
+
+    def get_force_sensor_pressed(self, force=3):
+        return self._force_sensor.pressed(force= force)
+
+    def get_force_sensor_is_touched(self):
+        return self._force_sensor.touched()
 
     def drive(self,
               angle: int,
