@@ -13,7 +13,7 @@ class Radio:
     ACKOWLEDGE_TOPIC = "acknowledge"
 
     def __init__(self,
-                 topics: List[str],
+                 topics,
                  broadcast_func) -> None:
         
         # Set up the radio
