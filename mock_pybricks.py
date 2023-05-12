@@ -1,20 +1,21 @@
-import math
-import time
+import threading
+from queue import Queue
 
-from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
+import constants
+from connection_utils import setup_server_connection, send_json_message, send_device_type_id, receive_json, setup_client_connection
 import socket
-
+from collections import OrderedDict
 class Direction:
 
-    COUNTER_CLOCKWISE = "counter_clockwise"
+    COUNTERCLOCKWISE = "COUNTERCLOCKWISE"
     CLOCKWISE = "clockwise"
 
 class PybricksDevice:
 
     def __init__(self, port, device_type_id):
-        self._port, self._additional_data = setup_server_connction(ip=port.ip,
-                                                                   port = port.port,
-                                                                   num_connections=1)
+        self._port, self._additional_data = setup_server_connection(ip=port.ip,
+                                                                    port = port.port,
+                                                                    num_connections=1)
         self._DEVICE_TYPE_ID = device_type_id
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
 
@@ -161,13 +162,11 @@ class DriveBase():
                  left_motor : Motor,
                  right_motor : Motor,
                  wheel_diameter : int,
-                 axle_track : int,
-                 positive_direction : Direction):
+                 axle_track : int):
         self._left_motor = left_motor
         self._right_motor = right_motor
         self._wheel_diameter = wheel_diameter
         self._axle_track = axle_track
-        self._positive_direction = positive_direction
         self._ongoing_command = False
 
     def straight(self,
@@ -423,5 +422,114 @@ class ColorDistanceSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
+
+
+class Broadcast:
+
+    def __init__(self, topics : list, connection : socket.socket, additional_data = b""):
+        self._topics = topics
+        self._inbound_queue = Queue()
+        self._outbound_queue = Queue()
+        self._additional_data = additional_data
+        self._connection = connection
+        self._known_types = {"int" : int,
+                             "str" : str,
+                             "float" : float,
+                             "bool" : bool}
+        self._receiver_thread = threading.Thread(target=self.receiver_worker_function)
+        self._sender_thread = threading.Thread(target=self.sender_worker_function)
+        self._receiver_thread.start()
+        self._sender_thread.start()
+
+    def join(self):
+        print("Sender thread joined")
+        self._sender_thread.join()
+        print("REceived thread joined")
+        self._receiver_thread.join()
+
+
+
+    def sender_worker_function(self):
+        while True:
+            data_dict = self._outbound_queue.get(block=True)
+            send_json_message(connection=  self._connection,
+                              message_dict=data_dict,
+                              message_id=0)
+            if not self._receiver_thread.is_alive() or data_dict["topic"] == "shutdown":
+                print("Shutting down sender worker")
+                return
+
+    def receiver_worker_function(self):
+        while True:
+            try:
+                data, self._additional_data, message_type = receive_json(connection=self._connection,
+                                                                         additional_data=self._additional_data)
+            except socket.error:
+                print("Caught connection closed. Initiating shutdown of workers")
+                return
+            self._inbound_queue.put(data)
+            if not self._sender_thread.is_alive() or data["topic"] == "shutdown":
+                print("Shutting down receiver worker")
+                return
+
+    def send(self, topic, broadcast_data : list):
+        if type(broadcast_data) not in (list, tuple):
+            broadcast_data = [broadcast_data]
+        if topic not in self._topics:
+            raise ValueError(f"You have attempted to send on topic : {topic} but broadcast is setup with these topics : {self._topics}")
+        data_dict = OrderedDict([(f"value_{i}", (data, type(data).__name__)) for i, data in enumerate(broadcast_data)])
+        full_json = {"topic" : topic,
+                     "data" : data_dict}
+        self._outbound_queue.put(full_json)
+
+
+
+    def receive(self, topic):
+        if self._inbound_queue.empty():
+            return None
+        else:
+            data = self._inbound_queue.get()
+            topic_received = data["topic"]
+            if topic_received != topic:
+                #TODO: Figure out a better solution
+                self._inbound_queue.put(data)
+                return None
+            else:
+                data_to_return = [self._known_types[each_val[1]](each_val[0]) for each_val in data["data"].values()]
+                if len(data_to_return) == 1:
+                    # Fix weird ack issue
+                    data_to_return = data_to_return[0]
+                return data_to_return
+
+
+
+class BroadcastHost(Broadcast):
+
+    def __init__(self, topics):
+        connection, additional_data = setup_server_connection(ip=constants.BROADCAST_IP,
+                                                              port=constants.BROADCAST_PORT,
+                                                              num_connections=1)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+class BroadcastClient(Broadcast):
+
+    def __init__(self, topics):
+        connection, additional_data = setup_client_connection(ip=constants.BROADCAST_IP,
+                                                              port = constants.BROADCAST_PORT)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+
+
+
+
+
 
 
