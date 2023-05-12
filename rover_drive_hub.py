@@ -194,10 +194,12 @@ class RoverPoweredUpHub:
             print(f"drive base is done = {self._drive_base.done()}")
             if drive_done:
                 break
-            if self._radio.receive("drive")[1] == 0:
-                self._drive_base.stop()
-                print("EMERGENCY STOP!")
-                break
+            stop = self._radio.receive("drive")
+            if stop:
+                if stop[1] == 0:
+                    self._drive_base.stop()
+                    print("EMERGENCY STOP!")
+                    break
             wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
