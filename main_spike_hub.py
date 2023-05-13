@@ -18,17 +18,15 @@ def main():
                   depth=constants.ROVER_DEPTH)
 
     print("Let's drive!")
-    complete = rover.drive(angle=0,
-                distance=-500)
-    if complete:
-        print("Drive successful")
-    else:
-        print("Aborted! Let's go back!")
-        rover.drive(angle=0,
-                distance=50)
-        print("Safe and sound!")
-    wait(10)
+    rover.drive(angle=0,
+                distance=1000)
+    print("Completed first drive")
+    wait(2000)
 
+    rover.drive(angle=0,
+            distance=-1000)
+    print("Completed second drive")
+    wait(2000)
 
     print("Shutting down")
     rover.shutdown()

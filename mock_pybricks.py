@@ -1,3 +1,4 @@
+import math
 import threading
 import time
 from queue import Queue
@@ -175,11 +176,36 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
+        speed_to_run = 35
+        if distance < 0:
+            speed_to_run *= -1
+            distance = abs(distance)
         self._ongoing_command = True
-        self._left_motor.run(550)
-        self._right_motor.run(550)
+        left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
+
+        self._left_motor.run(speed_to_run)
+        self._right_motor.run(speed_to_run)
+        left_motor_last_angle = self._left_motor.angle()
+        right_motor_last_angle = self._right_motor.angle()
+        left_motor_current_angle, right_motor_current_angle = left_motor_last_angle, right_motor_last_angle
+        print(f"Average driven distance : {avg_driven_distance} | distance : {distance}")
+        while avg_driven_distance < distance:
+            print(f"Average driven distance : {avg_driven_distance}. {distance}")
+            left_motor_driven_distance += self._get_distance_from_angle_diff(left_motor_last_angle, left_motor_current_angle)
+            right_motor_driven_distance += self._get_distance_from_angle_diff(right_motor_last_angle, right_motor_current_angle)
+            right_motor_last_angle = right_motor_current_angle
+            left_motor_last_angle = left_motor_current_angle
+            left_motor_current_angle = self._left_motor.angle()
+            right_motor_current_angle = self._right_motor.angle()
+            avg_driven_distance = (left_motor_driven_distance + right_motor_driven_distance) / 2
+        print(f"Average driven distance : {avg_driven_distance}. {distance}")
+        self._left_motor.stop()
+        self._right_motor.stop()
         self._ongoing_command = False
-        print("Running straight")
+
+    def _get_distance_from_angle_diff(self, last_angle, current_angle):
+        return abs(((current_angle - last_angle)/ 360) * math.pi * self._wheel_diameter)
+
 
     def turn(self,
              angle : int,
