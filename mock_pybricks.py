@@ -1,4 +1,5 @@
 import threading
+import time
 from queue import Queue
 
 import constants
@@ -153,7 +154,7 @@ class Motor(PybricksDevice):
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class DriveBase():
@@ -288,7 +289,7 @@ class DriveBase():
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class UltrasonicSensor(PybricksDevice):
@@ -327,6 +328,12 @@ class ColorSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=2)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
 
     def color(self, surface : bool = True):
         MESSAGE_ID = 2
@@ -348,6 +355,12 @@ class ColorSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["ambient_light"]
+
+    def detectable_colors(self, colour_list: list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
 
 
 class ForceSensor(PybricksDevice):
@@ -392,6 +405,12 @@ class ColorDistanceSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=4)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
         self.light = Light()
 
     def color(self, surface : bool = True):
@@ -422,6 +441,12 @@ class ColorDistanceSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
+
+    def detectable_colors(self, colour_list : list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
 
 
 class Broadcast:
@@ -496,6 +521,7 @@ class Broadcast:
                 return None
             else:
                 data_to_return = [self._known_types[each_val[1]](each_val[0]) for each_val in data["data"].values()]
+                print(f"Data to return : {data_to_return}")
                 if len(data_to_return) == 1:
                     # Fix weird ack issue
                     data_to_return = data_to_return[0]
@@ -530,6 +556,68 @@ class BroadcastClient(Broadcast):
 
 
 
+
+def wait(time_to_wait : int):
+    time.sleep(time_to_wait / 1000)
+
+
+class hsv:
+
+    def __init__(self,
+                 h,
+                 s,
+                 v):
+        self._h = h
+        self._s = s
+        self._v = v
+class  Color:
+
+    RED = hsv(h=0,
+              s=100,
+              v=100)
+
+    ORANGE = hsv(h=30,
+                 s=100,
+                 v=100)
+    YELLOW = hsv(h=60,
+                 s=100,
+                 v=100)
+
+    GREEN = hsv(h=120,
+                s=100,
+                v=100)
+
+    CYAN = hsv(h=180,
+               s=100,
+               v=100)
+
+    BLUE = hsv(h=240,
+               s = 100,
+               v = 100)
+
+    VIOLET = hsv(h=270,
+                 s=100,
+                 v=100)
+
+    MAGENTA = hsv(h=300,
+                  s=100,
+                  v=100)
+
+    WHITE = hsv(h=0,
+                s=0,
+                v=100)
+
+    GRAY = hsv(h=0,
+               s=0,
+               v=50)
+
+    BLACK = hsv(h=0,
+                s=0,
+                v=10)
+
+    NONE = hsv(h=0,
+               s=0,
+               v=0)
 
 
 
