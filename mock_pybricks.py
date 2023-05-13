@@ -175,6 +175,7 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
+        self._ongoing_command = True
         distance *= 1000
         left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
         left_motor_last_angle = self._left_motor.angle()
@@ -195,6 +196,7 @@ class DriveBase():
             print(avg_driven_distance)
         self._left_motor.stop()
         self._right_motor.stop()
+        self._ongoing_command = False
 
     def _get_distance_from_angle_diff(self, last_angle, current_angle):
         print(f"current angle : {current_angle}")
