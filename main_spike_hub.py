@@ -19,14 +19,14 @@ def main():
 
     print("Let's drive!")
     rover.drive(angle=0,
-                distance=100)
-    print("First drive sent")
-    wait(1)
+                distance=1000)
+    print("Completed first drive")
+    wait(2000)
 
     rover.drive(angle=0,
-            distance=-100)
-    print("Second drive sent")
-    wait(1)
+            distance=-1000)
+    print("Completed second drive")
+    wait(2000)
 
     print("Shutting down")
     rover.shutdown()
