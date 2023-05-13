@@ -7,10 +7,8 @@ try:
     from pybricks.parameters import Color
 
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
+    from mock_pybricks import Motor, DriveBase, ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
     from mock_pybricks import BroadcastHost as Broadcast
-
-
 
 import constants
 from sensors import UltrasonicScanner
@@ -88,22 +86,23 @@ class RoverSpikeHub:
         self._lego_spike_hub = LegoSpikeHub()
 
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
-        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+        self._colour_distance_sensor = ColorDistanceSensor(
+            port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
         self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GRAY])
-        self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
-                                                     sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
-                                                     default_scan_start_deg=constants.SCAN_START,
-                                                     default_scan_end_deg=constants.SCAN_END,
-                                                     gear_ratio=constants.GEAR_RATIO)
-        self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._colour_sensor.detectable_colors([Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE, Color.VIOLET, Color.MAGENTA, Color.WHITE, Color.GRAY, Color.BLACK])
+        self._ultrasonic_scanner = UltrasonicScanner(
+            motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
+            sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
+            default_scan_start_deg=constants.SCAN_START,
+            default_scan_end_deg=constants.SCAN_END,
+            gear_ratio=constants.GEAR_RATIO)
+        self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
+        self._colour_sensor.detectable_colors([Color.BLACK])
 
 
         self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
-        
-        self._command_id = 0
 
+        self._command_id = 0
 
     def shutdown(self):
         self._radio.send("shutdown", (1,))
@@ -143,7 +142,7 @@ class RoverSpikeHub:
         return self._force_sensor.force()
 
     def get_force_sensor_pressed(self, force=3):
-        return self._force_sensor.pressed(force= force)
+        return self._force_sensor.pressed(force=force)
 
     def get_force_sensor_is_touched(self):
         return self._force_sensor.touched()
@@ -167,7 +166,7 @@ class RoverSpikeHub:
         self._command_id += 1
         self._radio.send("drive",
                          (angle, distance, self._command_id))
-        
+
         # Until drive hub has completed driving, check if we need to emergency stop
         while True:
             if self.detect_canal():
