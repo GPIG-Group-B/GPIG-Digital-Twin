@@ -10,6 +10,19 @@ except ImportError:
     from mock_pybricks import Motor, DriveBase, ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
     from mock_pybricks import BroadcastHost as Broadcast
 
+ALL_COLOURS = [Color.RED,
+               Color.ORANGE,
+               Color.YELLOW,
+               Color.GREEN,
+               Color.CYAN,
+               Color.BLUE,
+               Color.VIOLET,
+               Color.MAGENTA,
+               Color.WHITE,
+               Color.GRAY,
+               Color.BLACK,
+               Color.NONE]
+
 import constants
 from sensors import UltrasonicScanner
 from utils import LegoSpikeHub
@@ -78,6 +91,8 @@ class RoverSpikeHub:
             wheelbase:
                 Wheelbase of the rover in mm
         """
+
+
         self._height, self._width, self._depth = height, width, depth
         self._axle_track = axle_track
         self._wheel_diam = wheel_diam
@@ -88,7 +103,7 @@ class RoverSpikeHub:
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
         self._colour_distance_sensor = ColorDistanceSensor(
             port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
-        self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GRAY])
+        self._colour_distance_sensor.detectable_colors(ALL_COLOURS)
         self._ultrasonic_scanner = UltrasonicScanner(
             motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
             sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
@@ -96,7 +111,7 @@ class RoverSpikeHub:
             default_scan_end_deg=constants.SCAN_END,
             gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._colour_sensor.detectable_colors([Color.BLACK])
+        self._colour_sensor.detectable_colors(ALL_COLOURS)
 
 
         self._radio = Radio(topics=["drive", "shutdown", "complete"],
