@@ -176,14 +176,19 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
+        speed_to_run = 35
+        if distance < 0:
+            speed_to_run *= -1
+            distance = abs(distance)
         self._ongoing_command = True
-        distance *= 1000
         left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
+
+        self._left_motor.run(speed_to_run)
+        self._right_motor.run(speed_to_run)
         left_motor_last_angle = self._left_motor.angle()
         right_motor_last_angle = self._right_motor.angle()
         left_motor_current_angle, right_motor_current_angle = left_motor_last_angle, right_motor_last_angle
-        self._left_motor.run(35)
-        self._right_motor.run(35)
+        print(f"Average driven distance : {avg_driven_distance} | distance : {distance}")
         while avg_driven_distance < distance:
             print(f"Average driven distance : {avg_driven_distance}. {distance}")
             left_motor_driven_distance += self._get_distance_from_angle_diff(left_motor_last_angle, left_motor_current_angle)
@@ -193,27 +198,12 @@ class DriveBase():
             left_motor_current_angle = self._left_motor.angle()
             right_motor_current_angle = self._right_motor.angle()
             avg_driven_distance = (left_motor_driven_distance + right_motor_driven_distance) / 2
-            time.sleep(0.1)
-            print(avg_driven_distance)
+        print(f"Average driven distance : {avg_driven_distance}. {distance}")
         self._left_motor.stop()
         self._right_motor.stop()
         self._ongoing_command = False
 
     def _get_distance_from_angle_diff(self, last_angle, current_angle):
-        print(f"current angle : {current_angle}")
-        print(f"Last angle : {last_angle}")
-        alpha = current_angle - last_angle
-        beta = alpha + 360
-        gamma = alpha - 360
-        possible_values = [alpha, beta, gamma]
-        current_min_abs_value = abs(possible_values[0])
-        current_shortest_val = possible_values[0]
-        for i in range(1,3):
-            abs_val = abs(possible_values[i])
-            if abs_val < current_min_abs_value:
-                current_min_abs_value = abs_val
-                current_shortest_val = possible_values[i]
-        print(current_shortest_val < 0)
         return abs(((current_angle - last_angle)/ 360) * math.pi * self._wheel_diameter)
 
 
