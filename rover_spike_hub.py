@@ -10,6 +10,19 @@ except ImportError:
     from mock_pybricks import Motor, DriveBase, ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
     from mock_pybricks import BroadcastHost as Broadcast
 
+ALL_COLOURS = [Color.RED,
+               Color.ORANGE,
+               Color.YELLOW,
+               Color.GREEN,
+               Color.CYAN,
+               Color.BLUE,
+               Color.VIOLET,
+               Color.MAGENTA,
+               Color.WHITE,
+               Color.GRAY,
+               Color.BLACK,
+               Color.NONE]
+
 import constants
 from sensors import UltrasonicScanner
 from utils import LegoSpikeHub
@@ -78,6 +91,8 @@ class RoverSpikeHub:
             wheelbase:
                 Wheelbase of the rover in mm
         """
+
+
         self._height, self._width, self._depth = height, width, depth
         self._axle_track = axle_track
         self._wheel_diam = wheel_diam
@@ -88,7 +103,7 @@ class RoverSpikeHub:
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
         self._colour_distance_sensor = ColorDistanceSensor(
             port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
-        self._colour_distance_sensor.detectable_colors([Color.BLUE, Color.YELLOW, Color.GRAY])
+        self._colour_distance_sensor.detectable_colors(ALL_COLOURS)
         self._ultrasonic_scanner = UltrasonicScanner(
             motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
             sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
@@ -96,9 +111,10 @@ class RoverSpikeHub:
             default_scan_end_deg=constants.SCAN_END,
             gear_ratio=constants.GEAR_RATIO)
         self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
-        self._colour_sensor.detectable_colors([Color.BLACK])
+        self._colour_sensor.detectable_colors(ALL_COLOURS)
 
-        self._radio = Radio(topics=["drive", "shutdown", "complete", "emergency_stop"],
+
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
 
         self._command_id = 0
@@ -169,17 +185,21 @@ class RoverSpikeHub:
         # Until drive hub has completed driving, check if we need to emergency stop
         while True:
             if self.detect_canal():
-                self._radio.send("emergency_stop", (1,))
-                print("EMERGENCY STOP!")
-                return
+                self._radio.send("drive", (0,0, self._command_id))
+                print("Sent stop command!")
+                return False
+                
             received_completion = self._radio.receive("complete")
-            print(received_completion)
             if received_completion == self._command_id:
-                break
+                print(received_completion)
+                return True
             wait(10)
 
     def detect_canal(self):
-        return self._colour_sensor.color(surface=True) == Color.BLACK
+        stop = self._colour_sensor.color(surface=True) == Color.BLACK
+        if stop:
+            print("EMERGENCY STOP!")
+        return stop
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range
