@@ -7,7 +7,7 @@ try:
     from pybricks.parameters import Color
 
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
     from mock_pybricks import BroadcastHost as Broadcast
 
 
