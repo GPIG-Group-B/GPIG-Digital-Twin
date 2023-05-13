@@ -3098,7 +3098,6 @@ MonoBehaviour:
     wheelCollider: {fileID: 834240152}
   - transform: {fileID: 6031149347311861568}
     wheelCollider: {fileID: 1579582797}
-  rb: {fileID: 0}
 --- !u!23 &3217747430150336304
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3677,7 +3676,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0b653e87e98b1e4fa9d8881399de3cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65492
+  port: 60003
   ip: localhost
 --- !u!4 &4464150125911566738
 Transform:
@@ -4007,7 +4006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e03fa4f8d49c20243938a05b171eb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65496
+  port: 60007
   ip: localhost
   wheelCollider: {fileID: 325222686}
   wheelTransform: {fileID: 524478509606321741}
@@ -4661,7 +4660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e6669a0bb5a2684593ca9c6fc0ef4d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65493
+  port: 60004
   ip: localhost
 --- !u!1 &6502691482339124189
 GameObject:
@@ -5020,7 +5019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aab8583a65480c48ab63c429cf3ccca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65490
+  port: 60001
   ip: localhost
 --- !u!33 &7021441551851413877
 MeshFilter:
@@ -5264,7 +5263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0515e6b16a2f90f4dbf703ef2eba9490, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65494
+  port: 60005
   ip: localhost
 --- !u!23 &7575753281647993457
 MeshRenderer:
@@ -5598,7 +5597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08fc9ef6f96bba548b8b14f79ba5c1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65491
+  port: 60002
   ip: localhost
   attachedObject: {fileID: 784094909}
   rotate_x: 0
@@ -5715,7 +5714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf0b5778eb6f4444f88fb75bcb8526f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65498
+  port: 60009
   ip: localhost
   rightWheelCollider: {fileID: 1360556169}
   leftWheelCollider: {fileID: 1373184684}
@@ -5750,7 +5749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e03fa4f8d49c20243938a05b171eb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65497
+  port: 60008
   ip: localhost
   wheelCollider: {fileID: 205113347}
   wheelTransform: {fileID: 5339965621252754549}
@@ -6046,7 +6045,6 @@ MonoBehaviour:
     wheelCollider: {fileID: 1373184684}
   - transform: {fileID: 5339965621252754549}
     wheelCollider: {fileID: 205113347}
-  rb: {fileID: 9085150306139466656}
 --- !u!54 &9085150306139466656
 Rigidbody:
   m_ObjectHideFlags: 0
