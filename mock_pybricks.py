@@ -295,6 +295,12 @@ class ColorSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=2)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
 
     def color(self, surface : bool = True):
         MESSAGE_ID = 2
@@ -316,6 +322,12 @@ class ColorSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["ambient_light"]
+
+    def detectable_colors(self, colour_list: list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
 
 
 class ForceSensor(PybricksDevice):
@@ -360,6 +372,12 @@ class ColorDistanceSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=4)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
         self.light = Light()
 
     def color(self, surface : bool = True):
@@ -390,6 +408,12 @@ class ColorDistanceSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
+
+    def detectable_colors(self, colour_list : list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
 
 
 class Broadcast:
@@ -519,13 +543,37 @@ class  Color:
               s=100,
               v=100)
 
+    ORANGE = hsv(h=30,
+                 s=100,
+                 v=100)
+    YELLOW = hsv(h=60,
+                 s=100,
+                 v=100)
+
+    GREEN = hsv(h=120,
+                s=100,
+                v=100)
+
+    CYAN = hsv(h=180,
+               s=100,
+               v=100)
+
     BLUE = hsv(h=240,
                s = 100,
                v = 100)
 
-    YELLOW = hsv(h=60,
+    VIOLET = hsv(h=270,
                  s=100,
                  v=100)
+
+    MAGENTA = hsv(h=300,
+                  s=100,
+                  v=100)
+
+    WHITE = hsv(h=0,
+                s=0,
+                v=100)
+
     GRAY = hsv(h=0,
                s=0,
                v=50)
@@ -533,4 +581,10 @@ class  Color:
     BLACK = hsv(h=0,
                 s=0,
                 v=10)
+
+    NONE = hsv(h=0,
+               s=0,
+               v=0)
+
+
 
