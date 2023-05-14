@@ -1,3 +1,10 @@
+try:
+    import sys
+    import os
+    sys.path.append(os.path.abspath("../.."))
+except ImportError:
+    pass
+
 from rover_drive_hub import RoverPoweredUpHub
 import constants
 

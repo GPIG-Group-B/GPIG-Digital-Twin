@@ -1,10 +1,13 @@
-from rover_spike_hub import RoverSpikeHub
-import constants
 try:
     from pybricks.tools import wait
 except ImportError:
+    import sys
+    import os
+    sys.path.append(os.path.abspath("../.."))
     from mock_pybricks import wait
-
+   
+from rover_spike_hub import RoverSpikeHub
+import constants
 
 def main():
     print("----------------------")
