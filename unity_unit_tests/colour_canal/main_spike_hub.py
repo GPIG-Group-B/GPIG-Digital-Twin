@@ -20,7 +20,7 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
 
-    print("Checking colour of rock:")
+    print("Checking colour of floor:")
     colour = rover.detect_colour_secondary()
     print("Colour detected - " + str(colour))
 
