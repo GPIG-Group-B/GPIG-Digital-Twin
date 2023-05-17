@@ -7,6 +7,8 @@ try:
 except ImportError:
     pass
 
+# Run with constants.py and utils.py on the Rover
+
 HUB = LegoSpikeHub()
 
 Color.CUSTOM_GREY = Color(h=0, s=0, v=60)
