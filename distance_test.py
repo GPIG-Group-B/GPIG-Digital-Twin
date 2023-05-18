@@ -53,7 +53,11 @@ def run_test_case(test_id):
 
 def main():
     test_id = "BACKWARDS_100_CM"
-    print(f"Running test with ID = {test_id}.")
+
+    print("----------------------")
+    print(f"Starting test with ID = {test_id}.")
+    print("----------------------")
+
     run_test_case(test_id)
     print("Test Complete")
 
