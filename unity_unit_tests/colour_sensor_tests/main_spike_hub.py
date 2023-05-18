@@ -11,6 +11,8 @@ import constants
 
 def main():
     print("----------------------")
+    print("Beginning colour sensor test")
+    print("----------------------")
 
     rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
                   axle_track=constants.AXLE_TRACK,
