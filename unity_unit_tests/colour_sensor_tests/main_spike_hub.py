@@ -24,11 +24,17 @@ def main():
     colour = rover.detect_colour_primary()
     print("Colour detected - " + str(colour))
 
+    print("Checking colour of floor:")
+    colour = rover.detect_colour_secondary()
+    print("Colour detected - " + str(colour))
+
+    print("Checking distance to object:")
+    colour = rover.get_distance_forward()
+    print("Colour detected - " + str(colour))
+
     print("Shutting down")
     rover.shutdown()
     print("All done!")
-
-
 
 
 if __name__ == "__main__":
