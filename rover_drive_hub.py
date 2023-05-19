@@ -161,6 +161,12 @@ class RoverPoweredUpHub:
                 wait(1000) # Wait enough time for the other hub to get the acknowledgement
                 return
 
+    def drive_target(self, desired_angle, distance):
+        arctan_x = (self._wheelbase * desired_angle * 2 * math.pi) / (distance * 360)
+        x = math.tan(arctan_x)
+        self.drive(angle=x,
+                   distance=distance)
+
     def drive(self,
               angle: int,
               distance: int):
