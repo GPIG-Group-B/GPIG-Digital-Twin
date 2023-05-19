@@ -215,7 +215,7 @@ Transform:
   m_GameObject: {fileID: 72418666}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.8, y: -2.97, z: 6.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -502,8 +502,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 8
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -526,14 +526,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 268279173}
-  m_LocalRotation: {x: -0, y: 0.6287417, z: -0, w: 0.77761424}
-  m_LocalPosition: {x: -2.1571214, y: 0.2, z: -0.39}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 2.22, y: 9.01, z: 6.27}
   m_LocalScale: {x: 100, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8457514625150824740}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 77.915, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &325222684
 GameObject:
   m_ObjectHideFlags: 0
@@ -3098,7 +3098,6 @@ MonoBehaviour:
     wheelCollider: {fileID: 834240152}
   - transform: {fileID: 6031149347311861568}
     wheelCollider: {fileID: 1579582797}
-  rb: {fileID: 0}
 --- !u!23 &3217747430150336304
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3677,7 +3676,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0b653e87e98b1e4fa9d8881399de3cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65492
+  port: 60003
   ip: localhost
 --- !u!4 &4464150125911566738
 Transform:
@@ -4007,7 +4006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e03fa4f8d49c20243938a05b171eb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65496
+  port: 60007
   ip: localhost
   wheelCollider: {fileID: 325222686}
   wheelTransform: {fileID: 524478509606321741}
@@ -4661,7 +4660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e6669a0bb5a2684593ca9c6fc0ef4d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65493
+  port: 60004
   ip: localhost
 --- !u!1 &6502691482339124189
 GameObject:
@@ -5020,7 +5019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aab8583a65480c48ab63c429cf3ccca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65490
+  port: 60001
   ip: localhost
 --- !u!33 &7021441551851413877
 MeshFilter:
@@ -5264,7 +5263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0515e6b16a2f90f4dbf703ef2eba9490, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65494
+  port: 60005
   ip: localhost
 --- !u!23 &7575753281647993457
 MeshRenderer:
@@ -5598,7 +5597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08fc9ef6f96bba548b8b14f79ba5c1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65491
+  port: 60002
   ip: localhost
   attachedObject: {fileID: 784094909}
   rotate_x: 0
@@ -5715,7 +5714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf0b5778eb6f4444f88fb75bcb8526f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65498
+  port: 60009
   ip: localhost
   rightWheelCollider: {fileID: 1360556169}
   leftWheelCollider: {fileID: 1373184684}
@@ -5750,7 +5749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e03fa4f8d49c20243938a05b171eb5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 65497
+  port: 60008
   ip: localhost
   wheelCollider: {fileID: 205113347}
   wheelTransform: {fileID: 5339965621252754549}
@@ -5803,7 +5802,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9085150306139466654}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.9361231, y: -2.141, z: 2.0363834}
+  m_LocalPosition: {x: -2.9361231, y: -2.141, z: 0.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6046,7 +6045,6 @@ MonoBehaviour:
     wheelCollider: {fileID: 1373184684}
   - transform: {fileID: 5339965621252754549}
     wheelCollider: {fileID: 205113347}
-  rb: {fileID: 9085150306139466656}
 --- !u!54 &9085150306139466656
 Rigidbody:
   m_ObjectHideFlags: 0
