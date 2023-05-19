@@ -53,7 +53,7 @@ public class Output_logs : MonoBehaviour
         style.normal.background = Texture2D.grayTexture;
 
         //display time taken and distance travelled at bottom of the screen
-        GUI.Label(new Rect(10, Screen.height - 50, 500, 20), "Time elapsed : " + Time.time.ToString("0.00"),style );
+        GUI.Label(new Rect(10, Screen.height - 50, 300, 20), "Time elapsed : " + Time.time.ToString("0.00"),style );
         
 
 
@@ -65,7 +65,7 @@ public class Output_logs : MonoBehaviour
 
         Debug.Log("Vector3 distance" + Vector3.Distance(last_position, current_position));
         last_position = current_position;
-        GUI.Label(new Rect(10, Screen.height - 30, 500, 50), "Distance travelled : " + distance_travelled,style);
+        GUI.Label(new Rect(10, Screen.height - 30, 300, 20), "Distance travelled : " + distance_travelled,style);
         
 
         ///debugging distance travelled
@@ -82,7 +82,7 @@ public class Output_logs : MonoBehaviour
             //display the sidebar
             //create rectangle for the sidebar
             
-            GUILayout.BeginArea(new Rect(10, 80, 300, 300),style);
+            GUILayout.BeginArea(new Rect(10, 80, 300, 250),style);
             
             // display label for each wheel motor
             foreach (WheelMotor wm in wheelMotors)
@@ -93,6 +93,13 @@ public class Output_logs : MonoBehaviour
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
                 GUILayout.Label("Wheel " + wm.name + " rotation (x,y,z): " + rotation.eulerAngles.ToString("0.00"));
+            }
+
+            foreach( ColourDistanceSensor cds in colourDistanceSensors){
+                GUILayout.Label("<There will be some colour distance sensor info here>");
+            }
+            foreach(ColourSensor cs in colourSensors){
+                GUILayout.Label("<There will be some colour sensor info here>");
             }
 
             GUILayout.EndArea();            
