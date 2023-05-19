@@ -9,7 +9,9 @@ public class Output_logs : MonoBehaviour
 {
 
     [SerializeField]
-    public GameObject Rover;
+    public GameObject rover;
+
+    public float distanceTravelled = 0;
 
     public List<SteeringMotor> steeringMotors;
     public List<UltrasonicSensor> us_sensors;
@@ -25,25 +27,27 @@ public class Output_logs : MonoBehaviour
 
     private GUIStyle style;
 
-    static float distance_travelled = 0;
 
-    private Vector3 last_position;
-    private Vector3 current_position;
 
-    void awake()
+    private Vector3 lastTrackedPosition;
+
+    void Start()
     {
-        //get the starting position of the rover
-        distance_travelled = 0;
-        last_position = Rover.transform.position;
-
+        lastTrackedPosition = rover.transform.position;
     }
 
-        
+    void FixedUpdate()
+    {
+        Vector3 currentPosition = rover.transform.position;
 
+        //To ignore vertical movement
+        currentPosition.y = lastTrackedPosition.y;
 
-        
+        distanceTravelled += (Vector3.Distance(currentPosition, lastTrackedPosition))/10;
 
+        lastTrackedPosition = currentPosition;
 
+    }
 
     void OnGUI()
     {
@@ -51,23 +55,6 @@ public class Output_logs : MonoBehaviour
         style.normal = new GUIStyleState();
         style.normal.textColor = Color.white;
         style.normal.background = Texture2D.grayTexture;
-
-        //display time taken and distance travelled at bottom of the screen
-        GUI.Label(new Rect(10, Screen.height - 50, 300, 20), "Time elapsed : " + Time.time.ToString("0.00"),style );
-        
-
-
-       //get the current position of the rover
-        current_position = Rover.transform.position;
-
-        //calculate distance travelled
-        distance_travelled = Vector3.Distance(new Vector3(0.0f,-0.87f,0.0f), current_position);
-
-        Debug.Log("Vector3 distance" + Vector3.Distance(last_position, current_position));
-        last_position = current_position;
-        GUI.Label(new Rect(10, Screen.height - 30, 300, 20), "Distance travelled : " + distance_travelled,style);
-        
-
         ///debugging distance travelled
 
         //add a button that toggles a sidebar to display the current state of the car
@@ -76,7 +63,6 @@ public class Output_logs : MonoBehaviour
             //toggle the sidebar
             showSidebar = !showSidebar;
         }
-
         if (showSidebar)
         {
             //display the sidebar
@@ -87,12 +73,14 @@ public class Output_logs : MonoBehaviour
             // display label for each wheel motor
             foreach (WheelMotor wm in wheelMotors)
             {
+
                 Vector3 position;
                 Quaternion rotation;
                 wm.wheelCollider.GetWorldPose(out position, out rotation);
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
                 GUILayout.Label("Wheel " + wm.name + " rotation (x,y,z): " + rotation.eulerAngles.ToString("0.00"));
+
             }
 
             foreach( ColourDistanceSensor cds in colourDistanceSensors){
@@ -104,6 +92,16 @@ public class Output_logs : MonoBehaviour
 
             GUILayout.EndArea();            
         }
+
+
+        
+        //display time taken and distance travelled at bottom of the screen
+        GUI.Label(new Rect(10, Screen.height - 50, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",style );
+
+        GUI.Label(new Rect(10, Screen.height - 30, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",style);
+        
+
+
     }
     
 

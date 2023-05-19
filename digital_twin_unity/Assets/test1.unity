@@ -6172,7 +6172,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11acd622389871441851c37528797c3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rover: {fileID: 9085150306139466654}
+  rover: {fileID: 9085150306139466654}
+  distanceTravelled: 0
   steeringMotors:
   - {fileID: 8269469876363338622}
   us_sensors:
