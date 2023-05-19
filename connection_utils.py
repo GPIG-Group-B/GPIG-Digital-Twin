@@ -7,16 +7,19 @@ INIT_CONNECTION_STRING = "GPIG-Group-B-Client".encode()
 
 
 
-def setup_server_connction(ip,
-                           port,
-                           num_connections=1):
+def setup_server_connection(ip,
+                            port,
+                            num_connections=1):
     with socket.socket(socket.AF_INET,
                        socket.SOCK_STREAM) as s:
-        try:
-            s.bind((ip, port))
-        except OSError as e:
-            print(f"Got error {e}. Retrying in 3 seconds")
-            time.sleep(3)
+        while True:
+            print(f"Attempting to connect to ip : {ip} | port : {port}")
+            try:
+                s.bind((ip, port))
+                break
+            except OSError as e:
+                print(f"Got error {e}. Retrying in 3 seconds")
+                time.sleep(3)
         print(f"Waiting for connection on IP : {ip} | PORT : {port}")
         s.listen(num_connections)
         connection, _ = s.accept()
@@ -30,6 +33,28 @@ def setup_server_connction(ip,
             print("Received expected init string. Accepting connection. Sending confirmation string")
             connection.sendall(ACKNOWLEDGEMENT_CONNECTION_STRING)
     return connection, additional_data
+
+def setup_client_connection(ip,
+                           port):
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    while True:
+        print(f"Attempting to connect to ip : {ip} | port : {port}")
+        try:
+            s.connect((ip, port))
+            break
+        except OSError as e:
+            print(f"Got error {e}. Retrying in 3 seconds")
+            time.sleep(3)
+    print(f"Accepted connection on IP : {ip} | PORT : {port}")
+    s.sendall(INIT_CONNECTION_STRING)
+    data, additional_data = receive_data(connection=s,
+                                         length=len(ACKNOWLEDGEMENT_CONNECTION_STRING))
+    if data != ACKNOWLEDGEMENT_CONNECTION_STRING:
+        s.close()
+        raise ValueError(f"Expected init string : {ACKNOWLEDGEMENT_CONNECTION_STRING}. Received {data} Closing connection")
+    else:
+        print("Received expected init string. Accepting connection. Sending confirmation string")
+    return s, additional_data
 
 
 def send_json_message(connection: socket.socket,
@@ -55,7 +80,7 @@ def receive_data(connection,
     while len(data) < length:
         data += connection.recv(length - len(data))
         if not data:
-            raise Exception("Connection was closed")
+            raise socket.error("Connection was closed")
     return data[:length], data[length:]
 
 

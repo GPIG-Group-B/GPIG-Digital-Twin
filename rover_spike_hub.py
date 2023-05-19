@@ -1,17 +1,35 @@
 try:
-    import umath as math
-    from pybricks.parameters import Direction
-    from pybricks.pupdevices import Motor
+    from pybricks.parameters import Direction, Color
+    from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
     from pybricks.robotics import DriveBase
+    from pybricks.experimental import Broadcast
+    from pybricks.tools import wait
+    from pybricks.parameters import Color
+
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import Motor, DriveBase, ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
+    from mock_pybricks import BroadcastHost as Broadcast
+
+ALL_COLOURS = [Color.RED,
+               Color.ORANGE,
+               Color.YELLOW,
+               Color.GREEN,
+               Color.CYAN,
+               Color.BLUE,
+               Color.VIOLET,
+               Color.MAGENTA,
+               Color.WHITE,
+               Color.GRAY,
+               Color.BLACK,
+               Color.NONE]
 
 import constants
 from sensors import UltrasonicScanner
-from utils import LegoSpikeHub, PoweredUpHub
+from utils import LegoSpikeHub
+from radio import Radio
 
 
-class Rover:
+class RoverSpikeHub:
     """Rover class for controlling the lego spike rover
 
     Attributes:
@@ -73,38 +91,42 @@ class Rover:
             wheelbase:
                 Wheelbase of the rover in mm
         """
+
+
         self._height, self._width, self._depth = height, width, depth
         self._axle_track = axle_track
         self._wheel_diam = wheel_diam
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._lego_spike_hub = LegoSpikeHub()
-        self._powered_up_hub = PoweredUpHub()
-        self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
 
-        self._drive_base = DriveBase(left_motor=self._left_motor,
-                                     right_motor=self._right_motor,
-                                     wheel_diameter=self._wheel_diam,
-                                     axle_track=self._axle_track,
-                                     positive_direction=Direction.CLOCKWISE)
-        self._ultrasonic_scanner = UltrasonicScanner(motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
-                                                     sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
-                                                     default_scan_start_deg=constants.SCAN_START,
-                                                     default_scan_end_deg=constants.SCAN_END,
-                                                     gear_ratio=constants.GEAR_RATIO)
-        self._colour_sensor = ColorSensor(port = self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
         self._force_sensor = ForceSensor(port=self._lego_spike_hub.get_port_from_str(constants.FORCE_SENSOR_PORT))
-        self._colour_distance_sensor = ColorDistanceSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+        self._colour_distance_sensor = ColorDistanceSensor(
+            port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_DISTANCE_SENSOR_PORT))
+        self._colour_distance_sensor.detectable_colors(ALL_COLOURS)
+        self._ultrasonic_scanner = UltrasonicScanner(
+            motor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_MOTOR_PORT),
+            sensor_port=self._lego_spike_hub.get_port_from_str(constants.ULTRASONIC_SENSOR_PORT),
+            default_scan_start_deg=constants.SCAN_START,
+            default_scan_end_deg=constants.SCAN_END,
+            gear_ratio=constants.GEAR_RATIO)
+        self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
+        self._colour_sensor.detectable_colors(ALL_COLOURS)
+
+
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
+                            broadcast_func=Broadcast)
+
+        self._command_id = 0
 
     def shutdown(self):
+        self._radio.send("shutdown", (1,))
         try:
-            self._left_motor.send_shutdown_message()
-            self._right_motor.send_shutdown_message()
-            self._steering_motor.send_shutdown_message()
             self._ultrasonic_scanner.send_shutdown_message()
             self._colour_sensor.send_shutdown_message()
             self._force_sensor.send_shutdown_message()
             self._colour_distance_sensor.send_shutdown_message()
+            self._radio.shutdown()
         except:
             pass
 
@@ -122,27 +144,23 @@ class Rover:
         """
         self._max_turn_angle = new_max_angle
 
-    def _setup_motors(self):
-        """Utility method to setup motors when Rover __init__ func is called
+    def detect_colour_primary(self):
+        return self._colour_distance_sensor.color()
 
-        Args:
-            left_motor_port:
-                Port letter assignment for left motor
-            right_motor_port:
-                Port letter assignment for right motor
-            steering_motor_port:
-                Steering letter assignment for steering motor
+    def detect_colour_secondary(self):
+        return self._colour_sensor.color()
 
-        Returns:
-            three Motor objects corresponding to the left motor, right motor and steering motor respectively
-        """
-        l_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.LEFT_MOTOR_PORT),
-                        positive_direction=Direction.CLOCKWISE)
-        r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
-                        positive_direction=Direction.COUNTER_CLOCKWISE)
-        steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.COUNTER_CLOCKWISE)
-        return l_motor, r_motor, steering_motor
+    def get_distance_forward(self):
+        return self._colour_distance_sensor.distance()
+
+    def get_force(self):
+        return self._force_sensor.force()
+
+    def get_force_sensor_pressed(self, force=3):
+        return self._force_sensor.pressed(force=force)
+
+    def get_force_sensor_is_touched(self):
+        return self._force_sensor.touched()
 
     def drive(self,
               angle: int,
@@ -158,19 +176,30 @@ class Rover:
         Returns:
             None
         """
-        if abs(angle) > self._max_turn_angle:
-            raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
-        DEFAULT_SPEED = 100
 
-        self._steering_motor.run_target(speed=DEFAULT_SPEED,
-                                        target_angle=angle)
-        if angle == 0:
-            self._drive_base.straight(distance=distance)
-        else:
-            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * math.pi * rad))
-            self._drive_base.curve(radius=rad,
-                                   angle=arc)
+        # Send drive command to drive hub
+        self._command_id += 1
+        self._radio.send("drive",
+                         (angle, distance, self._command_id))
+
+        # Until drive hub has completed driving, check if we need to emergency stop
+        while True:
+            if self.detect_canal():
+                self._radio.send("drive", (0,0, self._command_id))
+                print("Sent stop command!")
+                return False
+                
+            received_completion = self._radio.receive("complete")
+            if received_completion == self._command_id:
+                print(received_completion)
+                return True
+            wait(10)
+
+    def detect_canal(self):
+        stop = self._colour_sensor.color(surface=True) == Color.BLACK
+        if stop:
+            print("EMERGENCY STOP!")
+        return stop
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range

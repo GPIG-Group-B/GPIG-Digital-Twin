@@ -14,6 +14,7 @@ public class WheelMotor : Device
     private string _load;
 
     public WheelCollider wheelCollider;
+    public Transform wheelTransform;
 
     private static UInt16 _INFO_MESSAGE_ID = 1;
     private static UInt16 _STOP_MESSAGE_ID = 2;
@@ -24,6 +25,9 @@ public class WheelMotor : Device
     private static UInt16 _RUN_ANGLE_MESSAGE_ID = 7;
     private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
     private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
+    private static UInt16 _ANGLE_MESSAGE_ID = 10;
+    private Double _total_rotation = 0;
+    private Quaternion _last_recorded_rotation;
 
 
 
@@ -41,8 +45,11 @@ public class WheelMotor : Device
         this.message_dict.Add(_RUN_ANGLE_MESSAGE_ID, RunAngle);
         this.message_dict.Add(_RUN_TARGET_MESSAGE_ID, RunTarget);
         this.message_dict.Add(_TRACK_TARGET_MESSAGE_ID, TrackTarget);
+        this.message_dict.Add(_ANGLE_MESSAGE_ID, Angle);
 
         base.Start();
+        this.wheelCollider.brakeTorque = 1000;
+        _last_recorded_rotation = wheelTransform.rotation;
     }
 
 
@@ -65,21 +72,29 @@ public class WheelMotor : Device
 
     }
 
-
+    void FixedUpdate()
+    {
+        //_total_rotation += Math.Abs((wheelCollider.rpm / 60) * 360 * Time.deltaTime);
+        Quaternion current_rotation = wheelTransform.rotation;
+        _total_rotation += Math.Abs(Quaternion.Angle(_last_recorded_rotation, current_rotation));
+        _last_recorded_rotation = current_rotation;
+    }
 
 
     private void Stop(string message_string)
     {
         Debug.Log("Motor Stop");
         //Implement stop
-
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new StopReturnMessage()), _STOP_MESSAGE_ID);
     }
     private void Brake(string message_string)
     {
         Debug.Log("Motor Brake");
         //Implement Brake
-
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new BrakeReturnMessage()), _BRAKE_MESSAGE_ID);
     }
 
@@ -92,6 +107,8 @@ public class WheelMotor : Device
     }
     private void Run(string message_string)
     {
+        wheelCollider.brakeTorque = 0;
+        _total_rotation = 0;
         Debug.Log("Motor Run");
         //Implement Hold
         Debug.Log(message_string);
@@ -105,6 +122,8 @@ public class WheelMotor : Device
 
     private void RunTime(string message_string)
     {
+        wheelCollider.brakeTorque = 0;
+        _total_rotation = 0;
         Debug.Log("Motor Run Time");
         //Implement Hold
         string returnMessage = JsonUtility.ToJson(new RunTimeReturnMessage());
@@ -145,6 +164,16 @@ public class WheelMotor : Device
         Debug.Log("Motor Track Target");
         TrackTargetMessage message = JsonUtility.FromJson<TrackTargetMessage>(message_string);
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new TrackTargetMessage()), _TRACK_TARGET_MESSAGE_ID);
+    }
+
+    private void Angle(string message_string)
+    {
+
+
+        AngleReturnMessage returnMessage = new AngleReturnMessage();
+        returnMessage.angle = (int) _total_rotation;
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage),
+                                        messageID: _ANGLE_MESSAGE_ID);
     }
 
     private class RunMessage
@@ -212,6 +241,10 @@ public class WheelMotor : Device
 
     private class TrackTargetReturnMessage { }
 
+    private class AngleReturnMessage
+    {
+        public int angle;
+    }
 
 
     IEnumerator ApplyTorqueTime(int torque, int seconds)
@@ -225,7 +258,7 @@ public class WheelMotor : Device
 
         }
         wheelCollider.motorTorque = 0;
-        wheelCollider.brakeTorque = 100;
+        wheelCollider.brakeTorque = 10000;
         yield return null;
     }
 
@@ -240,7 +273,7 @@ public class WheelMotor : Device
 
         }
         wheelCollider.motorTorque = 0;
-        wheelCollider.brakeTorque = 100;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(message, messageID);
         yield return null;
     }

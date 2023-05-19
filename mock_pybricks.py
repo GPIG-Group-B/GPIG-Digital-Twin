@@ -1,17 +1,23 @@
-from connection_utils import setup_server_connction, send_json_message, send_device_type_id, receive_json
-import socket
+import math
+import threading
+import time
+from queue import Queue
 
+import constants
+from connection_utils import setup_server_connection, send_json_message, send_device_type_id, receive_json, setup_client_connection
+import socket
+from collections import OrderedDict
 class Direction:
 
-    COUNTER_CLOCKWISE = "counter_clockwise"
+    COUNTERCLOCKWISE = "COUNTERCLOCKWISE"
     CLOCKWISE = "clockwise"
 
 class PybricksDevice:
 
     def __init__(self, port, device_type_id):
-        self._port, self._additional_data = setup_server_connction(ip=port.ip,
-                                                                   port = port.port,
-                                                                   num_connections=1)
+        self._port, self._additional_data = setup_server_connection(ip=port.ip,
+                                                                    port = port.port,
+                                                                    num_connections=1)
         self._DEVICE_TYPE_ID = device_type_id
         send_device_type_id(connection=self._port, device_type_id=self._DEVICE_TYPE_ID)
 
@@ -149,7 +155,7 @@ class Motor(PybricksDevice):
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class DriveBase():
@@ -158,13 +164,11 @@ class DriveBase():
                  left_motor : Motor,
                  right_motor : Motor,
                  wheel_diameter : int,
-                 axle_track : int,
-                 positive_direction : Direction):
+                 axle_track : int):
         self._left_motor = left_motor
         self._right_motor = right_motor
         self._wheel_diameter = wheel_diameter
         self._axle_track = axle_track
-        self._positive_direction = positive_direction
         self._ongoing_command = False
 
     def straight(self,
@@ -172,8 +176,36 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
-        self._left_motor.run(55)
-        self._right_motor.run(55)
+        speed_to_run = 35
+        if distance < 0:
+            speed_to_run *= -1
+            distance = abs(distance)
+        self._ongoing_command = True
+        left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
+
+        self._left_motor.run(speed_to_run)
+        self._right_motor.run(speed_to_run)
+        left_motor_last_angle = self._left_motor.angle()
+        right_motor_last_angle = self._right_motor.angle()
+        left_motor_current_angle, right_motor_current_angle = left_motor_last_angle, right_motor_last_angle
+        print(f"Average driven distance : {avg_driven_distance} | distance : {distance}")
+        while avg_driven_distance < distance:
+            print(f"Average driven distance : {avg_driven_distance}. {distance}")
+            left_motor_driven_distance += self._get_distance_from_angle_diff(left_motor_last_angle, left_motor_current_angle)
+            right_motor_driven_distance += self._get_distance_from_angle_diff(right_motor_last_angle, right_motor_current_angle)
+            right_motor_last_angle = right_motor_current_angle
+            left_motor_last_angle = left_motor_current_angle
+            left_motor_current_angle = self._left_motor.angle()
+            right_motor_current_angle = self._right_motor.angle()
+            avg_driven_distance = (left_motor_driven_distance + right_motor_driven_distance) / 2
+        print(f"Average driven distance : {avg_driven_distance}. {distance}")
+        self._left_motor.stop()
+        self._right_motor.stop()
+        self._ongoing_command = False
+
+    def _get_distance_from_angle_diff(self, last_angle, current_angle):
+        return abs(((current_angle - last_angle)/ 360) * math.pi * self._wheel_diameter)
+
 
     def turn(self,
              angle : int,
@@ -250,7 +282,7 @@ class DriveBase():
         raise NotImplementedError()
 
     def done(self):
-        return self._ongoing_command
+        return not self._ongoing_command
 
 
 class UltrasonicSensor(PybricksDevice):
@@ -289,6 +321,12 @@ class ColorSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=2)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
 
     def color(self, surface : bool = True):
         MESSAGE_ID = 2
@@ -310,6 +348,12 @@ class ColorSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["ambient_light"]
+
+    def detectable_colors(self, colour_list: list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
 
 
 class ForceSensor(PybricksDevice):
@@ -354,6 +398,12 @@ class ColorDistanceSensor(PybricksDevice):
                  port):
         super().__init__(port=port,
                          device_type_id=4)
+        self._colour_list = [Color.RED,
+                             Color.YELLOW,
+                             Color.GREEN,
+                             Color.BLUE,
+                             Color.WHITE,
+                             Color.NONE]
         self.light = Light()
 
     def color(self, surface : bool = True):
@@ -384,5 +434,183 @@ class ColorDistanceSensor(PybricksDevice):
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
         return response_message["distance"]
+
+    def detectable_colors(self, colour_list : list = None):
+        if colour_list is None:
+            return self._colour_list
+
+        self._colour_list = colour_list
+
+
+class Broadcast:
+
+    def __init__(self, topics : list, connection : socket.socket, additional_data = b""):
+        self._topics = topics
+        self._inbound_queue = Queue()
+        self._outbound_queue = Queue()
+        self._additional_data = additional_data
+        self._connection = connection
+        self._known_types = {"int" : int,
+                             "str" : str,
+                             "float" : float,
+                             "bool" : bool}
+        self._receiver_thread = threading.Thread(target=self.receiver_worker_function)
+        self._sender_thread = threading.Thread(target=self.sender_worker_function)
+        self._receiver_thread.start()
+        self._sender_thread.start()
+
+    def join(self):
+        print("Sender thread joined")
+        self._sender_thread.join()
+        print("REceived thread joined")
+        self._receiver_thread.join()
+
+
+
+    def sender_worker_function(self):
+        while True:
+            data_dict = self._outbound_queue.get(block=True)
+            send_json_message(connection=  self._connection,
+                              message_dict=data_dict,
+                              message_id=0)
+            if not self._receiver_thread.is_alive() or data_dict["topic"] == "shutdown":
+                print("Shutting down sender worker")
+                return
+
+    def receiver_worker_function(self):
+        while True:
+            try:
+                data, self._additional_data, message_type = receive_json(connection=self._connection,
+                                                                         additional_data=self._additional_data)
+            except socket.error:
+                print("Caught connection closed. Initiating shutdown of workers")
+                return
+            self._inbound_queue.put(data)
+            if not self._sender_thread.is_alive() or data["topic"] == "shutdown":
+                print("Shutting down receiver worker")
+                return
+
+    def send(self, topic, broadcast_data : list):
+        if type(broadcast_data) not in (list, tuple):
+            broadcast_data = [broadcast_data]
+        if topic not in self._topics:
+            raise ValueError(f"You have attempted to send on topic : {topic} but broadcast is setup with these topics : {self._topics}")
+        data_dict = OrderedDict([(f"value_{i}", (data, type(data).__name__)) for i, data in enumerate(broadcast_data)])
+        full_json = {"topic" : topic,
+                     "data" : data_dict}
+        self._outbound_queue.put(full_json)
+
+
+
+    def receive(self, topic):
+        if self._inbound_queue.empty():
+            return None
+        else:
+            data = self._inbound_queue.get()
+            topic_received = data["topic"]
+            if topic_received != topic:
+                #TODO: Figure out a better solution
+                self._inbound_queue.put(data)
+                return None
+            else:
+                data_to_return = [self._known_types[each_val[1]](each_val[0]) for each_val in data["data"].values()]
+                print(f"Data to return : {data_to_return}")
+                if len(data_to_return) == 1:
+                    # Fix weird ack issue
+                    data_to_return = data_to_return[0]
+                return data_to_return
+
+
+
+class BroadcastHost(Broadcast):
+
+    def __init__(self, topics):
+        connection, additional_data = setup_server_connection(ip=constants.BROADCAST_IP,
+                                                              port=constants.BROADCAST_PORT,
+                                                              num_connections=1)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+class BroadcastClient(Broadcast):
+
+    def __init__(self, topics):
+        connection, additional_data = setup_client_connection(ip=constants.BROADCAST_IP,
+                                                              port = constants.BROADCAST_PORT)
+
+        super().__init__(topics = topics,
+                         connection = connection,
+                         additional_data = additional_data)
+
+
+
+
+
+
+
+def wait(time_to_wait : int):
+    time.sleep(time_to_wait / 1000)
+
+
+class hsv:
+
+    def __init__(self,
+                 h,
+                 s,
+                 v):
+        self._h = h
+        self._s = s
+        self._v = v
+class  Color:
+
+    RED = hsv(h=0,
+              s=100,
+              v=100)
+
+    ORANGE = hsv(h=30,
+                 s=100,
+                 v=100)
+    YELLOW = hsv(h=60,
+                 s=100,
+                 v=100)
+
+    GREEN = hsv(h=120,
+                s=100,
+                v=100)
+
+    CYAN = hsv(h=180,
+               s=100,
+               v=100)
+
+    BLUE = hsv(h=240,
+               s = 100,
+               v = 100)
+
+    VIOLET = hsv(h=270,
+                 s=100,
+                 v=100)
+
+    MAGENTA = hsv(h=300,
+                  s=100,
+                  v=100)
+
+    WHITE = hsv(h=0,
+                s=0,
+                v=100)
+
+    GRAY = hsv(h=0,
+               s=0,
+               v=50)
+
+    BLACK = hsv(h=0,
+                s=0,
+                v=10)
+
+    NONE = hsv(h=0,
+               s=0,
+               v=0)
+
 
 
