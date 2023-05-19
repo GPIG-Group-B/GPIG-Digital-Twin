@@ -162,10 +162,10 @@ class RoverPoweredUpHub:
                 return
 
     def drive_target(self, desired_angle, distance):
-        arctan_x = (self._wheelbase * desired_angle * 2 * math.pi) / (distance * 360)
-        x = math.tan(arctan_x)
+
+        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         self.drive(angle=x,
-                   distance=distance)
+                distance=distance)
 
     def drive(self,
               angle: int,
