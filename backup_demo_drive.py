@@ -1,7 +1,6 @@
 try:
     import sys
     import os
-    sys.path.append(os.path.abspath("../.."))
 except ImportError:
     pass
 
@@ -22,6 +21,7 @@ def main():
 
     print("Let's-a go!")
     rover.run()
+    rover.drive_target(-90, 20)
     rover.shutdown()
     print("Goodnight!")
 

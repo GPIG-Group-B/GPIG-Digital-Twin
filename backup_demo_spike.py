@@ -6,7 +6,6 @@ except ImportError:
     from time import sleep as wait
     import sys
     import os
-    sys.path.append(os.path.abspath("../.."))
 
 
 def main():
@@ -20,11 +19,9 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
 
-    print("Let's drive!")
     rover.drive(angle=0,
                 distance=100)
-    print("First drive sent")
-    wait(1)
+    # rover.drive_tar
 
 
 
