@@ -333,10 +333,8 @@ class ColorSensor(PybricksDevice):
         response_message = self.send_message(data=locals(),
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
-        received_colour = response_message["colour"]
-        if "a" in received_colour:
-            received_colour.pop("a")
-        return ColorHSV(**received_colour)
+
+        return ColorHSV(**response_message)
 
     def reflection(self):
         MESSAGE_ID = 3
