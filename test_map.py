@@ -1,6 +1,6 @@
 import math
 
-from map import Map, EmptyTile, RoverTile, ImpassableRockTile, GoalTile
+from map import Map, EmptyTile, RoverTile, ObstacleTile, GoalTile, MapVisualiser
 from d_star_lite import DStarLite
 
 # def cost_func(x,y):
@@ -9,13 +9,19 @@ from d_star_lite import DStarLite
     # else:
     # return math.dist([x.pos_x, x.pos_y], [y.pos_x, y.pos_y])
 
-test = Map(size_x=3, size_y=3, resolution=0.5, starting_position_x=0, starting_position_y=0, goal_node_x=5, goal_node_y=5)
-# test.add_impassable_rock_by_angle_distance(0, 1.0)
+
+test = Map(size_x=3, size_y=3.6, resolution=0.2, starting_position_x=0, starting_position_y=0, goal_node_x=8, goal_node_y=10)
+for obs_y in range(7):
+    test.add_obstacle(x=1, y=obs_y)
+for obs_y in range(16):
+    test.add_obstacle(x=4, y=15-obs_y)
+for test_x in range(8):
+    test.add_obstacle(y=12,x=4+test_x)
 goal_node, start_node, all_nodes = test.convert_to_graph()
 
-test = DStarLite(start_node=start_node,
+test_d_star = DStarLite(start_node=start_node,
                  goal_node=goal_node,
                  all_nodes=all_nodes,
                  cost_func=test.cost,
                  move_func=test.update_current_position_by_node)
-test.main()
+visualiser = MapVisualiser(map = test, pathfinding_alg=test_d_star)
