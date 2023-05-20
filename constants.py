@@ -2,10 +2,10 @@
 WHEEL_DIAMETER = 88
 
 # Axle Track in mm
-AXLE_TRACK = 121
+AXLE_TRACK = 160
 
 # Maximum angle the rover can turn in degrees
-MAX_TURN_ANGLE = 22
+MAX_TURN_ANGLE = 45
 
 BROADCAST_IP = "localhost"
 

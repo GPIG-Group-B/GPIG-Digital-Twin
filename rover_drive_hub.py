@@ -8,9 +8,8 @@ try:
     from pybricks.hubs import TechnicHub
     from pybricks.parameters import Color
 except ImportError:
-    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction
+    from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
     from mock_pybricks import BroadcastClient as Broadcast
-    from time import sleep as wait
 
 import constants
 from sensors import UltrasonicScanner
@@ -86,7 +85,7 @@ class RoverPoweredUpHub:
         self._max_turn_angle = max_turn_angle
         self._wheelbase = wheelbase
         self._powered_up_hub = PoweredUpHub()
-        self._radio = Radio(topics=["drivebase", "shutdown"],
+        self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
@@ -148,15 +147,25 @@ class RoverPoweredUpHub:
 
     def run(self):
         while True:
-            data = self._radio.receive("drivebase")
+            data = self._radio.receive("drive")
             if data:
-                angle, distance = data
-                self.drive(angle, distance)
+                angle, distance, command_id = data
+                successful = self.drive(angle, distance)
+                if successful:
+                    print(f"Sending completion confirmation with command id {command_id}")
+                    self._radio.send("complete", (command_id,))
+            wait(50)
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown is not None:
                 print("Shutting down")
-                wait(10) # Wait enough time for the other hub to get the acknowledgement
+                wait(1000) # Wait enough time for the other hub to get the acknowledgement
                 return
+
+    def drive_target(self, desired_angle, distance):
+
+        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
+        self.drive(angle=x,
+                distance=distance)
 
     def drive(self,
               angle: int,
@@ -179,10 +188,26 @@ class RoverPoweredUpHub:
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
                                         target_angle=angle)
         if angle == 0:
-            self._drive_base.straight(distance=distance)
+            self._drive_base.straight(distance=distance, wait=False)
         else:
             rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
             arc = 360 * (distance / (2 * math.pi * rad))
             self._drive_base.curve(radius=rad,
-                                   angle=arc)
+                                   angle=arc, 
+                                   wait=False)
 
+        while True:
+            drive_done = self._drive_base.done()
+            # print(f"drive base is done = {self._drive_base.done()}")
+            if drive_done:
+                return True
+            stop = self._radio.receive("drive")
+            if stop:
+                print("Emergency stop:", stop)
+                if stop[1] == 0:
+                    self._drive_base.stop()
+                    print("EMERGENCY STOP!")
+                    return False
+            wait(10)
+    
+        # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
