@@ -50,6 +50,15 @@ class DStarLite:
         self.goal_node.set_rhs_val(0)
         self.priority_queue_u.insert_node_val_pair(self.goal_node, (self.h(self.start_node, self.goal_node), 0))
 
+    def get_shortest_path_nodes(self):
+        path_nodes = []
+        sp_start_node = self.start_node
+        while sp_start_node != self.goal_node:
+            successor_val_list = [self.cost(sp_start_node, s_prime) + s_prime.get_g_val() for s_prime in sp_start_node.successors]
+            sp_start_node = sp_start_node.successors[successor_val_list.index(min(successor_val_list))]
+            path_nodes.append(sp_start_node)
+        return path_nodes
+
     def main(self):
         self.last_node = self.start_node
         self.initialise()
@@ -94,21 +103,15 @@ class DStarLite:
 
 
     def compute_shortest_path(self):
-        print(f"U top key : {self.priority_queue_u.top_key()}")
         while (self.priority_queue_u.top_key() < self.calculate_key(self.start_node)) or (self.start_node.get_rhs_val() > self.start_node.get_g_val()):
             u = self.priority_queue_u.top()
             k_old = self.priority_queue_u.top_key()
             k_new = self.calculate_key(u)
-            print(f"K _ new : {k_new}")
             if k_old < k_new:
                 self.priority_queue_u.update(node_to_update=u, new_value=k_new)
             elif u.get_g_val() > u.get_rhs_val():
                 u.set_g_val(u.get_rhs_val())
                 self.priority_queue_u.delete(u)
-                for s in u.predecessors:
-                    print(s.pos_x, s.pos_y)
-                    print(s.get_rhs_val())
-                    print(self.cost(s, u))
                 for s in u.predecessors:
                     if s != self.goal_node:
                         s.set_rhs_val(min(s.get_rhs_val(), self.cost(s, u) + u.get_g_val()))
@@ -124,8 +127,6 @@ class DStarLite:
                                 temp = self.cost(s, s_prime) + s_prime.get_g_val()
                                 if min_val is None or temp < min_val:
                                     min_val = temp
-                            print(f"Min val expected : {min_val}")
-                            print(f"Min val predicted : {min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors])}")
                             s.set_rhs_val(min_val)
                             # s.set_rhs_val(min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors]))
                     self.update_vertex(s)
@@ -162,13 +163,8 @@ class DStarSet(list):
         return self[0][1]
 
     def insert_node_val_pair(self, node, value):
-        print("======== INSERTION =====")
-        for val, node_2 in self:
-            print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
-        print(f"Node being added : {node} | Value : {value} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
         heapq.heappush(self, ((*value, self.get_tiebreaker_index(value)), node))
-        print(self)
-        print("======== INSERTION =====")
+
 
     def is_node_present(self, node):
         for each_value, each_node in self:
@@ -194,7 +190,9 @@ class DStarSet(list):
                     raise ValueError("Multiple of the same node in queue")
                 found_node = True
                 if new_value is not None:
-                    to_re_add.append((new_value, node))
+                    to_re_add.append(((value[0], value[1]), node))
+            else:
+                to_re_add.append(((value[0], value[1]), node))
         if not found_node:
             raise ValueError(f"Node : {found_node} could not be found in heap")
         for value, node in to_re_add:
@@ -204,12 +202,12 @@ class DStarSet(list):
 
 
     def delete(self, node):
-        print("======== DELETION =====")
-        print(self)
-        for val, node_2 in self:
-            print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
-        print(f"Node being deleted : {node} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
-        print("======== DELETION =====")
+        # print("======== DELETION =====")
+        # print(self)
+        # for val, node_2 in self:
+        #     print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
+        # print(f"Node being deleted : {node} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
+        # print("======== DELETION =====")
         self.update(node_to_update=node, new_value=None)
 
 if __name__ == '__main__':
