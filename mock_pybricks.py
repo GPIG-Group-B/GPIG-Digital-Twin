@@ -333,7 +333,10 @@ class ColorSensor(PybricksDevice):
         response_message = self.send_message(data=locals(),
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
-        return response_message["colour"]
+        received_colour = response_message["colour"]
+        if "a" in received_colour:
+            received_colour.pop("a")
+        return ColorHSV(**received_colour)
 
     def reflection(self):
         MESSAGE_ID = 3
@@ -411,7 +414,8 @@ class ColorDistanceSensor(PybricksDevice):
         response_message = self.send_message(data=locals(),
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
-        return response_message["colour"]
+
+        return ColorHSV(**response_message)
 
     def reflection(self):
         MESSAGE_ID = 3
@@ -554,7 +558,7 @@ def wait(time_to_wait : int):
     time.sleep(time_to_wait / 1000)
 
 
-class hsv:
+class ColorHSV:
 
     def __init__(self,
                  h,
@@ -563,54 +567,58 @@ class hsv:
         self._h = h
         self._s = s
         self._v = v
-class  Color:
 
-    RED = hsv(h=0,
-              s=100,
-              v=100)
+    def __eq__(self, other):
+        return self._h == other._h and self._s == other._s and self._v == other._v
 
-    ORANGE = hsv(h=30,
-                 s=100,
-                 v=100)
-    YELLOW = hsv(h=60,
-                 s=100,
-                 v=100)
+class Color:
 
-    GREEN = hsv(h=120,
-                s=100,
-                v=100)
+    RED = ColorHSV(h=0,
+                   s=100,
+                   v=100)
 
-    CYAN = hsv(h=180,
-               s=100,
-               v=100)
+    ORANGE = ColorHSV(h=30,
+                      s=100,
+                      v=100)
+    YELLOW = ColorHSV(h=60,
+                      s=100,
+                      v=100)
 
-    BLUE = hsv(h=240,
-               s = 100,
-               v = 100)
+    GREEN = ColorHSV(h=120,
+                     s=100,
+                     v=100)
 
-    VIOLET = hsv(h=270,
-                 s=100,
-                 v=100)
+    CYAN = ColorHSV(h=180,
+                    s=100,
+                    v=100)
 
-    MAGENTA = hsv(h=300,
-                  s=100,
-                  v=100)
+    BLUE = ColorHSV(h=240,
+                    s = 100,
+                    v = 100)
 
-    WHITE = hsv(h=0,
-                s=0,
-                v=100)
+    VIOLET = ColorHSV(h=270,
+                      s=100,
+                      v=100)
 
-    GRAY = hsv(h=0,
-               s=0,
-               v=50)
+    MAGENTA = ColorHSV(h=300,
+                       s=100,
+                       v=100)
 
-    BLACK = hsv(h=0,
-                s=0,
-                v=10)
+    WHITE = ColorHSV(h=0,
+                     s=0,
+                     v=100)
 
-    NONE = hsv(h=0,
-               s=0,
-               v=0)
+    GRAY = ColorHSV(h=0,
+                    s=0,
+                    v=50)
+
+    BLACK = ColorHSV(h=0,
+                     s=0,
+                     v=10)
+
+    NONE = ColorHSV(h=0,
+                    s=0,
+                    v=0)
 
 
 
