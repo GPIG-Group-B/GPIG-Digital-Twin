@@ -38,13 +38,16 @@ class Map:
 
 
     def set_goal_pos(self, x,y):
-        self._grid[self._grid_size_y - y - 1][x] = GoalTile(pos_x=x, pos_y=y)
+        self._grid[y][x] = GoalTile(pos_x=x, pos_y=y)
     def _update_current_position(self, x, y):
-        self._grid[self._grid_size_y - self._current_pos_y - 1][self._current_pos_x] = EmptyTile(pos_x=x, pos_y=y)
-        self._grid[self._grid_size_y - y - 1][x] = RoverTile(pos_x=x, pos_y=y)
+        self._grid[self._current_pos_y][self._current_pos_x] = EmptyTile(pos_x=self._current_pos_x, pos_y=self._current_pos_y)
+        self._grid[y][x] = RoverTile(pos_x=x, pos_y=y)
         self._current_pos_x = x
         self._current_pos_y = y
 
+    def update_current_position_by_node(self, node : Node):
+        self._update_current_position(x=node.pos_x, y=node.pos_y)
+        self.pretty_print_grid()
     def _make_grid_array(self):
         return [[EmptyTile(pos_x=x, pos_y=y) for x in range(self._grid_size_x)] for y in range(self._grid_size_y)]
 
@@ -65,7 +68,7 @@ class Map:
         object_position_y = math.cos(angle) * distance
         object_grid_position_x = math.floor(object_position_x / self._resolution)
         object_grid_position_y = math.floor(object_position_y / self._resolution)
-        self._grid[self._grid_size_y - object_grid_position_y - 1][object_grid_position_x] = ImpassableRockTile(pos_x=object_position_x, pos_y=object_grid_position_y)
+        self._grid[object_grid_position_y][object_grid_position_x] = ImpassableRockTile(pos_x=object_position_x, pos_y=object_grid_position_y)
         self.pretty_print_grid()
 
 
@@ -76,8 +79,10 @@ class Map:
         for row_id in range(self._grid_size_y):
             for col_id in range(self._grid_size_x):
                 center_node = self.get_grid_node(x=col_id, y = row_id)
-                for x_delta in (-1,1):
-                    for y_delta in (-1, 1):
+                for x_delta in range(-1,1):
+                    for y_delta in range(-1,1):
+                        if x_delta == 0 and y_delta == 0:
+                            continue
                         cell_col_id = col_id + x_delta
                         cell_row_id = row_id + y_delta
                         if self._grid_size_y > cell_row_id >= 0:
@@ -89,9 +94,17 @@ class Map:
                                 current_cell.successors.append(center_node)
                                 current_cell.predecessors.append(center_node)
         all_nodes = [cell.node for y in self._grid for cell in y]
-        return self.get_grid_node(x=self._goal_node_x, y = self._goal_node_x), self.get_grid_node(x=self._current_pos_x, y = self._current_pos_y), all_nodes
+        return self.get_grid_node(x=self._goal_node_x, y = self._goal_node_y), self.get_grid_node(x=self._current_pos_x, y = self._current_pos_y), all_nodes
     def get_grid_node(self,x,y):
-        return self._grid[self._grid_size_y - y - 1][x].node
+        return self._grid[y][x].node
+
+    def cost(self, u,v):
+        u_cell = self._grid[u.pos_y][u.pos_x]
+        v_cell = self._grid[v.pos_y][v.pos_x]
+        if isinstance(u_cell, (EmptyTile, GoalTile, RoverTile)) and isinstance(v_cell, (EmptyTile, GoalTile, RoverTile)):
+            return math.dist([u.pos_x, u.pos_y], [v.pos_x, v.pos_y])
+        else:
+            return float("inf")
 
 class Tile():
 
@@ -126,6 +139,6 @@ class GoalTile(Tile):
         super().__init__(type_id = 2, type_name="Goal", pos_x=pos_x, pos_y=pos_y)
 
 if __name__ == "__main__":
-    test = Map(size_x=3, size_y=3, resolution=0.5, starting_position_x=0, starting_position_y=0, goal_node_x=3, goal_node_y=3)
+    test = Map(size_x=3, size_y=3, resolution=0.5, starting_position_x=1, starting_position_y=1, goal_node_x=3, goal_node_y=3)
     # test.add_impassable_rock_by_angle_distance(0, 1.0)
     goal_node, start_node, all_nodes = test.convert_to_graph()
