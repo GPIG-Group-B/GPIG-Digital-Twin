@@ -30,7 +30,7 @@ class Node:
 class DStarLite:
 
 
-    def __init__(self, cost_func, start_node, goal_node, all_nodes):
+    def __init__(self, cost_func, start_node, goal_node, all_nodes, move_func):
         self.cost = cost_func
         self.start_node = start_node
         self.goal_node = goal_node
@@ -38,7 +38,7 @@ class DStarLite:
         self.last_node = None
         self.priority_queue_u = None
         self.k_m = None
-
+        self.move = move_func
 
     def initialise(self):
         self.priority_queue_u = DStarSet()
@@ -76,7 +76,7 @@ class DStarLite:
             #                 u.get_rhs_val(min([self.cost(u, s_prime) + s_prime.get_g_val() for s_prime in u.successors]))
             #         self.update_vertex(u)
             #     self.compute_shortest_path()
-            print("I finished")
+        print("I finished")
 
     def update_edge_cost(self, u, v):
         pass
@@ -85,8 +85,6 @@ class DStarLite:
         print("Scanning")
         return True
 
-    def move(self, node):
-        print("MOVING")
     def h(self, from_node, to_node):
         return math.dist([from_node.pos_x, from_node.pos_y], [to_node.pos_x, to_node.pos_y])
 
@@ -96,15 +94,21 @@ class DStarLite:
 
 
     def compute_shortest_path(self):
+        print(f"U top key : {self.priority_queue_u.top_key()}")
         while (self.priority_queue_u.top_key() < self.calculate_key(self.start_node)) or (self.start_node.get_rhs_val() > self.start_node.get_g_val()):
             u = self.priority_queue_u.top()
             k_old = self.priority_queue_u.top_key()
             k_new = self.calculate_key(u)
+            print(f"K _ new : {k_new}")
             if k_old < k_new:
                 self.priority_queue_u.update(node_to_update=u, new_value=k_new)
             elif u.get_g_val() > u.get_rhs_val():
                 u.set_g_val(u.get_rhs_val())
                 self.priority_queue_u.delete(u)
+                for s in u.predecessors:
+                    print(s.pos_x, s.pos_y)
+                    print(s.get_rhs_val())
+                    print(self.cost(s, u))
                 for s in u.predecessors:
                     if s != self.goal_node:
                         s.set_rhs_val(min(s.get_rhs_val(), self.cost(s, u) + u.get_g_val()))
@@ -113,18 +117,29 @@ class DStarLite:
                 g_old = u.get_g_val()
                 u.set_g_val(float("inf"))
                 for s in u.predecessors + [u]:
-                    if s.get_rhs_val() == self.cost(s, u) + g_old:
+                    if s.get_rhs_val() == (self.cost(s, u) + g_old):
                         if s != self.goal_node:
-                            s.set_rhs_val(min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors]))
+                            min_val = None
+                            for s_prime in s.successors:
+                                temp = self.cost(s, s_prime) + s_prime.get_g_val()
+                                if min_val is None or temp < min_val:
+                                    min_val = temp
+                            print(f"Min val expected : {min_val}")
+                            print(f"Min val predicted : {min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors])}")
+                            s.set_rhs_val(min_val)
+                            # s.set_rhs_val(min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors]))
                     self.update_vertex(s)
 
     def update_vertex(self, node):
         if (node.get_g_val() != node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
+            print("Updated")
             self.priority_queue_u.update(node_to_update=node,
                                          new_value=self.calculate_key(node))
         elif (node.get_g_val() != node.get_rhs_val()) and not self.priority_queue_u.is_node_present(node):
+            print("Insert")
             self.priority_queue_u.insert_node_val_pair(node=node, value=self.calculate_key(node=node))
         elif(node.get_g_val() == node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
+            print("Delete")
             self.priority_queue_u.delete(node=node)
 
 
@@ -144,11 +159,16 @@ class DStarSet(list):
             return self[0][0]
 
     def top(self):
-        print(self)
         return self[0][1]
 
     def insert_node_val_pair(self, node, value):
-        heapq.heappush(self, (value, node))
+        print("======== INSERTION =====")
+        for val, node_2 in self:
+            print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
+        print(f"Node being added : {node} | Value : {value} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
+        heapq.heappush(self, ((*value, self.get_tiebreaker_index(value)), node))
+        print(self)
+        print("======== INSERTION =====")
 
     def is_node_present(self, node):
         for each_value, each_node in self:
@@ -156,6 +176,14 @@ class DStarSet(list):
                 return True
         return False
 
+    def get_tiebreaker_index(self, value):
+        n = 0
+        for (prio_0, prio_1, tiebreaker_val), each_node in self:
+            if value[0] == prio_0 and value[1] == prio_1:
+                n += tiebreaker_val + 1
+        return n
+
+    #TODO: Update to account for removal of tiebreakers properly
     def update(self, node_to_update, new_value = None):
         found_node = False
         to_re_add = []
@@ -169,7 +197,6 @@ class DStarSet(list):
                     to_re_add.append((new_value, node))
         if not found_node:
             raise ValueError(f"Node : {found_node} could not be found in heap")
-        # print("=====")
         for value, node in to_re_add:
             # pass
             # print(value, node)
@@ -177,6 +204,12 @@ class DStarSet(list):
 
 
     def delete(self, node):
+        print("======== DELETION =====")
+        print(self)
+        for val, node_2 in self:
+            print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
+        print(f"Node being deleted : {node} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
+        print("======== DELETION =====")
         self.update(node_to_update=node, new_value=None)
 
 if __name__ == '__main__':
