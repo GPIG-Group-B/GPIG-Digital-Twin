@@ -11,6 +11,9 @@ public class Output_logs : MonoBehaviour
     [SerializeField]
     public GameObject rover;
 
+    [SerializeField]
+    public Rigidbody roverRigidBody;
+
     public float distanceTravelled = 0;
 
     public List<SteeringMotor> steeringMotors;
@@ -25,16 +28,29 @@ public class Output_logs : MonoBehaviour
 
     private bool showSidebar = false;
 
-    private GUIStyle style;
+    private GUIStyle regularStyle;
+    private GUIStyle colourSensorColour;
 
+    private Color rgbTextColour;
 
 
     private Vector3 lastTrackedPosition;
 
     void Start()
     {
+        regularStyle = new GUIStyle();
+        regularStyle.normal = new GUIStyleState();
+        regularStyle.normal.textColor = Color.white;
+        regularStyle.normal.background = Texture2D.grayTexture;
+
+        colourSensorColour = new GUIStyle();
+        colourSensorColour.normal = new GUIStyleState();
+        colourSensorColour.normal.textColor = Color.white;
+
+
         lastTrackedPosition = rover.transform.position;
     }
+ 
 
     void FixedUpdate()
     {
@@ -48,13 +64,12 @@ public class Output_logs : MonoBehaviour
         lastTrackedPosition = currentPosition;
 
     }
+ 
+
+
 
     void OnGUI()
     {
-        style = new GUIStyle();
-        style.normal = new GUIStyleState();
-        style.normal.textColor = Color.white;
-        style.normal.background = Texture2D.grayTexture;
         ///debugging distance travelled
 
         //add a button that toggles a sidebar to display the current state of the car
@@ -68,27 +83,55 @@ public class Output_logs : MonoBehaviour
             //display the sidebar
             //create rectangle for the sidebar
             
-            GUILayout.BeginArea(new Rect(10, 80, 300, 250),style);
+            GUILayout.BeginArea(new Rect(10, 80, 300, 250),regularStyle);
             
             // display label for each wheel motor
             foreach (WheelMotor wm in wheelMotors)
             {
-
+                
                 Vector3 position;
                 Quaternion rotation;
                 wm.wheelCollider.GetWorldPose(out position, out rotation);
+                float rpm =wm.wheelCollider.rpm;
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
-                GUILayout.Label("Wheel " + wm.name + " rotation (x,y,z): " + rotation.eulerAngles.ToString("0.00"));
+                GUILayout.Label("Wheel " + wm.name + " rpm: " + rpm.ToString("0.00"));
 
             }
 
             foreach( ColourDistanceSensor cds in colourDistanceSensors){
-                GUILayout.Label("<There will be some colour distance sensor info here>");
+                float h_ = cds.GetCurrentH();
+                float s_ = cds.GetCurrentS();
+                float v_ = cds.GetCurrentV();
+                if ((h_ == 0f) & (s_ == 0f) & (v_ == 0f)){
+                    rgbTextColour =Color.white;
+                    GUILayout.Label("Colour Distance Sensor current view: No Colour detected.");
+                }else{
+
+                    rgbTextColour =Color.HSVToRGB(h_, s_, v_);
+                    GUILayout.Label("Colour Distance Sensor HSV current view:");
+                    colourSensorColour.normal.textColor = rgbTextColour;
+                    GUILayout.Label("▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇",colourSensorColour);
+
+                }
+                
             }
             foreach(ColourSensor cs in colourSensors){
-                GUILayout.Label("<There will be some colour sensor info here>");
+                float h_ = cs.GetCurrentH();
+                float s_ = cs.GetCurrentS();
+                float v_ = cs.GetCurrentV();
+                if ((h_ == 0f) & (s_ == 0f) & (v_ == 0f)){
+                    rgbTextColour =Color.white;
+                    GUILayout.Label("Colour Sensor HSV current view: No Colour detected.");
+                }else{
+
+                    rgbTextColour =Color.HSVToRGB(h_, s_, v_);
+                    GUILayout.Label("Colour Sensor current view:");
+                    colourSensorColour.normal.textColor = rgbTextColour;
+                    GUILayout.Label("▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇",colourSensorColour);
+                }
             }
+
 
             GUILayout.EndArea();            
         }
@@ -96,10 +139,12 @@ public class Output_logs : MonoBehaviour
 
         
         //display time taken and distance travelled at bottom of the screen
-        GUI.Label(new Rect(10, Screen.height - 50, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",style );
+        //change this to a permanent box at the bottom
 
-        GUI.Label(new Rect(10, Screen.height - 30, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",style);
-        
+        GUI.Label(new Rect(10, Screen.height - 60, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",regularStyle );
+
+        GUI.Label(new Rect(10, Screen.height - 40, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",regularStyle);
+        GUI.Label(new Rect(10, Screen.height - 20, 300, 10), "Current speed: " + (roverRigidBody.velocity.magnitude/10).ToString("0.0000") + " m/s.",regularStyle);
 
 
     }
