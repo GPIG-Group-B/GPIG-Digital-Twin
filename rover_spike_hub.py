@@ -1,4 +1,4 @@
-import math
+
 
 from map import Map
 from d_star_lite import DStarLite
@@ -10,10 +10,12 @@ try:
     from pybricks.experimental import Broadcast
     from pybricks.tools import wait
     from pybricks.parameters import Color
+    import umath as math
 
 except ImportError:
     from mock_pybricks import Motor, DriveBase, ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait, Color
     from mock_pybricks import BroadcastHost as Broadcast
+    import math
 
 ALL_COLOURS = [Color.RED,
                Color.ORANGE,
