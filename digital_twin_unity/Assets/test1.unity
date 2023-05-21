@@ -3722,6 +3722,7 @@ GameObject:
   - component: {fileID: 6432741284275513722}
   - component: {fileID: 5215548972686584109}
   - component: {fileID: 6432741284275513723}
+  - component: {fileID: 6432741284275513724}
   m_Layer: 0
   m_Name: Force Sensor
   m_TagString: Untagged
@@ -4746,6 +4747,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   port: 60004
   ip: localhost
+--- !u!65 &6432741284275513724
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4390905993062241334}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.00025, y: 0.0009428583, z: 0.00024999998}
+  m_Center: {x: 0, y: 0.00022142711, z: 2.30968e-10}
 --- !u!1 &6502691482339124189
 GameObject:
   m_ObjectHideFlags: 0
@@ -6186,6 +6200,8 @@ MonoBehaviour:
   - {fileID: 7517911962667325467}
   colourSensors:
   - {fileID: 4414703139376082323}
+  forceSensors:
+  - {fileID: 6432741284275513723}
 --- !u!23 &9128620105970703067
 MeshRenderer:
   m_ObjectHideFlags: 0

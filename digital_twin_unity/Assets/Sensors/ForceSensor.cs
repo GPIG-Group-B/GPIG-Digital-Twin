@@ -14,6 +14,8 @@ public class ForceSensor : Device
     private static UInt16 _PRESSED_MESSAGE_ID = 4;
     private static UInt16 _TOUCHED_MESSAGE_ID = 5;
 
+    private bool _is_pressed;
+
     protected override void Start()
     {
         this.deviceID = DEVICE_ID;
@@ -26,6 +28,14 @@ public class ForceSensor : Device
         base.Start();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        _is_pressed = true;
+    }
+
+    void OnTriggerExit(Collider other) {
+         _is_pressed = false;
+    }
 
     private void Info(string message_string)
     {
@@ -103,7 +113,10 @@ public class ForceSensor : Device
     }
 
 
-
+    public bool GetIsPressed(){
+        
+        return _is_pressed;
+    }
 
 
 

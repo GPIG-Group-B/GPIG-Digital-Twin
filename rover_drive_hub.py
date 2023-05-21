@@ -8,6 +8,7 @@ try:
     from pybricks.hubs import TechnicHub
     from pybricks.parameters import Color
 except ImportError:
+    import math
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
     from mock_pybricks import BroadcastClient as Broadcast
 

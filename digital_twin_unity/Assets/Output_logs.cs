@@ -25,6 +25,8 @@ public class Output_logs : MonoBehaviour
 
     public List<ColourSensor> colourSensors;
 
+    public List<ForceSensor> forceSensors;
+
 
     private bool showSidebar = false;
 
@@ -35,6 +37,11 @@ public class Output_logs : MonoBehaviour
 
 
     private Vector3 lastTrackedPosition;
+    private float acceleration;
+    private float lastVelocity;
+    private float currentAngle;
+
+    private bool isForceSensorPressed;
 
     void Start()
     {
@@ -49,6 +56,7 @@ public class Output_logs : MonoBehaviour
 
 
         lastTrackedPosition = rover.transform.position;
+        lastVelocity = 0;
     }
  
 
@@ -62,6 +70,10 @@ public class Output_logs : MonoBehaviour
         distanceTravelled += (Vector3.Distance(currentPosition, lastTrackedPosition))/10;
 
         lastTrackedPosition = currentPosition;
+
+        acceleration = (roverRigidBody.velocity.magnitude/10 - lastVelocity) / Time.fixedDeltaTime;
+        lastVelocity = roverRigidBody.velocity.magnitude/10;
+        currentAngle = rover.transform.localRotation.eulerAngles.y;
 
     }
  
@@ -83,7 +95,7 @@ public class Output_logs : MonoBehaviour
             //display the sidebar
             //create rectangle for the sidebar
             
-            GUILayout.BeginArea(new Rect(10, 80, 300, 250),regularStyle);
+            GUILayout.BeginArea(new Rect(10, 80, 300, 350),regularStyle);
             
             // display label for each wheel motor
             foreach (WheelMotor wm in wheelMotors)
@@ -96,6 +108,8 @@ public class Output_logs : MonoBehaviour
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
                 GUILayout.Label("Wheel " + wm.name + " rpm: " + rpm.ToString("0.00"));
+                GUILayout.Label("Wheel " + wm.name + " steering angle: " + wm.wheelCollider.steerAngle.ToString("0.00"));
+                
 
             }
 
@@ -132,6 +146,16 @@ public class Output_logs : MonoBehaviour
                 }
             }
 
+            foreach (ForceSensor fs in forceSensors){
+                isForceSensorPressed = fs.GetIsPressed();
+                if (isForceSensorPressed == true){
+                    GUILayout.Label("Force Sensor Status: We drillin\'",regularStyle);
+                }else{
+                    GUILayout.Label("Force Sensor Status: No drillin for us :(", regularStyle);
+                }
+            }
+
+            
 
             GUILayout.EndArea();            
         }
@@ -141,12 +165,16 @@ public class Output_logs : MonoBehaviour
         //display time taken and distance travelled at bottom of the screen
         //change this to a permanent box at the bottom
 
-        GUI.Label(new Rect(10, Screen.height - 60, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",regularStyle );
+        GUI.Label(new Rect(10, Screen.height - 100, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",regularStyle );
 
-        GUI.Label(new Rect(10, Screen.height - 40, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",regularStyle);
-        GUI.Label(new Rect(10, Screen.height - 20, 300, 10), "Current speed: " + (roverRigidBody.velocity.magnitude/10).ToString("0.0000") + " m/s.",regularStyle);
-
-
+        GUI.Label(new Rect(10, Screen.height - 80, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",regularStyle);
+        GUI.Label(new Rect(10, Screen.height - 60, 300, 20), "Current speed: " + (roverRigidBody.velocity.magnitude/10).ToString("0.0000") + " m/s.",regularStyle);
+        
+        
+        GUI.Label(new Rect(10, Screen.height - 40, 300, 20), "Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
+        GUI.Label(new Rect(10, Screen.height - 20, 300, 20), "Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
+    
+    
     }
     
 
