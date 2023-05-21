@@ -1,3 +1,5 @@
+from d_star_lite import Node
+
 try:
     import umath as math
 except ImportError:
