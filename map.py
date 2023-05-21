@@ -43,6 +43,9 @@ class Map:
 
         self.pretty_print_grid()
 
+    def get_resolution(self):
+        return self._resolution
+
     @staticmethod
     def _is_int(num):
         return num % 1 == 0
