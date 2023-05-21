@@ -111,7 +111,7 @@ class Map:
                 #     for y_delta in range(-1,2):
                 #         if x_delta == 0 and y_delta == 0:
                 #             continue
-                for x_delta, y_delta in [(-1,0),(0,-1),(0,1),(1,0)]:
+                for x_delta, y_delta in [(-1,1),(1,-1),(1,-1),(1,1)]:
                     cell_col_id = col_id + x_delta
                     cell_row_id = row_id + y_delta
                     if self._grid_size_y > cell_row_id >= 0:

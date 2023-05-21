@@ -32,8 +32,8 @@ def main():
                resolution=0.25,
                starting_position_x=0,
                starting_position_y=0,
-               goal_node_x=0,
-               goal_node_y=1)
+               goal_node_x=2,
+               goal_node_y=2)
     rover.load_map(map)
     rover.navigate_map(cost_func=map.cost)
 

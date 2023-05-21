@@ -1,5 +1,5 @@
 try:
-    import umath as math
+    from umath import tan, radians, pi
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
@@ -12,8 +12,7 @@ except ImportError:
     from mock_pybricks import BroadcastClient as Broadcast
 
 import constants
-from sensors import UltrasonicScanner
-from utils import LegoSpikeHub, PoweredUpHub
+from utils import PoweredUpHub
 from radio import Radio
 
 
@@ -94,6 +93,8 @@ class RoverPoweredUpHub:
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
+        self._current_angle = 0
+
         try:
             hub = TechnicHub()
             hub.light.on(Color.RED)
@@ -184,11 +185,13 @@ class RoverPoweredUpHub:
         if angle == 0:
             self._drive_base.straight(distance=distance, wait=False)
         else:
-            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * math.pi * rad))
+            rad = self._wheelbase / tan(radians(angle)) + self._axle_track / 2
+            arc = 360 * (distance / (2 * pi * rad))
+            new_angle = self._current_angle - arc
             self._drive_base.curve(radius=rad,
-                                   angle=arc, 
+                                   angle=new_angle, 
                                    wait=False)
+            self._current_angle = arc + new_angle
 
         while True:
             drive_done = self._drive_base.done()
