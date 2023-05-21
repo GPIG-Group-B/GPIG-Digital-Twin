@@ -29,6 +29,7 @@ class Node:
     def get_g_val(self):
         return self._g_val
 
+    
 
 
 
@@ -44,6 +45,9 @@ class DStarLite:
         self.priority_queue_u = None
         self.k_m = None
         self.move = move_func
+        self.prev_node = None
+        self.node_history = []
+        self.rover_start_angle = 90
 
     def initialise(self):
         self.priority_queue_u = DStarSet()
@@ -74,22 +78,7 @@ class DStarLite:
             successor_val_list = [self.cost(self.start_node, s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
             self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
             self.move(self.start_node)
-            # changed_edges = self.scan_grap_changed_edge_costs()
-            # if len(changed_edges) != 0:
-            #     self.k_m = self.k_m + self.h(self.last_node, self.start_node)
-            #     self.last_node = self.start_node
-            #     for each_directed_edge in changed_edges:
-            #         u, v = each_directed_edge
             #         c_old = self.cost(u,v)
-            #         self.update_edge_cost(u,v)
-            #         if c_old > self.cost(u, v):
-            #             if u != self.goal_node:
-            #                 u.set_rhs_val(min(u.get_rhs_val, self.cost(u, v) + v.get_g_val()))
-            #         elif u.get_rhs_val() == c_old + v.get_g_val():
-            #             if u != self.goal_node:
-            #                 u.get_rhs_val(min([self.cost(u, s_prime) + s_prime.get_g_val() for s_prime in u.successors]))
-            #         self.update_vertex(u)
-            #     self.compute_shortest_path()
         print("I finished")
 
     def update_edge_cost(self, u, v):
@@ -106,11 +95,23 @@ class DStarLite:
     def calculate_key(self, node):
         return min(node.get_g_val(), node.get_rhs_val()) + self.h(self.start_node, node) + self.k_m, min(node.get_g_val(), node.get_rhs_val())
 
+    def get_possible_move_cells(self,heading):
+        output = []
+        offsets = [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]
+        heading_offset = [315,0,45,135,180,225]
+        for i in range(3):
+            output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
+
+        # output.append(offsets[(int(((heading%360)/45)+0.5)+4)%8])
+        # output.append(offsets[(int(((heading%360)/45)+0.5)+1+4)%8])
+        # output.append(offsets[(int(((heading%360)/45)+0.5)+2+4)%8])
+
+        return output
 
 
     def compute_shortest_path(self):
         while (self.priority_queue_u.top_key() < self.calculate_key(self.start_node)) or (self.start_node.get_rhs_val() > self.start_node.get_g_val()):
-            u = self.priority_queue_u.top()
+            u:Node = self.priority_queue_u.top()
             k_old = self.priority_queue_u.top_key()
             k_new = self.calculate_key(u)
             if k_old < k_new:
@@ -118,9 +119,55 @@ class DStarLite:
             elif u.get_g_val() > u.get_rhs_val():
                 u.set_g_val(u.get_rhs_val())
                 self.priority_queue_u.delete(u)
+                """
+                Nodes
+
+                C - current
+                P - previous
+                N - next
+
+                P -> C -> N
+
+                The angle between P and C reduces the possible set of nodes (N) available
+                """
+                ## Calculating the angle from the prev node to my node
+                ## Tan = X/Y
+                ## Heading = atan(dx/dy)
+                ## dx = last_node_x - current_node_x
+                ## dy = last_node_y - current_node_y
+                
+                _min = float("inf")
+                _min_succ = None
+                for succ in u.successors:
+                    if(succ.get_rhs_val()<_min):
+                        _min = succ.get_rhs_val()
+                        _min_succ = succ
+
+                self.prev_node = _min_succ
+                if(self.prev_node == None):
+                    prev_heading = 0##TODO: CHANGE THIS TO MATCH THE TARGET NODE HEADING
+                else:
+                    ##last_node:Node = self.node_history[-1]
+                    last_node:Node = self.prev_node
+                    if(last_node.pos_y-u.pos_y!=0):
+                        prev_heading = math.degrees(math.atan((last_node.pos_x-u.pos_x)/(last_node.pos_y-u.pos_y)))
+                    else:
+                        prev_heading = (90*((last_node.pos_x-u.pos_x)/abs((last_node.pos_x-u.pos_x))))%360
+                    
+                    print(prev_heading) 
+                print(self.start_node.pos_x,self.start_node.pos_y)
+                if(u == self.start_node):
+                    print("Start Node")
+                    prev_heading = self.rover_start_angle
+                        
                 for s in u.predecessors:
                     if s != self.goal_node:
-                        s.set_rhs_val(min(s.get_rhs_val(), self.cost(s, u) + u.get_g_val()))
+                        ##print((int(s.pos_x-u.pos_x),int(s.pos_y-u.pos_y)),self.get_possible_move_cells(prev_heading))
+                        if((int(s.pos_x-u.pos_x),int(s.pos_y-u.pos_y)) in self.get_possible_move_cells(prev_heading)):
+                            s.set_rhs_val(min(s.get_rhs_val(), self.cost(s, u) + u.get_g_val()))
+                        else:
+                            ##s.set_rhs_val(float("inf"))
+                            pass
                     self.update_vertex(s)
             else:
                 g_old = u.get_g_val()
@@ -140,6 +187,7 @@ class DStarLite:
     def update_vertex(self, node):
         if (node.get_g_val() != node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
             print("Updated")
+            ##self.node_history.append(node)## Add node to history
             self.priority_queue_u.update(node_to_update=node,
                                          new_value=self.calculate_key(node))
         elif (node.get_g_val() != node.get_rhs_val()) and not self.priority_queue_u.is_node_present(node):
@@ -147,6 +195,7 @@ class DStarLite:
             self.priority_queue_u.insert_node_val_pair(node=node, value=self.calculate_key(node=node))
         elif(node.get_g_val() == node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
             print("Delete")
+            ##del(self.node_history[-1])## Remove node from history
             self.priority_queue_u.delete(node=node)
 
 
@@ -169,9 +218,8 @@ class DStarSet(list):
         return self[0][1]
 
     def insert_node_val_pair(self, node, value):
-        if len(value) != 2:
-            raise ValueError("Value should be of length 2")
-        heapq.heappush(self, ((value[0],value[1], self.get_tiebreaker_index(value)), node))
+        # print("InsertNodeValPair\t",node,value)
+        heapq.heappush(self, ((*value, self.get_tiebreaker_index(value)), node))
 
 
     def is_node_present(self, node):
@@ -204,10 +252,9 @@ class DStarSet(list):
         if not found_node:
             raise ValueError(f"Node : {found_node} could not be found in heap")
         for value, node in to_re_add:
-            # pass
-            # print(value, node)
+            # print("Re-add / UPDATE")
+            # print(value, node.pos_x, node.pos_y)
             self.insert_node_val_pair(node=node, value=value)
-
 
     def delete(self, node):
         # print("======== DELETION =====")
