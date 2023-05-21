@@ -18,25 +18,25 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
 
-    map = Map(size_x=0.5,
-               size_y=0.5,
+    # print("Let's drive!")
+    # rover.drive(angle=0,
+    #             distance=100)
+    # print("Completed first drive")
+    
+    # rover.drive(angle=0,
+    #         distance=-100)
+    # print("Completed second drive")
+
+    map = Map(size_x=1,
+               size_y=1,
                resolution=0.25,
                starting_position_x=0,
                starting_position_y=0,
-               goal_node_x=0,
-               goal_node_y=1)
+               goal_node_x=2,
+               goal_node_y=2)
     rover.load_map(map)
+
     rover.navigate_map(cost_func=map.cost)
-    # print("Let's drive!")
-    # rover.drive(angle=0,
-    #             distance=1000)
-    # print("Completed first drive")
-    # wait(2000)
-    #
-    # rover.drive(angle=0,
-    #         distance=-1000)
-    # print("Completed second drive")
-    # wait(2000)
 
     print("Shutting down")
     rover.shutdown()

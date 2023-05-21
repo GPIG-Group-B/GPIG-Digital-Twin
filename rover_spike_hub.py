@@ -230,10 +230,11 @@ class RoverSpikeHub:
             wait(10)
 
     def detect_canal(self):
-        stop = self._colour_sensor.color(surface=True) == Color.BLACK
-        if stop:
-            print("EMERGENCY STOP!")
-        return stop
+        return False
+        # stop = self._colour_sensor.color(surface=True) == Color.BLACK
+        # if stop:
+        #     print("EMERGENCY STOP!")
+        # return stop
 
     def scan_surroundings(self):
         """Utility function for scanning surrounds using ultrasonic sensor using default scan range

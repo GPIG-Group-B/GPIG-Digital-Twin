@@ -1,10 +1,11 @@
 import heapq
-from utils import euclidian_distance_from_nodes
 try:
     import umath as math
 except ImportError:
     import math
 
+def euclidian_distance_from_nodes(node_1 : Node, node_2 : Node):
+    return math.sqrt((node_1.pos_x - node_2.pos_x)**2 + (node_1.pos_y - node_2.pos_y)**2)
 
 class Node:
 
