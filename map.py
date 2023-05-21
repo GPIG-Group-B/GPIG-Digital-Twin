@@ -25,9 +25,9 @@ class Map:
         self._resolution = resolution
         self._goal_node_x = goal_node_x
         self._goal_node_y = goal_node_y
-        if not self._grid_size_x.is_integer():
+        if not self._is_int(self._grid_size_x):
             raise ValueError("Map width must be wholly divisible by resolution")
-        if not self._grid_size_y.is_integer():
+        if not self._is_int(self._grid_size_y):
             raise ValueError("Map height must be wholly divisible by resolution")
 
         self._grid_size_x, self._grid_size_y = int(self._grid_size_x), int(self._grid_size_y)
@@ -42,6 +42,10 @@ class Map:
 
 
         self.pretty_print_grid()
+
+    @staticmethod
+    def _is_int(num):
+        return num % 1 == 0
 
     def get_grid_size_y(self):
         return self._grid_size_y
