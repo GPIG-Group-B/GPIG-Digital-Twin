@@ -187,7 +187,7 @@ class RoverSpikeHub:
 
     def _move_to_graph_node(self, node):
         angle_to_move = int(math.degrees(math.atan2(node.pos_y-self._current_node.pos_y, node.pos_x-self._current_node.pos_x)))
-        distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))I
+        distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))
         self.drive(angle=angle_to_move,
                    distance=distance)
         self._map.update_current_position_by_node(node)
