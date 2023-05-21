@@ -1,5 +1,9 @@
 import heapq
-import math
+
+try:
+    import umath as math
+except ImportError:
+    import math
 
 
 class Node:

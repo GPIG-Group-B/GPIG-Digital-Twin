@@ -1,8 +1,10 @@
-import math
-import time
-
 from d_star_lite import Node, DStarLite
-import pygame
+try:
+    import umath as math
+except ImportError:
+    import math
+    import time
+    import pygame
 
 class Map:
 
