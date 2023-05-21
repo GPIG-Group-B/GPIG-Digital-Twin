@@ -1,5 +1,5 @@
 import heapq
-
+from utils import euclidian_distance_from_nodes
 try:
     import umath as math
 except ImportError:
@@ -99,7 +99,8 @@ class DStarLite:
         return True
 
     def h(self, from_node, to_node):
-        return math.dist([from_node.pos_x, from_node.pos_y], [to_node.pos_x, to_node.pos_y])
+        return euclidian_distance_from_nodes(from_node, to_node)
+        # return math.dist([from_node.pos_x, from_node.pos_y], [to_node.pos_x, to_node.pos_y])
 
     def calculate_key(self, node):
         return min(node.get_g_val(), node.get_rhs_val()) + self.h(self.start_node, node) + self.k_m, min(node.get_g_val(), node.get_rhs_val())

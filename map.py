@@ -1,4 +1,5 @@
 from d_star_lite import Node, DStarLite
+from utils import euclidian_distance_from_nodes
 try:
     import umath as math
 except ImportError:
@@ -123,7 +124,7 @@ class Map:
         u_cell = self._grid[u.pos_y][u.pos_x]
         v_cell = self._grid[v.pos_y][v.pos_x]
         if isinstance(u_cell, (EmptyTile, GoalTile, RoverTile)) and isinstance(v_cell, (EmptyTile, GoalTile, RoverTile)):
-            return math.dist([u.pos_x, u.pos_y], [v.pos_x, v.pos_y])
+            return euclidian_distance_from_nodes(u, v)
         else:
             return float("inf")
 
