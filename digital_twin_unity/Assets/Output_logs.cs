@@ -85,7 +85,7 @@ public class Output_logs : MonoBehaviour
         ///debugging distance travelled
 
         //add a button that toggles a sidebar to display the current state of the car
-        if (GUI.Button(new Rect(10, 10, 100, 50), "Toggle Sidebar"))
+        if (GUI.Button(new Rect(10, 10, 90, 20), "Display Info"))
         {
             //toggle the sidebar
             showSidebar = !showSidebar;
@@ -95,7 +95,7 @@ public class Output_logs : MonoBehaviour
             //display the sidebar
             //create rectangle for the sidebar
             
-            GUILayout.BeginArea(new Rect(10, 80, 300, 350),regularStyle);
+            GUILayout.BeginArea(new Rect(10, 40,(int) Screen.width/3, (int)Screen.height-(50+(int)Screen.height*0.25f)),regularStyle);
             
             // display label for each wheel motor
             foreach (WheelMotor wm in wheelMotors)
@@ -164,16 +164,16 @@ public class Output_logs : MonoBehaviour
         
         //display time taken and distance travelled at bottom of the screen
         //change this to a permanent box at the bottom
+        GUILayout.BeginArea(new Rect(10,  (int)Screen.height*0.75f,(int)Screen.width/3, (int)Screen.height*0.25f),regularStyle);
+        GUILayout.Label("Time elapsed : " + Time.time.ToString("0.00") + " seconds.",regularStyle );
 
-        GUI.Label(new Rect(10, Screen.height - 100, 300, 20), "Time elapsed : " + Time.time.ToString("0.00") + " seconds.",regularStyle );
-
-        GUI.Label(new Rect(10, Screen.height - 80, 300, 20), "Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",regularStyle);
-        GUI.Label(new Rect(10, Screen.height - 60, 300, 20), "Current speed: " + (roverRigidBody.velocity.magnitude/10).ToString("0.0000") + " m/s.",regularStyle);
+        GUILayout.Label("Distance travelled : " + distanceTravelled.ToString("0.00") + " meters.",regularStyle);
+        GUILayout.Label("Current speed: " + (roverRigidBody.velocity.magnitude/10).ToString("0.0000") + " m/s.",regularStyle);
         
         
-        GUI.Label(new Rect(10, Screen.height - 40, 300, 20), "Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
-        GUI.Label(new Rect(10, Screen.height - 20, 300, 20), "Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
-    
+        GUILayout.Label("Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
+        GUILayout.Label("Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
+        GUILayout.EndArea(); 
     
     }
     
