@@ -168,7 +168,9 @@ class DStarSet(list):
         return self[0][1]
 
     def insert_node_val_pair(self, node, value):
-        heapq.heappush(self, ((*value, self.get_tiebreaker_index(value)), node))
+        if len(value) != 2:
+            raise ValueError("Value should be of length 2")
+        heapq.heappush(self, ((value[0],value[1], self.get_tiebreaker_index(value)), node))
 
 
     def is_node_present(self, node):
