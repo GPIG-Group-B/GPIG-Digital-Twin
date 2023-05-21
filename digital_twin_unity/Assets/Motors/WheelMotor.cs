@@ -26,6 +26,8 @@ public class WheelMotor : Device
     private static UInt16 _RUN_TARGET_MESSAGE_ID = 8;
     private static UInt16 _TRACK_TARGET_MESSAGE_ID = 9;
     private static UInt16 _ANGLE_MESSAGE_ID = 10;
+    private Double _total_rotation = 0;
+    private Quaternion _last_recorded_rotation;
 
 
 
@@ -46,6 +48,9 @@ public class WheelMotor : Device
         this.message_dict.Add(_ANGLE_MESSAGE_ID, Angle);
 
         base.Start();
+        this.wheelCollider.brakeTorque = 1000;
+        _last_recorded_rotation = wheelTransform.rotation;
+        this.wheelCollider.steerAngle = 0;
     }
 
 
@@ -68,7 +73,13 @@ public class WheelMotor : Device
 
     }
 
-
+    void FixedUpdate()
+    {
+        //_total_rotation += Math.Abs((wheelCollider.rpm / 60) * 360 * Time.deltaTime);
+        Quaternion current_rotation = wheelTransform.rotation;
+        _total_rotation += Math.Abs(Quaternion.Angle(_last_recorded_rotation, current_rotation));
+        _last_recorded_rotation = current_rotation;
+    }
 
 
     private void Stop(string message_string)
@@ -83,7 +94,8 @@ public class WheelMotor : Device
     {
         Debug.Log("Motor Brake");
         //Implement Brake
-
+        wheelCollider.motorTorque = 0;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new BrakeReturnMessage()), _BRAKE_MESSAGE_ID);
     }
 
@@ -96,6 +108,8 @@ public class WheelMotor : Device
     }
     private void Run(string message_string)
     {
+        wheelCollider.brakeTorque = 0;
+        _total_rotation = 0;
         Debug.Log("Motor Run");
         //Implement Hold
         Debug.Log(message_string);
@@ -109,6 +123,8 @@ public class WheelMotor : Device
 
     private void RunTime(string message_string)
     {
+        wheelCollider.brakeTorque = 0;
+        _total_rotation = 0;
         Debug.Log("Motor Run Time");
         //Implement Hold
         string returnMessage = JsonUtility.ToJson(new RunTimeReturnMessage());
@@ -155,9 +171,8 @@ public class WheelMotor : Device
     {
 
 
-        float angle = wheelTransform.localRotation.eulerAngles.x;
         AngleReturnMessage returnMessage = new AngleReturnMessage();
-        returnMessage.angle = (int)angle;
+        returnMessage.angle = (int) _total_rotation;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage),
                                         messageID: _ANGLE_MESSAGE_ID);
     }
@@ -244,7 +259,7 @@ public class WheelMotor : Device
 
         }
         wheelCollider.motorTorque = 0;
-        wheelCollider.brakeTorque = 100;
+        wheelCollider.brakeTorque = 10000;
         yield return null;
     }
 
@@ -259,7 +274,7 @@ public class WheelMotor : Device
 
         }
         wheelCollider.motorTorque = 0;
-        wheelCollider.brakeTorque = 100;
+        wheelCollider.brakeTorque = 10000;
         AddReturnMessageToOutboundQueue(message, messageID);
         yield return null;
     }
