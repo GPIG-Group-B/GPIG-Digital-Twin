@@ -188,7 +188,7 @@ class RoverSpikeHub:
         self._pathfinder.main()
 
     def _move_to_graph_node(self, node):
-        angle_to_move = int(math.degrees(math.atan2(node.pos_y-self._current_node.pos_y, node.pos_x-self._current_node.pos_x)))
+        angle_to_move = int(math.degrees(math.atan2(node.pos_x-self._current_node.pos_x, node.pos_y-self._current_node.pos_y)))
         # distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))
         distance = int(euclidian_distance_from_nodes(node, self._current_node))
         self.drive(angle=angle_to_move,
