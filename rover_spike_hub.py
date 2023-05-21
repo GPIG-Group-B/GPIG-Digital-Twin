@@ -1,3 +1,8 @@
+import math
+
+from map import Map
+from d_star_lite import DStarLite
+
 try:
     from pybricks.parameters import Direction, Color
     from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
@@ -110,6 +115,8 @@ class RoverSpikeHub:
             default_scan_start_deg=constants.SCAN_START,
             default_scan_end_deg=constants.SCAN_END,
             gear_ratio=constants.GEAR_RATIO)
+        self._pathfinder = None
+        self._map = None
         self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
         self._colour_sensor.detectable_colors(ALL_COLOURS)
 
@@ -118,6 +125,7 @@ class RoverSpikeHub:
                             broadcast_func=Broadcast)
 
         self._command_id = 0
+        self._map = None
 
     def shutdown(self):
         self._radio.send("shutdown", (1,))
@@ -161,6 +169,29 @@ class RoverSpikeHub:
 
     def get_force_sensor_is_touched(self):
         return self._force_sensor.touched()
+
+    def load_map(self, map : Map):
+        self._map = map
+
+    def navigate_map(self, cost_func):
+        if self._map is None:
+            raise ValueError("Map has not been setup. Please call load_map")
+        goal_node, start_node, all_nodes = self._map.convert_to_graph()
+        self._current_node = start_node
+        self._pathfinder = DStarLite(start_node=start_node,
+                                     goal_node=goal_node,
+                                     all_nodes=all_nodes,
+                                     cost_func=cost_func,
+                                     move_func=self._move_to_graph_node)
+        self._pathfinder.main()
+
+    def _move_to_graph_node(self, node):
+        angle_to_move = int(math.degrees(math.atan2(node.pos_y-self._current_node.pos_y, node.pos_x-self._current_node.pos_x)))
+        distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))I
+        self.drive(angle=angle_to_move,
+                   distance=distance)
+        self._map.update_current_position_by_node(node)
+        self._current_node = node
 
     def drive(self,
               angle: int,
