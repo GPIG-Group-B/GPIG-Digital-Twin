@@ -41,7 +41,7 @@ public class Output_logs : MonoBehaviour
     private float lastVelocity;
     private float currentAngle;
 
-    private bool isForceSensorPressed;
+    private bool isForceSensorTouched;
 
     void Start()
     {
@@ -147,11 +147,11 @@ public class Output_logs : MonoBehaviour
             }
 
             foreach (ForceSensor fs in forceSensors){
-                isForceSensorPressed = fs.GetIsPressed();
-                if (isForceSensorPressed == true){
-                    GUILayout.Label("Force Sensor Status: We drillin\'",regularStyle);
+                isForceSensorTouched = fs.GetIsTouched();
+                if (isForceSensorTouched == true){
+                    GUILayout.Label("Force Sensor Status: Currently Drilling\'",regularStyle);
                 }else{
-                    GUILayout.Label("Force Sensor Status: No drillin for us :(", regularStyle);
+                    GUILayout.Label("Force Sensor Status: Inactive.", regularStyle);
                 }
             }
 
