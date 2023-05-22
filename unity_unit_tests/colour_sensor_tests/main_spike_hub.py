@@ -14,7 +14,7 @@ import constants
 colour_mapping_dict = {"blue": Color.BLUE,"yellow": Color.YELLOW, "white": Color.WHITE, "grey": Color.GRAY}
 
 def main():
-    test_id = "CD_BLUE"
+    test_id = "CD_GREY"
 
     print("----------------------")
     print(f"Starting test with ID = {test_id}.")
@@ -45,9 +45,6 @@ def run_test_case(test_id, rover):
     
     print(f"Colour detected - HSV({colour._h, colour._s, colour._v})")
     print(f"Matches Color.{parameters['colour'].upper()} - {colour_mapping_dict[parameters['colour']] == colour}")
-
-main()
-
 
 if __name__ == "__main__":
     main()
