@@ -14,7 +14,7 @@ import json
 with open('../../distance_test_cases.json') as json_file:
     TEST_CASES = json.load(json_file)
 
-def main():
+def main(test_id):
     print("----------------------")
     print("Beginning movement test")
     print("----------------------")
@@ -27,7 +27,6 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
 
-    test_id = "BACKWARDS_100_CM"
     parameters = TEST_CASES[test_id]
 
     if parameters["movement_type"] == "straight":
@@ -43,4 +42,4 @@ def main():
     print("All done!")
 
 if __name__ == "__main__":
-    main()
+    main("BACKWARDS_100_CM")

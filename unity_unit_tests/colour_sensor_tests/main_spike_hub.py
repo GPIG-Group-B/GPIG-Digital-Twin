@@ -6,11 +6,17 @@ except ImportError:
     sys.path.append(os.path.abspath("../.."))
     from mock_pybricks import wait
     from mock_pybricks import Color
+    import json
+
+with open('../../colour_test_cases.json') as json_file:
+    TEST_CASES = json.load(json_file)
    
 from rover_spike_hub import RoverSpikeHub
 import constants
 
-def main():
+colour_mapping_dict = {"blue": Color.BLUE}
+
+def main(test_id):
     print("----------------------")
     print("Beginning colour sensor test")
     print("----------------------")
@@ -22,21 +28,17 @@ def main():
                   height=constants.ROVER_HEIGHT,
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
-                  
+    
+    parameters = TEST_CASES[test_id]
 
-    # print("Checking colour of rock:")
-    # colour = rover.detect_colour_primary()
-    # print(f"Colour detected - {colour._h}, {colour._s,} {colour._v}")
-    # print(f"Colour match = {Color.YELLOW == colour}")
-
-    print("Checking colour of floor:")
-    colour = rover.detect_colour_secondary()
-    print(f"Colour detected - {colour._h}, {colour._s,} {colour._v}")
-    print(f"Colour match = {Color.WHITE == colour}")
-
-    # print("Checking distance to object:")
-    # colour = rover.get_distance_forward()
-    # print("Colour detected - " + str(colour))
+    print(f"Checking colour of sensor {parameters['sensor']}:")
+    if parameters["sensor"] == "front":
+        colour = rover.detect_colour_primary()
+    else:
+        colour = rover.detect_colour_secondary()
+    
+    print(f"Colour detected - {colour} = {colour._h, colour._s, colour._v}")
+    print(f"Matches test case - {parameters['colour'] == colour}")
 
     print("Shutting down")
     rover.shutdown()
@@ -44,4 +46,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main("CD_BLUE")
