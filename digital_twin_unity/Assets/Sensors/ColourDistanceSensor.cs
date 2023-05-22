@@ -57,7 +57,7 @@ public class ColourDistanceSensor : Device
             {
                 Renderer renderer = hit.collider.gameObject.GetComponent<Renderer>();
                 colourReceived = renderer.material.color;
-                Debug.Log("Detected colour : " + colourReceived);
+                Debug.Log("Colour Distance Sensor Detected colour : " + colourReceived);
                 // You can now use the hitColor variable to access the color of the hit object.
             }
         }
@@ -81,7 +81,7 @@ public class ColourDistanceSensor : Device
 
     private void Info(string message_string)
     {
-        Debug.Log("US Sensor Info Message");
+        Debug.Log("Colour Distance Sensor Info Message");
         InfoMessage message = JsonUtility.FromJson<InfoMessage>(message_string);
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new InfoReturnMessage()), _INFO_MESSAGE_ID);
 
@@ -89,13 +89,13 @@ public class ColourDistanceSensor : Device
 
     private void Colour(string message_string)
     {
-        Debug.Log("Colour Sensor Colour");
+        Debug.Log("Colour Distance Sensor Colour");
         ColourMessage message = JsonUtility.FromJson<ColourMessage>(message_string);
         ColourReturnMessage returnMessage = new ColourReturnMessage();
         returnMessage.h = _h * 360f;
         returnMessage.s = _s * 100f;
         returnMessage.v = _v * 100f;
-        Debug.Log("Colour | H : " + returnMessage.h + " | S : " + returnMessage.s + " | V : " + returnMessage.v);
+        Debug.Log("Colour Distance Sensor | H : " + returnMessage.h + " | S : " + returnMessage.s + " | V : " + returnMessage.v);
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage), _COLOUR_MESSAGE_ID);
     }
 
