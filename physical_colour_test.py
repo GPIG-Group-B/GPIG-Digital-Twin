@@ -11,8 +11,6 @@ except ImportError:
 
 HUB = LegoSpikeHub()
 
-Color.CUSTOM_GREY = Color(h=0, s=0, v=60)
-
 ALL_COLOURS = [Color.RED,
                Color.ORANGE,
                Color.YELLOW,
@@ -21,7 +19,6 @@ ALL_COLOURS = [Color.RED,
                Color.VIOLET,
                Color.MAGENTA,
                Color.WHITE,
-               Color.CUSTOM_GREY,
                Color.BLACK,
                Color.NONE]
 
