@@ -45,7 +45,7 @@ class Radio:
             wait(1)
             acknowledged = self._radio.receive(topic=self.ACKOWLEDGE_TOPIC)
         self._index += 1
-        print("acknowledged", acknowledged)
+        # print("acknowledged", acknowledged)
 
     def receive(self,
                 topic: str) -> str:
@@ -72,7 +72,7 @@ class Radio:
         
 
         # Send acknowledgement
-        print(f"Sending ack with index : {index}")
+        # print(f"Sending ack with index : {index}")
         self._radio.send(self.ACKOWLEDGE_TOPIC, index)
 
         # Update previous message time
