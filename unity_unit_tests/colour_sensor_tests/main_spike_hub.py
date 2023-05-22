@@ -6,19 +6,18 @@ except ImportError:
     sys.path.append(os.path.abspath("../.."))
     from mock_pybricks import wait
     from mock_pybricks import Color
-    import json
-
-with open('../../colour_test_cases.json') as json_file:
-    TEST_CASES = json.load(json_file)
+    from colour_test_cases import COLOUR_TESTS
    
 from rover_spike_hub import RoverSpikeHub
 import constants
 
 colour_mapping_dict = {"blue": Color.BLUE}
 
-def main(test_id):
+def main():
+    test_id = "CD_BLUE"
+
     print("----------------------")
-    print("Beginning colour sensor test")
+    print(f"Starting test with ID = {test_id}.")
     print("----------------------")
 
     rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
@@ -29,7 +28,14 @@ def main(test_id):
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
     
-    parameters = TEST_CASES[test_id]
+    run_test_case(test_id)
+
+    print("Shutting down")
+    rover.shutdown()
+    print("Test Complete")
+
+def run_test_case(test_id, rover):
+    parameters = COLOUR_TESTS[test_id]
 
     print(f"Checking colour of sensor {parameters['sensor']}:")
     if parameters["sensor"] == "front":
@@ -40,10 +46,8 @@ def main(test_id):
     print(f"Colour detected - {colour} = {colour._h, colour._s, colour._v}")
     print(f"Matches test case - {parameters['colour'] == colour}")
 
-    print("Shutting down")
-    rover.shutdown()
-    print("All done!")
+main()
 
 
 if __name__ == "__main__":
-    main("CD_BLUE")
+    main()

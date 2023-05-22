@@ -2,14 +2,10 @@ import umath as math
 from pybricks.parameters import Direction
 from pybricks.pupdevices import Motor
 from pybricks.robotics import DriveBase
-from pybricks.tools import wait
-import json
+from distance_test_cases import DISTANCE_TESTS
 
 import constants
 from utils import PoweredUpHub
-
-with open('distance_test_cases.json') as json_file:
-    TEST_CASES = json.load(json_file)
 
 # Initalises motors needed to test driving
 HUB = PoweredUpHub()
@@ -51,7 +47,7 @@ def drive_at_curve(angle, distance):
 
 
 def run_test_case(test_id):
-    parameters = TEST_CASES[test_id]
+    parameters = DISTANCE_TESTS[test_id]
     if parameters["movement_type"] == "straight":
         move_straight(parameters["distance"])
     elif parameters["movement_type"] == "curve":

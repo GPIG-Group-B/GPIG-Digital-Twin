@@ -1,4 +1,4 @@
-{
+COLOUR_TESTS = {
     "CD_BLUE": {
         "sensor": "front",
         "color": "blue"

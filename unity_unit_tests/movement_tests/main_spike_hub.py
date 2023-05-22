@@ -5,18 +5,17 @@ except ImportError:
     import os
     sys.path.append(os.path.abspath("../.."))
     from mock_pybricks import wait
+    from distance_test_cases import DISTANCE_TESTS
     
    
 from rover_spike_hub import RoverSpikeHub
 import constants
-import json
 
-with open('../../distance_test_cases.json') as json_file:
-    TEST_CASES = json.load(json_file)
+def main():
+    test_id = "BACKWARDS_100_CM"
 
-def main(test_id):
     print("----------------------")
-    print("Beginning movement test")
+    print(f"Starting test with ID = {test_id}.")
     print("----------------------")
 
     rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
@@ -26,8 +25,15 @@ def main(test_id):
                   height=constants.ROVER_HEIGHT,
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
+    
+    run_test_case(test_id)
 
-    parameters = TEST_CASES[test_id]
+    print("Shutting down")
+    rover.shutdown()
+    print("Test Complete!")
+
+def run_test_case(test_id, rover):
+    parameters = DISTANCE_TESTS[test_id]
 
     if parameters["movement_type"] == "straight":
         print(f"Driving straight with a distance of {parameters['distance']}")
@@ -37,9 +43,5 @@ def main(test_id):
         print(f"Driving at a curve with a distance of {parameters['distance']} and angle {parameters['angle']}")
         rover.drive(angle=parameters["angle"], distance=parameters['distance'])
 
-    print("Shutting down")
-    rover.shutdown()
-    print("All done!")
-
 if __name__ == "__main__":
-    main("BACKWARDS_100_CM")
+    main()

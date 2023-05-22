@@ -1,4 +1,4 @@
-{
+DISTANCE_TESTS = {
     "FORWARD_100_CM": 
     {
         "movement_type":"straight",

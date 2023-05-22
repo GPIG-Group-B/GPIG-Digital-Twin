@@ -3,11 +3,10 @@ try:
     from pybricks.pupdevices import ColorSensor, ColorDistanceSensor
     import constants
     from utils import LegoSpikeHub
-    from pybricks.tools import wait
+    from colour_test_cases import COLOUR_TESTS
 except ImportError:
     pass
 
-# Run with constants.py and utils.py on the Rover
 
 HUB = LegoSpikeHub()
 
@@ -29,36 +28,32 @@ COLOUR_BOTTOM = ColorSensor(port=HUB.get_port_from_str(constants.COLOUR_SENSOR_P
 COLOUR_BOTTOM.detectable_colors(ALL_COLOURS)
 
 def detect_colour_forward():
-    return (COLOUR_DIST_FORWARD.color(), COLOUR_DIST_FORWARD.hsv())
+    print(COLOUR_DIST_FORWARD.color(), COLOUR_DIST_FORWARD.hsv())
 
-def get_distance_forward():
-    return COLOUR_DIST_FORWARD.distance()
+def detect_distance_forward()():
+    print(COLOUR_DIST_FORWARD.distance())
 
 def detect_colour_secondary():
-    return (COLOUR_BOTTOM.color(), COLOUR_BOTTOM.hsv())
+    print((COLOUR_BOTTOM.color(), COLOUR_BOTTOM.hsv()))
+
+def run_test_case(test_id):
+    parameters = COLOUR_TESTS[test_id]
+    if parameters["sensor"] == "front":
+        detect_colour_forward()
+        detect_distance_forward()
+        
+    elif parameters["sensor"] == "floor":
+        detect_colour_secondary()
 
 def main():
+    test_id = "CD_BLUE"
+
     print("----------------------")
-    wait(2000)
-    print("Detecting forward colour using the colour distance sensor!")
-    print(detect_colour_forward())
-
-    print("\nDetecting distance of foward colour!")
-    print(get_distance_forward())
-
-    print("\nDetecting secondary colour!")
-    print(detect_colour_secondary())
-
-    wait(2000)
-
-    print("Shutting down")
-    try:
-        COLOUR.send_shutdown_message()
-        COLOUR_DIST.send_shutdown_message()
-    except:
-        pass
-    print("All done!")
+    print(f"Starting test with ID = {test_id}.")
     print("----------------------")
+
+    run_test_case(test_id)
+    print("Test Complete")
 
 main()
 
