@@ -1,5 +1,5 @@
 try:
-    from umath import tan, radians, pi
+    import umath as math
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
@@ -94,6 +94,7 @@ class RoverPoweredUpHub:
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
+        self._drive_base.settings(200,400,100,400)
         self._current_angle = 0
 
         try:
@@ -168,6 +169,8 @@ class RoverPoweredUpHub:
                 return
 
     def drive_target(self, desired_angle, distance):
+        if desired_angle == 0:
+            return self.drive(angle=desired_angle, distance=distance)
 
         x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         return self.drive(angle=x,
@@ -199,8 +202,8 @@ class RoverPoweredUpHub:
         if angle == 0:
             self._drive_base.straight(distance=distance, wait=False)
         else:
-            rad = self._wheelbase / tan(radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * pi * rad))
+            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
+            arc = 360 * (distance / (2 * math.pi * rad))
             self._drive_base.curve(radius=rad,
                                    angle=arc, 
                                    wait=False)
