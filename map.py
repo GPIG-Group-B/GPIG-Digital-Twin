@@ -1,5 +1,4 @@
-from d_star_lite import Node, DStarLite
-from utils import euclidian_distance_from_nodes
+from d_star_lite import Node, DStarLite, euclidian_distance_from_nodes
 try:
     import umath as math
 except ImportError:
@@ -107,11 +106,7 @@ class Map:
         for row_id in range(self._grid_size_y):
             for col_id in range(self._grid_size_x):
                 center_node = self.get_grid_node(x=col_id, y = row_id)
-                # for x_delta in range(-1,2):
-                #     for y_delta in range(-1,2):
-                #         if x_delta == 0 and y_delta == 0:
-                #             continue
-                for x_delta, y_delta in [(-1,1),(1,-1),(1,-1),(1,1)]:
+                for x_delta, y_delta in [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]:
                     cell_col_id = col_id + x_delta
                     cell_row_id = row_id + y_delta
                     if self._grid_size_y > cell_row_id >= 0:
