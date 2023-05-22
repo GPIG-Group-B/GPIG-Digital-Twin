@@ -52,7 +52,6 @@ public class Output_logs : MonoBehaviour
 
         colourSensorColour = new GUIStyle();
         colourSensorColour.normal = new GUIStyleState();
-        colourSensorColour.normal.textColor = Color.white;
 
 
         lastTrackedPosition = rover.transform.position;
