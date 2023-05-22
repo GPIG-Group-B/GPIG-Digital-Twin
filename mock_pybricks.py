@@ -390,7 +390,7 @@ class ForceSensor(PybricksDevice):
         response_message = self.send_message(data=locals(),
                                              exclusions=["self", "MESSAGE_ID"],
                                              message_id=MESSAGE_ID)
-        return response_message["touched"]
+        return response_message["is_touched"]
 
 
 class ColorDistanceSensor(PybricksDevice):
