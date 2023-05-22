@@ -151,10 +151,14 @@ class RoverPoweredUpHub:
             data = self._radio.receive("drive")
             if data:
                 angle, distance, command_id = data
+                print(f"Driving command {command_id} with angle: {angle}, distance: {distance}")
                 successful = self.drive(angle, distance)
                 if successful:
                     print(f"Sending completion confirmation with command id {command_id}")
                     self._radio.send("complete", (command_id,))
+                    print(f"Confirmation for command {command_id} sent!")
+                else:
+                    print(f"Command {command_id} failed!")
             wait(50)
             should_shutdown = self._radio.receive("shutdown")
             if should_shutdown is not None:

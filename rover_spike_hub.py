@@ -212,19 +212,23 @@ class RoverSpikeHub:
 
         # Send drive command to drive hub
         self._command_id += 1
+        print(f"Sending command {self._command_id} with angle: {angle}, distance: {distance}")
         self._radio.send("drive",
                          (angle, distance, self._command_id))
+        print(f"Command {self._command_id} sent")
+        
 
         # Until drive hub has completed driving, check if we need to emergency stop
         while True:
             if self.detect_canal():
+                print(f"Sending stop for command {self._command_id}!")
                 self._radio.send("drive", (0,0, self._command_id))
-                print("Sent stop command!")
+                print(f"Sent stop command {self._command_id}!")
                 return False
                 
             received_completion = self._radio.receive("complete")
             if received_completion == self._command_id:
-                print(received_completion)
+                print(f"Recieved completion for command {self._command_id}")
                 return True
             wait(10)
 
