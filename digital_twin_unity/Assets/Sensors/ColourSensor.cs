@@ -42,12 +42,12 @@ public class ColourSensor : Device
         {
             Renderer renderer = hit.collider.gameObject.GetComponent<Renderer>();
             colourReceived = renderer.material.color;
-            Debug.Log("Detected colour : " + colourReceived);
+            Debug.Log("Color Sensor - Detected colour : " + colourReceived);
             // You can now use the hitColor variable to access the color of the hit object.
         }
         else
         {
-            Debug.Log("No colour detected");
+            Debug.Log("Color Sensor - No colour detected");
             colourReceived = new Color(r: -1.0f, g: -1.0f, b: -1.0f);
         }
         if (colourReceived.r == -1.0f)
