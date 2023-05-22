@@ -85,6 +85,7 @@ public class SocketHandler
         //set up the new socket
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //attempt to connect to the port
+        int m = 0;
         while (true)
         {
             try
@@ -98,7 +99,12 @@ public class SocketHandler
                 Debug.Log(String.Format("Error connecting to IP : {0} | PORT : {1}. Waiting 3 seconds then retying",
                     this.ip, this.port));
                 System.Threading.Thread.Sleep(3000);
+                m += 1;
             }
+            if (m >= 3) {
+                break;
+            }
+
         }
 
         //send initialisation code

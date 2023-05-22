@@ -8,6 +8,7 @@ try:
     from pybricks.hubs import TechnicHub
     from pybricks.parameters import Color
 except ImportError:
+    import math
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
     from mock_pybricks import BroadcastClient as Broadcast
 
@@ -165,6 +166,12 @@ class RoverPoweredUpHub:
                 print("Shutting down")
                 wait(1000) # Wait enough time for the other hub to get the acknowledgement
                 return
+
+    def drive_target(self, desired_angle, distance):
+
+        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
+        self.drive(angle=x,
+                distance=distance)
 
     def drive(self,
               angle: int,

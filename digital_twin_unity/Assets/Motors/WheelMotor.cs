@@ -50,6 +50,7 @@ public class WheelMotor : Device
         base.Start();
         this.wheelCollider.brakeTorque = 1000;
         _last_recorded_rotation = wheelTransform.rotation;
+        this.wheelCollider.steerAngle = 0;
     }
 
 

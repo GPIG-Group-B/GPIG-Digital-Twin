@@ -14,6 +14,8 @@ public class ForceSensor : Device
     private static UInt16 _PRESSED_MESSAGE_ID = 4;
     private static UInt16 _TOUCHED_MESSAGE_ID = 5;
 
+    private bool _is_touched;
+
     protected override void Start()
     {
         this.deviceID = DEVICE_ID;
@@ -25,6 +27,16 @@ public class ForceSensor : Device
         this.message_dict.Add(_TOUCHED_MESSAGE_ID, Touched);
         base.Start();
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        _is_touched = true;
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        _is_touched = false;
+    }
+
 
 
     private void Info(string message_string)
@@ -60,7 +72,9 @@ public class ForceSensor : Device
     {
         Debug.Log("Colour Sensor ambient");
         TouchedMessage message = JsonUtility.FromJson<TouchedMessage>(message_string);
-        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new TouchedReturnMessage()), _TOUCHED_MESSAGE_ID);
+        TouchedReturnMessage returnMessage = new TouchedReturnMessage();
+        returnMessage._is_touched = _is_touched;
+        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage), _TOUCHED_MESSAGE_ID);
     }
 
     private class InfoMessage { }
@@ -99,9 +113,13 @@ public class ForceSensor : Device
 
     private class TouchedReturnMessage
     {
-        public bool touched;
+        public bool _is_touched;
     }
 
+    public bool GetIsTouched()
+    {
+        return _is_touched;
+    }
 
 
 
