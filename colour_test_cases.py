@@ -1,22 +1,22 @@
 COLOUR_TESTS = {
     "CD_BLUE": {
         "sensor": "front",
-        "color": "blue"
+        "colour": "blue"
     },
     "CD_YELLOW": {
         "sensor": "front",
-        "color": "yellow"
+        "colour": "yellow"
     },
     "CD_GREY": {
         "sensor": "front",
-        "color": "grey"
+        "colour": "grey"
     },
     "C_WHITE": {
         "sensor": "floor",
-        "color": "white"
+        "colour": "white"
     },
     "CD_MIN_MAX_DIST": {
         "sensor": "front",
-        "color": "blue"
+        "colour": "blue"
     }
 }

@@ -26,7 +26,7 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
     
-    run_test_case(test_id)
+    run_test_case(test_id, rover)
 
     print("Shutting down")
     rover.shutdown()

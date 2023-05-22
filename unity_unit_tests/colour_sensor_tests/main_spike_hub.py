@@ -11,7 +11,7 @@ except ImportError:
 from rover_spike_hub import RoverSpikeHub
 import constants
 
-colour_mapping_dict = {"blue": Color.BLUE}
+colour_mapping_dict = {"blue": Color.BLUE,"yellow": Color.YELLOW, "white": Color.WHITE, "grey": Color.GRAY}
 
 def main():
     test_id = "CD_BLUE"
@@ -28,7 +28,7 @@ def main():
                   width=constants.ROVER_WIDTH,
                   depth=constants.ROVER_DEPTH)
     
-    run_test_case(test_id)
+    run_test_case(test_id, rover)
 
     print("Shutting down")
     rover.shutdown()
@@ -43,8 +43,8 @@ def run_test_case(test_id, rover):
     else:
         colour = rover.detect_colour_secondary()
     
-    print(f"Colour detected - {colour} = {colour._h, colour._s, colour._v}")
-    print(f"Matches test case - {parameters['colour'] == colour}")
+    print(f"Colour detected - HSV({colour._h, colour._s, colour._v})")
+    print(f"Matches Color.{parameters['colour'].upper()} - {colour_mapping_dict[parameters['colour']] == colour}")
 
 main()
 
