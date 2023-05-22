@@ -196,7 +196,7 @@ class RoverSpikeHub:
             wait(10)
 
     def detect_canal(self):
-        stop = self._colour_sensor.color(surface=True) == Color.BLACK
+        stop = self._colour_sensor.color(surface=True) == Color.WHITE
         if stop:
             print("EMERGENCY STOP!")
         return stop
