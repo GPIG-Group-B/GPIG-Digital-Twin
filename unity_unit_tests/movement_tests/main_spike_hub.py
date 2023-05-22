@@ -12,7 +12,7 @@ from rover_spike_hub import RoverSpikeHub
 import constants
 
 def main():
-    test_id = "BACKWARDS_100_CM"
+    test_id = "FORWARD_100_CM"
 
     print("----------------------")
     print(f"Starting test with ID = {test_id}.")
