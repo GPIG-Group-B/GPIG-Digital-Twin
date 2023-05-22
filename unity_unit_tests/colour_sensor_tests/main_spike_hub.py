@@ -14,7 +14,7 @@ import constants
 colour_mapping_dict = {"blue": Color.BLUE,"yellow": Color.YELLOW, "white": Color.WHITE, "grey": Color.GRAY}
 
 def main():
-    test_id = "CD_GREY"
+    test_id = "CD_YELLOW"
 
     print("----------------------")
     print(f"Starting test with ID = {test_id}.")
