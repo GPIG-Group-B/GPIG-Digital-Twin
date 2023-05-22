@@ -22,7 +22,7 @@ DRIVE_BASE = DriveBase(left_motor=L_MOTOR, right_motor=R_MOTOR, wheel_diameter=c
 def move_straight(distance):
     """Moves the rover in a straight line for a given distance."""
     print(f"Moving straight for distance {distance}.")
-    # DRIVE_BASE.straight(distance, wait=True)
+    DRIVE_BASE.straight(distance, wait=True)
 
 
 def drive_at_curve(angle, distance):

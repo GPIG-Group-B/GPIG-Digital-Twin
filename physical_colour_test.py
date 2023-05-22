@@ -30,7 +30,7 @@ COLOUR_BOTTOM.detectable_colors(ALL_COLOURS)
 def detect_colour_forward():
     print(COLOUR_DIST_FORWARD.color(), COLOUR_DIST_FORWARD.hsv())
 
-def detect_distance_forward()():
+def detect_distance_forward():
     print(COLOUR_DIST_FORWARD.distance())
 
 def detect_colour_secondary():
