@@ -1,15 +1,18 @@
 import heapq
+
 try:
     import umath as math
 except ImportError:
     import math
 
-def euclidian_distance_from_nodes(node_1 : Node, node_2 : Node):
-    return math.sqrt((node_1.pos_x - node_2.pos_x)**2 + (node_1.pos_y - node_2.pos_y)**2)
 
 class Node:
 
-    def __init__(self, predecessors : list, successors : list, pos_x, pos_y):
+    def __init__(self,
+                 predecessors: list,
+                 successors: list,
+                 pos_x,
+                 pos_y):
         self.successors = successors
         self.predecessors = predecessors
         self._rhs_val = None
@@ -17,26 +20,34 @@ class Node:
         self.pos_x = pos_x
         self.pos_y = pos_y
 
-    def set_rhs_val(self, new_val):
+    def set_rhs_val(self,
+                    new_val):
         self._rhs_val = new_val
 
     def get_rhs_val(self):
         return self._rhs_val
 
-    def set_g_val(self, new_val):
+    def set_g_val(self,
+                  new_val):
         self._g_val = new_val
 
     def get_g_val(self):
         return self._g_val
 
-    
 
+def euclidian_distance_from_nodes(node_1: Node,
+                                  node_2: Node):
+    return math.sqrt((node_1.pos_x - node_2.pos_x) ** 2 + (node_1.pos_y - node_2.pos_y) ** 2)
 
 
 class DStarLite:
 
-
-    def __init__(self, cost_func, start_node, goal_node, all_nodes, move_func):
+    def __init__(self,
+                 cost_func,
+                 start_node,
+                 goal_node,
+                 all_nodes,
+                 move_func):
         self.cost = cost_func
         self.start_node = start_node
         self.goal_node = goal_node
@@ -57,13 +68,16 @@ class DStarLite:
             each_node.set_g_val(float("inf"))
 
         self.goal_node.set_rhs_val(0)
-        self.priority_queue_u.insert_node_val_pair(self.goal_node, (self.h(self.start_node, self.goal_node), 0))
+        self.priority_queue_u.insert_node_val_pair(self.goal_node,
+                                                   (self.h(self.start_node,
+                                                           self.goal_node), 0))
 
     def get_shortest_path_nodes(self):
         path_nodes = []
         sp_start_node = self.start_node
         while sp_start_node != self.goal_node:
-            successor_val_list = [self.cost(sp_start_node, s_prime) + s_prime.get_g_val() for s_prime in sp_start_node.successors]
+            successor_val_list = [self.cost(sp_start_node,
+                                            s_prime) + s_prime.get_g_val() for s_prime in sp_start_node.successors]
             sp_start_node = sp_start_node.successors[successor_val_list.index(min(successor_val_list))]
             path_nodes.append(sp_start_node)
         return path_nodes
@@ -75,47 +89,73 @@ class DStarLite:
         while self.start_node != self.goal_node:
             if self.start_node.get_rhs_val() == float("inf"):
                 raise Exception("No computable path")
-            successor_val_list = [self.cost(self.start_node, s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
+            successor_val_list = [self.cost(self.start_node,
+                                            s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
             self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
             self.move(self.start_node)
+            # changed_edges = self.scan_grap_changed_edge_costs()
+            # if len(changed_edges) != 0:
+            #     self.k_m = self.k_m + self.h(self.last_node, self.start_node)
+            #     self.last_node = self.start_node
+            #     for each_directed_edge in changed_edges:
+            #         u, v = each_directed_edge
+            #         c_old = self.cost(u,v)
+            #         self.update_edge_cost(u,v)
+            #         if c_old > self.cost(u, v):
+            #             if u != self.goal_node:
+            #                 u.set_rhs_val(min(u.get_rhs_val, self.cost(u, v) + v.get_g_val()))
+            #         elif u.get_rhs_val() == c_old + v.get_g_val():
+            #             if u != self.goal_node:
+            #                 u.get_rhs_val(min([self.cost(u, s_prime) + s_prime.get_g_val() for s_prime in u.successors]))
+            #         self.update_vertex(u)
+            #     self.compute_shortest_path()
         print("I finished")
 
-    def update_edge_cost(self, u, v):
+    def update_edge_cost(self,
+                         u,
+                         v):
         pass
 
     def scan_grap_changed_edge_costs(self):
         print("Scanning")
         return True
 
-    def h(self, from_node, to_node):
-        return euclidian_distance_from_nodes(from_node, to_node)
-        # return math.dist([from_node.pos_x, from_node.pos_y], [to_node.pos_x, to_node.pos_y])
+    def h(self,
+          from_node,
+          to_node):
+        return euclidian_distance_from_nodes(from_node,
+                                             to_node)
 
-    def calculate_key(self, node):
-        return min(node.get_g_val(), node.get_rhs_val()) + self.h(self.start_node, node) + self.k_m, min(node.get_g_val(), node.get_rhs_val())
+    def calculate_key(self,
+                      node):
+        return min(node.get_g_val(),
+                   node.get_rhs_val()) + self.h(self.start_node,
+                                                node) + self.k_m, min(node.get_g_val(),
+                                                                      node.get_rhs_val())
 
-    def get_possible_move_cells(self,heading):
+    def get_possible_move_cells(self,
+                                heading):
         output = []
-        offsets = [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]
-        heading_offset = [315,0,45,135,180,225]
+        offsets = [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]
+        heading_offset = [315, 0, 45, 135, 180, 225]
         # for i in range(3):## Backwards
         #     output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
 
         ## Forwards
-        output.append(offsets[(int(((heading%360)/45)+0.5)+4)%8])
-        output.append(offsets[(int(((heading%360)/45)+0.5)+1+4)%8])
-        output.append(offsets[(int(((heading%360)/45)+0.5)+2+4)%8])
+        output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 4) % 8])
+        output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 1 + 4) % 8])
+        output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 2 + 4) % 8])
 
         return output
 
-
     def compute_shortest_path(self):
         while (self.priority_queue_u.top_key() < self.calculate_key(self.start_node)) or (self.start_node.get_rhs_val() > self.start_node.get_g_val()):
-            u:Node = self.priority_queue_u.top()
+            u: Node = self.priority_queue_u.top()
             k_old = self.priority_queue_u.top_key()
             k_new = self.calculate_key(u)
             if k_old < k_new:
-                self.priority_queue_u.update(node_to_update=u, new_value=k_new)
+                self.priority_queue_u.update(node_to_update=u,
+                                             new_value=k_new)
             elif u.get_g_val() > u.get_rhs_val():
                 u.set_g_val(u.get_rhs_val())
                 self.priority_queue_u.delete(u)
@@ -135,75 +175,66 @@ class DStarLite:
                 ## Heading = atan(dx/dy)
                 ## dx = last_node_x - current_node_x
                 ## dy = last_node_y - current_node_y
-                
+
                 _min = float("inf")
                 _min_succ = None
                 for succ in u.successors:
-                    if(succ.get_rhs_val()<_min):
+                    if succ.get_rhs_val() < _min:
                         _min = succ.get_rhs_val()
                         _min_succ = succ
 
                 self.prev_node = _min_succ
-                if(self.prev_node == None or u == self.goal_node):
-                    prev_heading = 90##TODO: CHANGE THIS TO MATCH THE TARGET NODE HEADING
+                if self.prev_node is None or u == self.goal_node:
+                    prev_heading = 90  ##TODO: CHANGE THIS TO MATCH THE TARGET NODE HEADING
                 else:
-                    ##last_node:Node = self.node_history[-1]
-                    last_node:Node = self.prev_node
-                    if(last_node.pos_y-u.pos_y!=0):
-                        prev_heading = math.degrees(math.atan(abs(last_node.pos_x-u.pos_x)/(last_node.pos_y-u.pos_y)))%180
-                        if(last_node.pos_x-u.pos_x < 0):
-                            prev_heading = 360-prev_heading
+
+                    last_node: Node = self.prev_node
+                    if last_node.pos_y - u.pos_y != 0:
+                        prev_heading = math.degrees(math.atan(abs(last_node.pos_x - u.pos_x) / (last_node.pos_y - u.pos_y))) % 180
+                        if last_node.pos_x - u.pos_x < 0:
+                            prev_heading = 360 - prev_heading
                     else:
-                        prev_heading = (90*((last_node.pos_x-u.pos_x)/abs((last_node.pos_x-u.pos_x))))%360
-                if(self.prev_node != None):
-                    print(u.pos_x,u.pos_y,prev_heading,"from",self.prev_node.pos_x,self.prev_node.pos_y)
-                else:
-                    print("StartNode")
-                if(u == self.start_node):
-                    print("Start Node")
+                        prev_heading = (90 * ((last_node.pos_x - u.pos_x) / abs((last_node.pos_x - u.pos_x)))) % 360
+                if self.prev_node is not None:
+                    print(u.pos_x,
+                          u.pos_y,
+                          prev_heading,
+                          "from",
+                          self.prev_node.pos_x,
+                          self.prev_node.pos_y)
+                if u == self.start_node:
                     prev_heading = self.rover_start_angle
-                        
+
                 for s in u.predecessors:
                     if s != self.goal_node:
-                        ##print((int(s.pos_x-u.pos_x),int(s.pos_y-u.pos_y)),self.get_possible_move_cells(prev_heading))
-                        if((int(s.pos_x-u.pos_x),int(s.pos_y-u.pos_y)) in self.get_possible_move_cells(prev_heading)):
-                            print("\t",s.pos_x,s.pos_y)
-                            s.set_rhs_val(min(s.get_rhs_val(), self.cost(s, u) + u.get_g_val()))
-                        else:
-                            ##s.set_rhs_val(float("inf"))
-                            pass
+                        if (int(s.pos_x - u.pos_x), int(s.pos_y - u.pos_y)) in self.get_possible_move_cells(prev_heading):
+                            print("\t",
+                                  s.pos_x,
+                                  s.pos_y)
+                            s.set_rhs_val(min(s.get_rhs_val(),
+                                              self.cost(s,
+                                                        u) + u.get_g_val()))
                     self.update_vertex(s)
             else:
                 g_old = u.get_g_val()
                 u.set_g_val(float("inf"))
                 for s in u.predecessors + [u]:
-                    if s.get_rhs_val() == (self.cost(s, u) + g_old):
+                    if s.get_rhs_val() == (self.cost(s,
+                                                     u) + g_old):
                         if s != self.goal_node:
-                            min_val = None
-                            for s_prime in s.successors:
-                                temp = self.cost(s, s_prime) + s_prime.get_g_val()
-                                if min_val is None or temp < min_val:
-                                    min_val = temp
-                            s.set_rhs_val(min_val)
-                            # s.set_rhs_val(min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors]))
+                            s.set_rhs_val(min([self.cost(s, s_prime) + s_prime.get_g_val() for s_prime in s.successors]))
                     self.update_vertex(s)
 
-    def update_vertex(self, node):
+    def update_vertex(self,
+                      node):
         if (node.get_g_val() != node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
-            ##print("Updated")
-            ##self.node_history.append(node)## Add node to history
             self.priority_queue_u.update(node_to_update=node,
                                          new_value=self.calculate_key(node))
         elif (node.get_g_val() != node.get_rhs_val()) and not self.priority_queue_u.is_node_present(node):
-            ##print("Insert")
-            self.priority_queue_u.insert_node_val_pair(node=node, value=self.calculate_key(node=node))
-        elif(node.get_g_val() == node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
-            ##print("Delete")
-            ##del(self.node_history[-1])## Remove node from history
+            self.priority_queue_u.insert_node_val_pair(node=node,
+                                                       value=self.calculate_key(node=node))
+        elif (node.get_g_val() == node.get_rhs_val()) and self.priority_queue_u.is_node_present(node):
             self.priority_queue_u.delete(node=node)
-
-
-
 
 
 class DStarSet(list):
@@ -221,26 +252,33 @@ class DStarSet(list):
     def top(self):
         return self[0][1]
 
-    def insert_node_val_pair(self, node, value):
-        # print("InsertNodeValPair\t",node,value)
-        heapq.heappush(self, ((*value, self.get_tiebreaker_index(value)), node))
+    def insert_node_val_pair(self,
+                             node,
+                             value):
+        if len(value) != 2:
+            raise ValueError(f"Length of value needs to be 2. Got : {value}")
+        heapq.heappush(self,
+                       ((value[0], value[1], self.get_tiebreaker_index(value)), node))
 
-
-    def is_node_present(self, node):
+    def is_node_present(self,
+                        node):
         for each_value, each_node in self:
             if node == each_node:
                 return True
         return False
 
-    def get_tiebreaker_index(self, value):
+    def get_tiebreaker_index(self,
+                             value):
         n = 0
         for (prio_0, prio_1, tiebreaker_val), each_node in self:
             if value[0] == prio_0 and value[1] == prio_1:
                 n += tiebreaker_val + 1
         return n
 
-    #TODO: Update to account for removal of tiebreakers properly
-    def update(self, node_to_update, new_value = None):
+    # TODO: Update to account for removal of tiebreakers properly
+    def update(self,
+               node_to_update,
+               new_value=None):
         found_node = False
         to_re_add = []
         for _ in range(len(self)):
@@ -256,20 +294,14 @@ class DStarSet(list):
         if not found_node:
             raise ValueError(f"Node : {found_node} could not be found in heap")
         for value, node in to_re_add:
-            # print("Re-add / UPDATE")
-            # print(value, node.pos_x, node.pos_y)
-            self.insert_node_val_pair(node=node, value=value)
+            self.insert_node_val_pair(node=node,
+                                      value=value)
 
-    def delete(self, node):
-        # print("======== DELETION =====")
-        # print(self)
-        # for val, node_2 in self:
-        #     print(f"Node : {node_2} | Value : {val}| pos X : {node_2.pos_x} | Pos Y : {node_2.pos_y}")
-        # print(f"Node being deleted : {node} | Pos X : {node.pos_x} | Pos Y {node.pos_y}")
-        # print("======== DELETION =====")
-        self.update(node_to_update=node, new_value=None)
+    def delete(self,
+               node):
+        self.update(node_to_update=node,
+                    new_value=None)
+
 
 if __name__ == '__main__':
     pass
-
-
