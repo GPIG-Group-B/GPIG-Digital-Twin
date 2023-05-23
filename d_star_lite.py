@@ -93,7 +93,7 @@ class DStarLite:
                 raise Exception("No computable path")
             successor_val_list = [self.cost(self.start_node,
                                             s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
-            ##self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
+            self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
             self.move(self.start_node)
             # changed_edges = self.scan_grap_changed_edge_costs()
             # if len(changed_edges) != 0:
