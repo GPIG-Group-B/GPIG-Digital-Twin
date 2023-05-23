@@ -27,6 +27,8 @@ public class UI : MonoBehaviour
 
     public List<ForceSensor> forceSensors;
 
+    [SerializeField]
+    public List<WheelCollider> wheelColliders;
 
     private bool showSidebar = false;
 
@@ -131,8 +133,12 @@ public class UI : MonoBehaviour
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
                 GUILayout.Label("Wheel " + wm.name + " rpm: " + rpm.ToString("0.00"));
-                GUILayout.Label("Wheel " + wm.name + " steering angle: " + wm.wheelCollider.steerAngle.ToString("0.00"));
                 
+            }
+
+            foreach (WheelCollider wc in wheelColliders){
+
+                GUILayout.Label(wc.name + " Steering angle: " + wc.steerAngle.ToString("0.00") + "°");
 
             }
 
