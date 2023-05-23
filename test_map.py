@@ -87,7 +87,7 @@ rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
               width=constants.ROVER_WIDTH,
               depth=constants.ROVER_DEPTH)
 
-demo_map = run_test(0.75,0.25,0,3.25,0.75,90,resolution=0.25)
+demo_map = run_test(0.75,0.25,0,3.0,0.75,90,resolution=0.25)
 rover.load_map(demo_map)
 
 rover.navigate_map(cost_func=demo_map.cost)
