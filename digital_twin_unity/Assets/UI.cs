@@ -42,6 +42,10 @@ public class UI : MonoBehaviour
     private float currentAngle;
 
     private bool isForceSensorTouched;
+    
+
+    public Camera MainCamera;
+    bool isCameraZoomedOut = false;
 
     void Start()
     {
@@ -56,8 +60,15 @@ public class UI : MonoBehaviour
 
         lastTrackedPosition = rover.transform.position;
         lastVelocity = 0;
+
+        // MainCamera = Camera.main;
+        // MainCamera.enabled = true;
+
     }
- 
+    
+    
+
+
 
     void FixedUpdate()
     {
@@ -88,6 +99,16 @@ public class UI : MonoBehaviour
         {
             //toggle the sidebar
             showSidebar = !showSidebar;
+             
+            // start coroutine to move camera out
+            if (isCameraZoomedOut == false){
+                MainCamera.fieldOfView  = MainCamera.fieldOfView * 1.6f;
+                isCameraZoomedOut = true;
+            }else{
+                MainCamera.fieldOfView  = MainCamera.fieldOfView * 0.625f;
+                isCameraZoomedOut = false;
+            }
+    
         }
         if (showSidebar)
         {
@@ -175,7 +196,19 @@ public class UI : MonoBehaviour
         GUILayout.EndArea(); 
     
     }
+
     
+    // IEnumerator LerpFoV(float fov) {
+    //     // lerping a value in this way may take quite some time to reach the exact target value, so we will just stop lerping when the difference is small enough, i.e 0.05
+    //     float dif = Mathf.Abs(Camera.main.fieldOfView - fov);
+    
+    //     while(dif > 0.05) {
+    //         Mathf.Lerp(Camera.main.fieldOfView, fov, 0.1f);
+    //         // update the difference
+    //         dif = Mathf.Abs(Camera.main.fieldOfView - fov);
+    //         yield return null;
+    //         }
+    //     }
 
 
 }

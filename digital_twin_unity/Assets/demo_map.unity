@@ -717,7 +717,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 841762675031264994, guid: 576c02c1c379945429edc8e9fd1425f5, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 841762675031264994, guid: 576c02c1c379945429edc8e9fd1425f5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1468,3 +1468,4 @@ MonoBehaviour:
   - {fileID: 8619035622995042821}
   forceSensors:
   - {fileID: 8619035622995042820}
+  MainCamera: {fileID: 1558687388}
