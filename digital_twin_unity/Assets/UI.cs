@@ -47,6 +47,8 @@ public class UI : MonoBehaviour
     public Camera MainCamera;
     bool isCameraZoomedOut = false;
 
+    private Vector3 _camera_pos_delta;
+
     void Start()
     {
         regularStyle = new GUIStyle();
@@ -60,6 +62,8 @@ public class UI : MonoBehaviour
 
         lastTrackedPosition = rover.transform.position;
         lastVelocity = 0;
+
+
 
         // MainCamera = Camera.main;
         // MainCamera.enabled = true;
@@ -194,6 +198,24 @@ public class UI : MonoBehaviour
         GUILayout.Label("Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
         GUILayout.Label("Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
         GUILayout.EndArea(); 
+
+        //move camera left button
+        if (GUI.Button(new Rect(Screen.width-60, Screen.height-30, 20, 20), "<-"))
+        {
+            // start coroutine to move camera out
+            StartCoroutine(RotateSmoothly(25,1));
+    
+        }
+
+        //Create right camera button
+        if (GUI.Button(new Rect(Screen.width-30, Screen.height-30, 20, 20), "->"))
+        {
+
+            // StartCoroutine(LerpCameraPositionRight(90,1.5f));
+            StartCoroutine(RotateSmoothly(25,-1));
+    
+        }
+        
     
     }
 
@@ -205,8 +227,6 @@ public class UI : MonoBehaviour
             yield break;
         }
         float startFOV = MainCamera.fieldOfView;
-         
-         
         float elapsedTime = 0;
         while (elapsedTime < time)
         {
@@ -220,4 +240,61 @@ public class UI : MonoBehaviour
     }
 
 
+
+
+// public IEnumerator LerpCameraPositionRight(float rotationAmount, float time)
+//     {
+        
+
+//         Vector3 originalPos = MainCamera.transform.position;
+
+//         MainCamera.transform.RotateAround(this.transform.position, Vector3.up, -rotationAmount);
+
+//         Vector3 targetPos = MainCamera.transform.position;
+
+//         MainCamera.transform.position = originalPos;
+
+//         if (MainCamera.transform.position == targetPos)
+//         {
+//             yield break;
+//         }
+        
+//         float elapsedTime = 0;
+//         Debug.Log("Resetting elapsed time");
+//         while (elapsedTime < time)
+//         {
+//             float a = elapsedTime / time;
+//             Debug.Log("A : " + a);
+//             MainCamera.transform.position = Vector3.Lerp(MainCamera.transform.position,targetPos , a);
+//             //TODO: FIx this once the prefab issues are solved by reattaching the camera
+//             _camera_pos_delta = this.transform.position - MainCamera.transform.position;
+//             elapsedTime += Time.deltaTime;
+//             yield return new WaitForEndOfFrame();
+//         }
+//     }
+
+    IEnumerator RotateSmoothly(int degreesPerSecond,float directionFactor)
+    {
+        
+        float targetAngle = 90.0f;
+        float total_angle_moved = 0.0f; 
+        Debug.Log("DIRECTION FACTOR : " + directionFactor);
+        while (true)
+        {
+            float angle_delta = directionFactor *  degreesPerSecond * Time.deltaTime;
+            if (total_angle_moved >= targetAngle)
+            {
+                yield break;
+            }
+            Debug.Log("Delta angle " + angle_delta);
+            MainCamera.transform.RotateAround(rover.transform.position,Vector3.up, angle_delta);
+            total_angle_moved += Mathf.Abs(angle_delta);
+            yield return null;
+
+        }
+
+
+    }
+
 }
+
