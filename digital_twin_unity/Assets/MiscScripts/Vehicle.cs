@@ -28,6 +28,24 @@ public class Vehicle : MonoBehaviour
 
     }
 
+    void FixedUpdate()
+    {
+        foreach (Wheel eachWheel in wheels)
+        {
+            if (eachWheel.wheelCollider.brakeTorque > 0)
+            {
+                if (this.gameObject.GetComponent<Rigidbody>().velocity.magnitude > 0.001f){
+                    float max = 0.25f;
+                    float min = 0.05f;
+                    float velocity_scalar = (UnityEngine.Random.value * (max-min)) + min;
+                    this.gameObject.GetComponent<Rigidbody>().velocity *= velocity_scalar;
+                }
+            }
+            
+        }
+
+    }
+
     private void UpdateWheelMeshTransform(WheelCollider wheelCollider, Transform wheelTransform)
     {
 
