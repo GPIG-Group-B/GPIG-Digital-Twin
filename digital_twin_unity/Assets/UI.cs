@@ -27,6 +27,8 @@ public class UI : MonoBehaviour
 
     public List<ForceSensor> forceSensors;
 
+    [SerializeField]
+    public List<WheelCollider> wheelColliders;
 
     private bool showSidebar = false;
 
@@ -49,6 +51,8 @@ public class UI : MonoBehaviour
 
     private Vector3 _camera_pos_delta;
 
+    private Vector3 startPosition;
+
     void Start()
     {
         regularStyle = new GUIStyle();
@@ -59,14 +63,11 @@ public class UI : MonoBehaviour
         colourSensorColour = new GUIStyle();
         colourSensorColour.normal = new GUIStyleState();
 
-
-        lastTrackedPosition = rover.transform.position;
+        startPosition = rover.transform.position;
+        lastTrackedPosition = startPosition;
         lastVelocity = 0;
 
 
-
-        // MainCamera = Camera.main;
-        // MainCamera.enabled = true;
 
     }
     
@@ -132,8 +133,12 @@ public class UI : MonoBehaviour
                 //output to gui the position and rotation of each wheel
                 GUILayout.Label("Wheel " + wm.name + " position (x,y,z): " + position.ToString("0.00"));
                 GUILayout.Label("Wheel " + wm.name + " rpm: " + rpm.ToString("0.00"));
-                GUILayout.Label("Wheel " + wm.name + " steering angle: " + wm.wheelCollider.steerAngle.ToString("0.00"));
                 
+            }
+
+            foreach (WheelCollider wc in wheelColliders){
+
+                GUILayout.Label(wc.name + " Steering angle: " + wc.steerAngle.ToString("0.00") + "°");
 
             }
 
@@ -197,6 +202,8 @@ public class UI : MonoBehaviour
         
         GUILayout.Label("Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
         GUILayout.Label("Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
+        GUILayout.Label("Difference in x : " + (rover.transform.position.x - startPosition.x).ToString("0.00") );
+        GUILayout.Label("Difference in z : " + (rover.transform.position.z - startPosition.z).ToString("0.00") );
         GUILayout.EndArea(); 
 
         //move camera left button
