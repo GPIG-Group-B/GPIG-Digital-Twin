@@ -165,10 +165,12 @@ class RoverPoweredUpHub:
                 return
 
     def drive_target(self, desired_angle, distance):
-
-        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
+        new_angle = desired_angle - self._current_angle
+        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(new_angle))-(self._axle_track/2))))
+        self._current_angle = desired_angle
         return self.drive(angle=x,
                           distance=distance)
+
 
     def drive(self,
               angle: int,
@@ -184,24 +186,23 @@ class RoverPoweredUpHub:
         Returns:
             None
         """
-        orig_ang = angle
+
         if abs(angle) > self._max_turn_angle:
             raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
         DEFAULT_SPEED = 100
-        new_angle = self._current_angle - orig_ang
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
-                                        target_angle=new_angle)
+                                        target_angle=angle)
 
-        if new_angle == 0:
+        if angle == 0:
             self._drive_base.straight(distance=distance, wait=False)
         else:
-            rad = self._wheelbase / tan(radians(new_angle)) + self._axle_track / 2
+            rad = self._wheelbase / tan(radians(angle)) + self._axle_track / 2
             arc = 360 * (distance / (2 * pi * rad))
             self._drive_base.curve(radius=rad,
                                    angle=arc, 
                                    wait=False)
 
-        self._current_angle = orig_ang
+
 
 
         while True:
