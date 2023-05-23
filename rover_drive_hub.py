@@ -144,7 +144,7 @@ class RoverPoweredUpHub:
         r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
                         positive_direction=Direction.CLOCKWISE)
         steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.COUNTERCLOCKWISE)
+                               positive_direction=Direction.CLOCKWISE)
         return l_motor, r_motor, steering_motor
 
     def run(self):
