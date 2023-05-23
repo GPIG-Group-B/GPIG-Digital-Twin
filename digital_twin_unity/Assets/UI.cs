@@ -49,6 +49,8 @@ public class UI : MonoBehaviour
 
     private Vector3 _camera_pos_delta;
 
+    private Vector3 startPosition;
+
     void Start()
     {
         regularStyle = new GUIStyle();
@@ -59,14 +61,11 @@ public class UI : MonoBehaviour
         colourSensorColour = new GUIStyle();
         colourSensorColour.normal = new GUIStyleState();
 
-
-        lastTrackedPosition = rover.transform.position;
+        startPosition = rover.transform.position;
+        lastTrackedPosition = startPosition;
         lastVelocity = 0;
 
 
-
-        // MainCamera = Camera.main;
-        // MainCamera.enabled = true;
 
     }
     
@@ -197,6 +196,8 @@ public class UI : MonoBehaviour
         
         GUILayout.Label("Current acceleration: " + (acceleration).ToString("0.0000") + " m/s^2." ,regularStyle);
         GUILayout.Label("Current angle: " + (currentAngle).ToString("0.0000") + "°",regularStyle);
+        GUILayout.Label("Difference in x : " + (rover.transform.position.x - startPosition.x).ToString("0.00") );
+        GUILayout.Label("Difference in z : " + (rover.transform.position.z - startPosition.z).ToString("0.00") );
         GUILayout.EndArea(); 
 
         //move camera left button
