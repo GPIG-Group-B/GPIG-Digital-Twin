@@ -17,6 +17,9 @@ for obs_y in range(16):
     test.add_obstacle(x=4, y=15-obs_y)
 for test_x in range(8):
     test.add_obstacle(y=12,x=4+test_x)
+
+test.set_start_heading(0)
+test.set_target_heading(90)
 goal_node, start_node, all_nodes = test.convert_to_graph()
 
 test_d_star = DStarLite(start_node=start_node,
@@ -24,4 +27,9 @@ test_d_star = DStarLite(start_node=start_node,
                  all_nodes=all_nodes,
                  cost_func=test.cost,
                  move_func=test.update_current_position_by_node)
+
+# print("I start")
+
+# test_d_star.main()
+# print("Ididididididididi it")
 visualiser = MapVisualiser(map = test, pathfinding_alg=test_d_star)

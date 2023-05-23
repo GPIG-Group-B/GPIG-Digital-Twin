@@ -24,6 +24,16 @@ class Map:
         self._resolution = resolution
         self._goal_node_x = goal_node_x
         self._goal_node_y = goal_node_y
+
+
+        ## Restrictions on search space
+        self.search_space = [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]
+        self.starting_angle = None
+        self.starting_search_space = [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)] 
+        self.target_angle = None
+        self.target_search_space =  [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]
+
+
         if not self._is_int(self._grid_size_x):
             raise ValueError("Map width must be wholly divisible by resolution")
         if not self._is_int(self._grid_size_y):
@@ -57,6 +67,14 @@ class Map:
 
     def get_grid(self):
         return self._grid
+
+    def set_start_heading(self,angle):
+        self.starting_angle = angle
+        self.starting_search_space = self.get_possible_move_cells(self.starting_angle)
+
+    def set_target_heading(self,angle):
+        self.target_angle = angle
+        self.target_search_space = [self.search_space[(int((self.target_angle/45)+5.5))%8]]
 
 
     def set_goal_pos(self, x,y):
@@ -102,21 +120,56 @@ class Map:
     def _get_position_as_distance(self, x , y):
         return x * self._resolution, y * self._resolution
 
+    def get_possible_move_cells(self,
+                                heading):
+        output = []
+        offsets = [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]
+        for i in range(3):## Backwards
+            output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
+
+        ## Backwards
+        # output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 4) % 8])
+        # output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 1 + 4) % 8])
+        # output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 2 + 4) % 8])
+
+        return output
+
     def convert_to_graph(self):
         for row_id in range(self._grid_size_y):
             for col_id in range(self._grid_size_x):
                 center_node = self.get_grid_node(x=col_id, y = row_id)
-                for x_delta, y_delta in [(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0)]:
+
+                search_space = list(self.search_space)## Copy the master search space
+
+                if(row_id == self._current_pos_y and col_id == self._current_pos_x and self.starting_angle is not None):
+                    ## gives the restriction of the intial heading
+                    search_space = list(self.starting_search_space)
+
+                elif(row_id == self._goal_node_y and col_id == self._goal_node_x and self.target_angle is not None):
+                    pass
+                    search_space = list(self.target_search_space)
+                    print("Target Search Space:",search_space)
+
+                for x_delta, y_delta in search_space:
                     cell_col_id = col_id + x_delta
                     cell_row_id = row_id + y_delta
-                    if self._grid_size_y > cell_row_id >= 0:
-                        if self._grid_size_x > cell_col_id >= 0:
-                            current_cell = self.get_grid_node(x=cell_col_id,
-                                                              y=cell_row_id)
-                            center_node.successors.append(current_cell)
-                            center_node.predecessors.append(current_cell)
-                            current_cell.successors.append(center_node)
-                            current_cell.predecessors.append(center_node)
+                    if(cell_col_id == self._goal_node_x and cell_row_id == self._goal_node_y and not (-x_delta,-y_delta) in self.target_search_space):
+                        print("Limiting Node to Goal Node")
+                        pass
+                    elif(cell_col_id == self._current_pos_x and cell_row_id == self._current_pos_x and not (-x_delta,-y_delta) in self.starting_search_space):
+                        print("Limiting Node to Start Node")
+                        pass
+                    else:
+                        if self._grid_size_y > cell_row_id >= 0:
+                            if self._grid_size_x > cell_col_id >= 0:
+                                current_cell = self.get_grid_node(x=cell_col_id,
+                                                                y=cell_row_id)
+                                ## Might be causing duplicate links
+                                # center_node.successors.append(current_cell)
+                                # center_node.predecessors.append(current_cell)
+                                current_cell.successors.append(center_node)
+                                current_cell.predecessors.append(center_node)
+
         all_nodes = [cell.node for y in self._grid for cell in y]
         return self.get_grid_node(x=self._goal_node_x, y = self._goal_node_y), self.get_grid_node(x=self._current_pos_x, y = self._current_pos_y), all_nodes
     def get_grid_node(self,x,y):

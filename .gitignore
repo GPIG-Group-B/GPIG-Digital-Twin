@@ -146,3 +146,4 @@ digital_twin_unity/GPIG - v0.1.sln
 *.sln
 /digital_twin_unity/UpgradeLog.htm
 /digital_twin_unity/.vs/digital_twin_unity/v17/.suo
+.vscode/launch.json

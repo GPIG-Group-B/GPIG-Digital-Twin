@@ -20,6 +20,8 @@ class Node:
         self.pos_x = pos_x
         self.pos_y = pos_y
 
+    def __str__(self) -> str:
+        return f"---- Node ----\nPosX:{self.pos_x}\nPosY{self.pos_y}\nTotals:\n\tPredecessors:{len(self.predecessors)}\n\tSuccessors:{len(self.successors)}\n---- End Node ----"
     def set_rhs_val(self,
                     new_val):
         self._rhs_val = new_val
@@ -58,7 +60,7 @@ class DStarLite:
         self.move = move_func
         self.prev_node = None
         self.node_history = []
-        self.rover_start_angle = 90
+        self.rover_start_angle = 180
 
     def initialise(self):
         self.priority_queue_u = DStarSet()
@@ -133,10 +135,13 @@ class DStarLite:
                                                 node) + self.k_m, min(node.get_g_val(),
                                                                       node.get_rhs_val())
 
-    def get_possible_move_cells(self,
-                                heading):
+    def get_possible_move_cells(self,heading):
+        
         output = []
         offsets = [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]
+        if( heading is None):
+            print("Got a null Value!!!")
+            return offsets
         heading_offset = [315, 0, 45, 135, 180, 225]
         # for i in range(3):## Backwards
         #     output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
@@ -147,6 +152,8 @@ class DStarLite:
         output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 2 + 4) % 8])
 
         return output
+        ## Filtering is now down in graph creation
+        # return output
 
     def compute_shortest_path(self):
         while (self.priority_queue_u.top_key() < self.calculate_key(self.start_node)) or (self.start_node.get_rhs_val() > self.start_node.get_g_val()):
@@ -159,6 +166,7 @@ class DStarLite:
             elif u.get_g_val() > u.get_rhs_val():
                 u.set_g_val(u.get_rhs_val())
                 self.priority_queue_u.delete(u)
+
                 """
                 Nodes
 
@@ -185,9 +193,8 @@ class DStarLite:
 
                 self.prev_node = _min_succ
                 if self.prev_node is None or u == self.goal_node:
-                    prev_heading = 90  ##TODO: CHANGE THIS TO MATCH THE TARGET NODE HEADING
+                    prev_heading = None  ##TODO: CHANGE THIS TO MATCH THE TARGET NODE HEADING
                 else:
-
                     last_node: Node = self.prev_node
                     if last_node.pos_y - u.pos_y != 0:
                         prev_heading = math.degrees(math.atan(abs(last_node.pos_x - u.pos_x) / (last_node.pos_y - u.pos_y))) % 180
@@ -195,25 +202,31 @@ class DStarLite:
                             prev_heading = 360 - prev_heading
                     else:
                         prev_heading = (90 * ((last_node.pos_x - u.pos_x) / abs((last_node.pos_x - u.pos_x)))) % 360
-                if self.prev_node is not None:
-                    print(u.pos_x,
-                          u.pos_y,
-                          prev_heading,
-                          "from",
-                          self.prev_node.pos_x,
-                          self.prev_node.pos_y)
+
+                # if self.prev_node is not None:
+                #     print(u.pos_x,
+                #           u.pos_y,
+                #           prev_heading,
+                #           "from",
+                #           self.prev_node.pos_x,
+                #           self.prev_node.pos_y)
                 if u == self.start_node:
                     prev_heading = self.rover_start_angle
-
+                
+                if(prev_heading is None):
+                            print(u)
+                            print("START Predecessors")
+                            for s in u.predecessors:
+                                print(s)
+                            print("END Predecessors")
+                print(u.pos_x,u.pos_y,"\t",self.get_possible_move_cells(prev_heading))         
                 for s in u.predecessors:
                     if s != self.goal_node:
+                        
                         if (int(s.pos_x - u.pos_x), int(s.pos_y - u.pos_y)) in self.get_possible_move_cells(prev_heading):
-                            print("\t",
-                                  s.pos_x,
-                                  s.pos_y)
-                            s.set_rhs_val(min(s.get_rhs_val(),
-                                              self.cost(s,
-                                                        u) + u.get_g_val()))
+                            
+                            ##print("\t",s.pos_x,s.pos_y)
+                            s.set_rhs_val(min(s.get_rhs_val(),self.cost(s,u) + u.get_g_val()))
                     self.update_vertex(s)
             else:
                 g_old = u.get_g_val()
