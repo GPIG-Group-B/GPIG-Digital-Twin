@@ -163,8 +163,10 @@ class RoverPoweredUpHub:
                 return
 
     def drive_target(self, desired_angle, distance):
-
-        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
+        if desired_angle == 0:
+            x = 0
+        else:
+            x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         return self.drive(angle=x,
                           distance=distance)
 
