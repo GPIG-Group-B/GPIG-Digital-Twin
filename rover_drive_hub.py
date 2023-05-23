@@ -95,7 +95,7 @@ class RoverPoweredUpHub:
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
         self._drive_base.settings(200,400,100,400)
-        self._current_angle = 0
+
 
         try:
             hub = TechnicHub()
@@ -165,9 +165,10 @@ class RoverPoweredUpHub:
                 return
 
     def drive_target(self, desired_angle, distance):
-        new_angle = desired_angle - self._current_angle
-        x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(new_angle))-(self._axle_track/2))))
-        self._current_angle = desired_angle
+        if desired_angle == 0:
+            x = 0
+        else:
+            x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         return self.drive(angle=x,
                           distance=distance)
 
