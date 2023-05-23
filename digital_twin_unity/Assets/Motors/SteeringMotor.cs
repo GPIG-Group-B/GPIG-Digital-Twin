@@ -129,14 +129,14 @@ public class SteeringMotor : Device
         if (message.wait)
         {
 
-            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + random_drift,
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + (int) random_drift,
                                           degreesPerSecond: message.speed,
                                           messageID: _RUN_TARGET_MESSAGE_ID,
                                           message: JsonUtility.ToJson(new RunTargetMessage())));
         }
         else
         {
-            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + random_drift,
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + (int) random_drift,
                                           degreesPerSecond: message.speed));
 
             AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
@@ -245,8 +245,8 @@ IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond)
         {
             if (Mathf.Abs(targetAngle - GetCurrentRotationAngle()) <= 1)
             {
-                leftWheelCollider.steerAngle = message.target_angle;
-                rightWheelCollider.steerAngle = message.target_angle;
+                leftWheelCollider.steerAngle = targetAngle;
+                rightWheelCollider.steerAngle = targetAngle;
                 yield break;
             }
             leftWheelCollider.steerAngle += degreesPerSecond * Time.deltaTime * directionFactor;
@@ -290,8 +290,8 @@ IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond)
         {
             if (Mathf.Abs(targetAngle - GetCurrentRotationAngle()) <= 1)
             {
-                leftWheelCollider.steerAngle = message.target_angle;
-                rightWheelCollider.steerAngle = message.target_angle;
+                leftWheelCollider.steerAngle = targetAngle;
+                rightWheelCollider.steerAngle = targetAngle;
                 AddReturnMessageToOutboundQueue(message, messageID);
                 yield break;
             }
