@@ -94,6 +94,7 @@ class RoverPoweredUpHub:
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
                                      axle_track=self._axle_track)
+        self._drive_base.settings(200,400,100,400)
         self._current_angle = 0
 
         try:
