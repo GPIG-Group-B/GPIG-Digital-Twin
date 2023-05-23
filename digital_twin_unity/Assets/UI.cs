@@ -102,10 +102,10 @@ public class UI : MonoBehaviour
              
             // start coroutine to move camera out
             if (isCameraZoomedOut == false){
-                MainCamera.fieldOfView  = MainCamera.fieldOfView * 1.6f;
+                StartCoroutine(LerpFOV(100, 0.5f));
                 isCameraZoomedOut = true;
             }else{
-                MainCamera.fieldOfView  = MainCamera.fieldOfView * 0.625f;
+                StartCoroutine(LerpFOV(60, 0.5f));
                 isCameraZoomedOut = false;
             }
     
@@ -198,17 +198,26 @@ public class UI : MonoBehaviour
     }
 
     
-    // IEnumerator LerpFoV(float fov) {
-    //     // lerping a value in this way may take quite some time to reach the exact target value, so we will just stop lerping when the difference is small enough, i.e 0.05
-    //     float dif = Mathf.Abs(Camera.main.fieldOfView - fov);
-    
-    //     while(dif > 0.05) {
-    //         Mathf.Lerp(Camera.main.fieldOfView, fov, 0.1f);
-    //         // update the difference
-    //         dif = Mathf.Abs(Camera.main.fieldOfView - fov);
-    //         yield return null;
-    //         }
-    //     }
+    public IEnumerator LerpFOV(int fov, float time)
+    {
+        if (MainCamera.fieldOfView == fov)
+        {
+            yield break;
+        }
+        float startFOV = MainCamera.fieldOfView;
+         
+         
+        float elapsedTime = 0;
+        while (elapsedTime < time)
+        {
+            float a = elapsedTime / time;
+            MainCamera.fieldOfView = Mathf.Lerp(MainCamera.fieldOfView, fov, a);
+            
+ 
+            yield return new WaitForEndOfFrame();
+            elapsedTime += Time.deltaTime;
+        }
+    }
 
 
 }
