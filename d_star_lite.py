@@ -93,7 +93,7 @@ class DStarLite:
                 raise Exception("No computable path")
             successor_val_list = [self.cost(self.start_node,
                                             s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
-            self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
+            ##self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
             self.move(self.start_node)
             # changed_edges = self.scan_grap_changed_edge_costs()
             # if len(changed_edges) != 0:
@@ -143,8 +143,8 @@ class DStarLite:
             print("Got a null Value!!!")
             return offsets
         heading_offset = [315, 0, 45, 135, 180, 225]
-        # for i in range(3):## Backwards
-        #     output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
+        for i in range(3):## Backwards
+            output.append(offsets[(int(((heading%360)/45)+0.5)+i)%8])
 
         ## Forwards
         output.append(offsets[(int(((heading % 360) / 45) + 0.5) + 4) % 8])
@@ -210,8 +210,10 @@ class DStarLite:
                 #           "from",
                 #           self.prev_node.pos_x,
                 #           self.prev_node.pos_y)
-                if u == self.start_node:
-                    prev_heading = self.rover_start_angle
+                # if u is self.start_node:
+                #     prev_heading = self.rover_start_angle
+                #     print("Start Node!!!")
+                #     print(u)
                 
                 if(prev_heading is None):
                             print(u)
@@ -222,9 +224,7 @@ class DStarLite:
                 print(u.pos_x,u.pos_y,"\t",self.get_possible_move_cells(prev_heading))         
                 for s in u.predecessors:
                     if s != self.goal_node:
-                        
                         if (int(s.pos_x - u.pos_x), int(s.pos_y - u.pos_y)) in self.get_possible_move_cells(prev_heading):
-                            
                             ##print("\t",s.pos_x,s.pos_y)
                             s.set_rhs_val(min(s.get_rhs_val(),self.cost(s,u) + u.get_g_val()))
                     self.update_vertex(s)

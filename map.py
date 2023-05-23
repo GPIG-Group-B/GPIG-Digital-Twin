@@ -156,8 +156,8 @@ class Map:
                     if(cell_col_id == self._goal_node_x and cell_row_id == self._goal_node_y and not (-x_delta,-y_delta) in self.target_search_space):
                         print("Limiting Node to Goal Node")
                         pass
-                    elif(cell_col_id == self._current_pos_x and cell_row_id == self._current_pos_x and not (-x_delta,-y_delta) in self.starting_search_space):
-                        print("Limiting Node to Start Node")
+                    elif(cell_col_id == self._current_pos_x and cell_row_id == self._current_pos_y and not (-x_delta,-y_delta) in self.starting_search_space):
+                        print("Limiting Node to Start Node",(self._current_pos_x,self._current_pos_y),(col_id,row_id))
                         pass
                     else:
                         if self._grid_size_y > cell_row_id >= 0:
@@ -233,8 +233,13 @@ class MapVisualiser():
         self._main_window_height = self._tile_size * self._map_grid_size_y
         self._main_window_width = self._tile_size * self._map_grid_size_x
         self._main_screen = pygame.display.set_mode((self._main_window_width, self._main_window_height))
-        self._draw_grid()
+        
+        pygame.display.update()
         self._pathfinding_alg.main()
+        self._draw_grid()
+        self.draw_shortest_path(self._pathfinding_alg.get_shortest_path_nodes())
+        input()
+        pygame.display.update()
         running = True
         while running:
             pygame.display.update()
@@ -245,11 +250,16 @@ class MapVisualiser():
         pygame.quit()
 
     def move(self, node):
-        time.sleep(0.1)
-        self._map.update_current_position_by_node(node)
+        
+        time.sleep(1)
+        ##self._map.update_current_position_by_node(node)
         shortest_path_list = self._pathfinding_alg.get_shortest_path_nodes()
         self._draw_grid()
         self.draw_shortest_path(shortest_path_list)
+
+
+
+        
 
 
     def draw_shortest_path(self, shortest_path_nodes):
