@@ -1,8 +1,7 @@
 
 
 from map import Map
-from d_star_lite import DStarLite
-from utils import euclidian_distance_from_nodes
+from d_star_lite import DStarLite, euclidian_distance_from_nodes
 try:
     from pybricks.parameters import Direction, Color
     from pybricks.pupdevices import Motor, ColorSensor, ForceSensor, ColorDistanceSensor
