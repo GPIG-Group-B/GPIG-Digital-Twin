@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 
-public class Output_logs : MonoBehaviour
+public class UI : MonoBehaviour
 {
 
     [SerializeField]
