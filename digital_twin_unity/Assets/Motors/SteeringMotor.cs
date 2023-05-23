@@ -121,20 +121,23 @@ public class SteeringMotor : Device
     private void RunTarget(string message_string)
     {
         Debug.Log("Motor Run Target");
+        float max = 1.0f;
+        float min = -1.0f;
+        float random_drift = (UnityEngine.Random.value * (max-min)) + min;
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
 
         if (message.wait)
         {
 
-            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + random_drift,
                                           degreesPerSecond: message.speed,
                                           messageID: _RUN_TARGET_MESSAGE_ID,
                                           message: JsonUtility.ToJson(new RunTargetMessage())));
         }
         else
         {
-            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle,
-                              degreesPerSecond: message.speed));
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + random_drift,
+                                          degreesPerSecond: message.speed));
 
             AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
         }
