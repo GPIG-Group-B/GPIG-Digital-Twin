@@ -121,7 +121,7 @@ class RoverSpikeHub:
         self._colour_sensor = ColorSensor(port=self._lego_spike_hub.get_port_from_str(constants.COLOUR_SENSOR_PORT))
         self._colour_sensor.detectable_colors(ALL_COLOURS)
 
-
+        self._current_angle = 0
         self._radio = Radio(topics=["drive", "shutdown", "complete"],
                             broadcast_func=Broadcast)
 
@@ -190,8 +190,10 @@ class RoverSpikeHub:
         angle_to_move = int(math.degrees(math.atan2(node.pos_x-self._current_node.pos_x, node.pos_y-self._current_node.pos_y)))
         # distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))
         distance = int(euclidian_distance_from_nodes(node, self._current_node) * 1000 * self._map.get_resolution())  # * 1000 to convert to mm
-        self.drive(angle=angle_to_move,
+
+        self.drive(angle=angle_to_move - self._current_angle,
                    distance=distance)
+        self._current_angle = angle_to_move
         self._map.update_current_position_by_node(node)
         self._current_node = node
 
