@@ -166,7 +166,7 @@ class RoverPoweredUpHub:
 
         x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         self.drive(angle=x,
-                distance=distance)
+                   distance=distance)
 
     def drive(self,
               angle: int,
@@ -191,10 +191,10 @@ class RoverPoweredUpHub:
         if angle == 0:
             self._drive_base.straight(distance=distance, wait=False)
         else:
-            rad = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * math.pi * rad))
-            self._drive_base.curve(radius=rad,
-                                   angle=arc, 
+            radius = self._wheelbase / math.tan(math.radians(angle)) + self._axle_track / 2
+            arc_angle = 360 * (distance / (2 * math.pi * radius))
+            self._drive_base.curve(radius=radius,
+                                   angle=arc_angle,
                                    wait=False)
 
         while True:
