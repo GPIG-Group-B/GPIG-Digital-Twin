@@ -73,7 +73,7 @@ public class ForceSensor : Device
         Debug.Log("Colour Sensor ambient");
         TouchedMessage message = JsonUtility.FromJson<TouchedMessage>(message_string);
         TouchedReturnMessage returnMessage = new TouchedReturnMessage();
-        returnMessage._is_touched = _is_touched;
+        returnMessage.is_touched = _is_touched;
         AddReturnMessageToOutboundQueue(JsonUtility.ToJson(returnMessage), _TOUCHED_MESSAGE_ID);
     }
 
@@ -113,7 +113,7 @@ public class ForceSensor : Device
 
     private class TouchedReturnMessage
     {
-        public bool _is_touched;
+        public bool is_touched;
     }
 
     public bool GetIsTouched()
