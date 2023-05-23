@@ -1,14 +1,10 @@
-import math
-
-from map import Map, EmptyTile, RoverTile, ObstacleTile, GoalTile, MapVisualiser
-from d_star_lite import DStarLite
-
-# def cost_func(x,y):
-    # if not isinstance(x, (EmptyTile,GoalTile, RoverTile)) or not isinstance(y, (EmptyTile,GoalTile)):
-    #     return float("inf")
-    # else:
-    # return math.dist([x.pos_x, x.pos_y], [y.pos_x, y.pos_y])
-
+from map import Map
+from rover_spike_hub import RoverSpikeHub
+import constants
+try:
+    from pybricks.tools import wait
+except ImportError:
+    from mock_pybricks import wait
 
 
 def run_test(start_x,start_y,start_angle,target_x,target_y,target_angle,resolution=0.25):
@@ -71,17 +67,29 @@ def run_test(start_x,start_y,start_angle,target_x,target_y,target_angle,resoluti
 
     test.set_start_heading(start_angle)
     test.set_target_heading(target_angle)
-    goal_node, start_node, all_nodes = test.convert_to_graph()
+    return test
+    # goal_node, start_node, all_nodes = test.convert_to_graph()
 
-    test_d_star = DStarLite(start_node=start_node,
-                    goal_node=goal_node,
-                    all_nodes=all_nodes,
-                    cost_func=test.cost,
-                    move_func=test.update_current_position_by_node)
+    # test_d_star = DStarLite(start_node=start_node,
+    #                 goal_node=goal_node,
+    #                 all_nodes=all_nodes,
+    #                 cost_func=test.cost,
+    #                 move_func=test.update_current_position_by_node)
+    #
+    # visualiser = MapVisualiser(map = test, pathfinding_alg=test_d_star)
 
-    visualiser = MapVisualiser(map = test, pathfinding_alg=test_d_star)
 
+rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
+              axle_track=constants.AXLE_TRACK,
+              max_turn_angle=constants.MAX_TURN_ANGLE,
+              wheelbase=constants.WHEELBASE,
+              height=constants.ROVER_HEIGHT,
+              width=constants.ROVER_WIDTH,
+              depth=constants.ROVER_DEPTH)
 
-run_test(0.75,0.25,0,3.25,0.75,90,resolution=0.25)
+demo_map = run_test(0.75,0.25,0,3.25,0.75,90,resolution=0.25)
+rover.load_map(demo_map)
 
+rover.navigate_map(cost_func=demo_map.cost)
+rover.shutdown()
 ##run_test(3.25,0.75,90,2.75,2.75,0,resolution=0.25)
