@@ -121,8 +121,27 @@ public class SteeringMotor : Device
     private void RunTarget(string message_string)
     {
         Debug.Log("Motor Run Target");
+        float max = 3.0f;
+        float min = -1.5f;
+        float random_drift = (UnityEngine.Random.value * (max-min)) + min;
+        Debug.Log("Random drift : " + (int) random_drift);
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
-        AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
+
+        if (message.wait)
+        {
+
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + (int) random_drift,
+                                          degreesPerSecond: message.speed,
+                                          messageID: _RUN_TARGET_MESSAGE_ID,
+                                          message: JsonUtility.ToJson(new RunTargetMessage())));
+        }
+        else
+        {
+            StartCoroutine(RotateSmoothly(targetAngle: message.target_angle + (int) random_drift,
+                                          degreesPerSecond: message.speed));
+
+            AddReturnMessageToOutboundQueue(JsonUtility.ToJson(new RunTargetMessage()), _RUN_TARGET_MESSAGE_ID);
+        }
     }
 
     private void TrackTarget(string message_string)
@@ -200,6 +219,91 @@ public class SteeringMotor : Device
     private class TrackTargetReturnMessage { }
 
 
+
+IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond)
+    {
+        int directionFactor;
+        float alpha = targetAngle - GetCurrentRotationAngle();
+        float beta = alpha + 360;
+        float gamma = alpha - 360;
+        float[] possibleValues = { alpha, beta, gamma };
+        float currentMinAbsValue = Mathf.Abs(possibleValues[0]);
+        float currentShortestValue = possibleValues[0];
+        for (int i = 1; i < 3; i++)
+        {
+            float absVal = Mathf.Abs(possibleValues[i]);
+            if (absVal < currentMinAbsValue)
+            {
+                currentMinAbsValue = absVal;
+                currentShortestValue = possibleValues[i];
+            }
+        }
+
+
+        if (currentShortestValue < 0) { directionFactor = -1; }
+        else { directionFactor = 1; }
+        while (true)
+        {
+            if (Mathf.Abs(targetAngle - GetCurrentRotationAngle()) <= 1)
+            {
+                leftWheelCollider.steerAngle = targetAngle;
+                rightWheelCollider.steerAngle = targetAngle;
+                yield break;
+            }
+            leftWheelCollider.steerAngle += degreesPerSecond * Time.deltaTime * directionFactor;
+            rightWheelCollider.steerAngle += degreesPerSecond * Time.deltaTime * directionFactor;
+            yield return null;
+
+        }
+    }
+
+    private float GetCurrentRotationAngle()
+    {
+        return leftWheelCollider.steerAngle;
+    }
+
+    // TODO: Make this method less wasteful
+    IEnumerator RotateSmoothly(int targetAngle, int degreesPerSecond, UInt16 messageID, string message)
+    {
+        int directionFactor;
+        float alpha = targetAngle - GetCurrentRotationAngle();
+        float beta = alpha + 360;
+        float gamma = alpha - 360;
+        float[] possibleValues = { alpha, beta, gamma };
+        float currentMinAbsValue = Mathf.Abs(possibleValues[0]);
+        float currentShortestValue = possibleValues[0];
+        for (int i = 1; i < 3; i++)
+        {
+            float absVal = Mathf.Abs(possibleValues[i]);
+            if (absVal < currentMinAbsValue)
+            {
+                currentMinAbsValue = absVal;
+                currentShortestValue = possibleValues[i];
+            }
+        }
+
+
+
+        if (currentShortestValue < 0) { directionFactor = -1; }
+        else { directionFactor = 1; }
+        Debug.Log("DIRECTION FACTOR : " + directionFactor);
+        while (true)
+        {
+            if (Mathf.Abs(targetAngle - GetCurrentRotationAngle()) <= 1)
+            {
+                leftWheelCollider.steerAngle = targetAngle;
+                rightWheelCollider.steerAngle = targetAngle;
+                AddReturnMessageToOutboundQueue(message, messageID);
+                yield break;
+            }
+            leftWheelCollider.steerAngle += degreesPerSecond * Time.deltaTime * directionFactor;
+            rightWheelCollider.steerAngle += degreesPerSecond * Time.deltaTime * directionFactor;
+            yield return null;
+
+        }
+
+
+    }
 
 
 

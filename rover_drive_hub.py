@@ -155,7 +155,7 @@ class RoverPoweredUpHub:
             data = self._radio.receive("drive")
             if data:
                 angle, distance, command_id = data
-                successful = self.drive(angle, distance)
+                successful = self.drive_target(angle, distance)
                 if successful:
                     print(f"Sending completion confirmation with command id {command_id}")
                     self._radio.send("complete", (command_id,))
@@ -173,7 +173,6 @@ class RoverPoweredUpHub:
             x = math.degrees(math.atan(self._wheelbase/((distance/math.radians(desired_angle))-(self._axle_track/2))))
         return self.drive(angle=x,
                           distance=distance)
-
 
     def drive(self,
               angle: int,

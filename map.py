@@ -4,7 +4,7 @@ try:
 except ImportError:
     import math
     import time
-    import pygame
+    # import pygame
 
 class Map:
 
@@ -216,78 +216,78 @@ class GoalTile(Tile):
     def __init__(self, pos_x, pos_y):
         super().__init__(type_id = 2, type_name="Goal", pos_x=pos_x, pos_y=pos_y, colour=(0,255,0))
 
-class MapVisualiser():
+# class MapVisualiser():
 
-    def __init__(self, map : Map, pathfinding_alg : DStarLite):
-        self._map = map
-        self._pathfinding_alg = pathfinding_alg
-        pathfinding_alg.move = self.move
-        self._map_grid_size_x = self._map.get_grid_size_x()
-        self._map_grid_size_y = self._map.get_grid_size_y()
+#     def __init__(self, map : Map, pathfinding_alg : DStarLite):
+#         self._map = map
+#         self._pathfinding_alg = pathfinding_alg
+#         pathfinding_alg.move = self.move
+#         self._map_grid_size_x = self._map.get_grid_size_x()
+#         self._map_grid_size_y = self._map.get_grid_size_y()
 
 
 
-        pygame.init()
-        window_height, window_width = pygame.display.Info().current_h, pygame.display.Info().current_w
-        self._tile_size = min((window_width - 100) // self._map_grid_size_x, (window_height - 100) // self._map_grid_size_y)
-        self._main_window_height = self._tile_size * self._map_grid_size_y
-        self._main_window_width = self._tile_size * self._map_grid_size_x
-        self._main_screen = pygame.display.set_mode((self._main_window_width, self._main_window_height))
+#         pygame.init()
+#         window_height, window_width = pygame.display.Info().current_h, pygame.display.Info().current_w
+#         self._tile_size = min((window_width - 100) // self._map_grid_size_x, (window_height - 100) // self._map_grid_size_y)
+#         self._main_window_height = self._tile_size * self._map_grid_size_y
+#         self._main_window_width = self._tile_size * self._map_grid_size_x
+#         self._main_screen = pygame.display.set_mode((self._main_window_width, self._main_window_height))
         
-        pygame.display.update()
-        self._pathfinding_alg.main()
-        self._draw_grid()
-        self.draw_shortest_path(self._pathfinding_alg.get_shortest_path_nodes())
-        input()
-        pygame.display.update()
-        running = True
-        while running:
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    print("Quitting")
-                    running = False
-        pygame.quit()
+#         pygame.display.update()
+#         self._pathfinding_alg.main()
+#         self._draw_grid()
+#         self.draw_shortest_path(self._pathfinding_alg.get_shortest_path_nodes())
+#         input()
+#         pygame.display.update()
+#         running = True
+#         while running:
+#             pygame.display.update()
+#             for event in pygame.event.get():
+#                 if event.type == pygame.QUIT:
+#                     print("Quitting")
+#                     running = False
+#         pygame.quit()
 
-    def move(self, node):
+#     def move(self, node):
         
-        time.sleep(1)
-        ##self._map.update_current_position_by_node(node)
-        shortest_path_list = self._pathfinding_alg.get_shortest_path_nodes()
-        self._draw_grid()
-        self.draw_shortest_path(shortest_path_list)
+#         time.sleep(1)
+#         ##self._map.update_current_position_by_node(node)
+#         shortest_path_list = self._pathfinding_alg.get_shortest_path_nodes()
+#         self._draw_grid()
+#         self.draw_shortest_path(shortest_path_list)
 
 
 
         
 
 
-    def draw_shortest_path(self, shortest_path_nodes):
-        for node in shortest_path_nodes:
-            if node != self._pathfinding_alg.goal_node:
-                x, y = node.pos_x, node.pos_y
-                self._draw_tile(x=x, y=y, colour=(0,0,255))
-        pygame.display.update()
+#     def draw_shortest_path(self, shortest_path_nodes):
+#         for node in shortest_path_nodes:
+#             if node != self._pathfinding_alg.goal_node:
+#                 x, y = node.pos_x, node.pos_y
+#                 self._draw_tile(x=x, y=y, colour=(0,0,255))
+#         pygame.display.update()
 
-    def _draw_tile(self, x, y, colour):
-        tile_rect = pygame.Rect(x * self._tile_size, y * self._tile_size, self._tile_size, self._tile_size)
-        pygame.draw.rect(self._main_screen, colour, tile_rect)
-        # border_rect = pygame.Rect((x * self._tile_size), (y * self._tile_size), self._tile_size, self._tile_size )
-        # pygame.draw.rect(self._main_screen, (125,255,255), border_rect, width=10)
+#     def _draw_tile(self, x, y, colour):
+#         tile_rect = pygame.Rect(x * self._tile_size, y * self._tile_size, self._tile_size, self._tile_size)
+#         pygame.draw.rect(self._main_screen, colour, tile_rect)
+#         # border_rect = pygame.Rect((x * self._tile_size), (y * self._tile_size), self._tile_size, self._tile_size )
+#         # pygame.draw.rect(self._main_screen, (125,255,255), border_rect, width=10)
 
-    def _draw_grid(self, shortest_path_list = None):
-        if self._tile_size is None:
-            raise Exception("Attemping to draw grid when UI is disabled")
-        for y in range(self._map_grid_size_y):
-            for x in range(self._map_grid_size_x):
-                self._draw_tile(x=x, y=y, colour=self._map.get_grid()[y][x].colour)
-        pygame.display.update()
+#     def _draw_grid(self, shortest_path_list = None):
+#         if self._tile_size is None:
+#             raise Exception("Attemping to draw grid when UI is disabled")
+#         for y in range(self._map_grid_size_y):
+#             for x in range(self._map_grid_size_x):
+#                 self._draw_tile(x=x, y=y, colour=self._map.get_grid()[y][x].colour)
+#         pygame.display.update()
 
 
 
-if __name__ == "__main__":
-    test = Map(size_x=3, size_y=3, resolution=0.1, starting_position_x=1, starting_position_y=1, goal_node_x=3, goal_node_y=3)
-    # test.add_impassable_rock_by_angle_distance(0, 1.0)
-    goal_node, start_node, all_nodes = test.convert_to_graph()
+# if __name__ == "__main__":
+#     test = Map(size_x=3, size_y=3, resolution=0.1, starting_position_x=1, starting_position_y=1, goal_node_x=3, goal_node_y=3)
+#     # test.add_impassable_rock_by_angle_distance(0, 1.0)
+#     goal_node, start_node, all_nodes = test.convert_to_graph()
 
 
