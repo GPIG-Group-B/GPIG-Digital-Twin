@@ -8,6 +8,7 @@ try:
     from pybricks.tools import wait
     from pybricks.hubs import TechnicHub
     from pybricks.parameters import Color
+    from pybricks.geometry import Axis
 except ImportError:
     import math
     from mock_pybricks import Motor, DriveBase,ColorSensor, ForceSensor, ColorDistanceSensor, Direction, wait
@@ -211,21 +212,43 @@ class RoverPoweredUpHub:
         #                            angle=arc, 
         #                            wait=False)
 
+        #TODO: Fix this properly 
+        try:
+            imu_data = self.hub.imu.angular_velocity(axis=Axis.Z)
+            imu_offset = 0
+            while True:
+                drive_done = self._drive_base.done()
+                ## IMU Correction using P controller
+                P_val = 0.05
+                imu_data = self.hub.imu.angular_velocity(axis=Axis.Z)
+                if(abs(angle)==0):
+                    imu_offset += imu_data*P_val
+                    self._steering_motor.track_target(angle + int(imu_offset+0.5))
 
-
-
-        while True:
-            drive_done = self._drive_base.done()
-            # print(f"drive base is done = {self._drive_base.done()}")
-            if drive_done:
-                return True
-            stop = self._radio.receive("drive")
-            if stop:
-                print("Emergency stop:", stop)
-                if stop[1] == 0:
-                    self._drive_base.stop()
-                    print("EMERGENCY STOP!")
-                    return False
-            wait(10)
+                if drive_done:
+                    print("\t Done Driving!")
+                    return True
+                stop = self._radio.receive("drive")
+                if stop:
+                    print("Emergency stop:", stop)
+                    if stop[1] == 0:
+                        self._drive_base.stop()
+                        print("EMERGENCY STOP!")
+                        return False
+                wait(10)
+        except:
+            while True:
+                drive_done = self._drive_base.done()
+                # print(f"drive base is done = {self._drive_base.done()}")
+                if drive_done:
+                    return True
+                stop = self._radio.receive("drive")
+                if stop:
+                    print("Emergency stop:", stop)
+                    if stop[1] == 0:
+                        self._drive_base.stop()
+                        print("EMERGENCY STOP!")
+                        return False
+                wait(10)
     
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
