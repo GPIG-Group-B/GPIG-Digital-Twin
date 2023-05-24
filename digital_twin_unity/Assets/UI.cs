@@ -69,6 +69,8 @@ public class UI : MonoBehaviour
 
 
 
+
+
     }
     
     
@@ -100,8 +102,12 @@ public class UI : MonoBehaviour
         ///debugging distance travelled
 
         //add a button that toggles a sidebar to display the current state of the car
-        if (GUI.Button(new Rect(10, 10, 90, 20), "Display Info"))
+        if (GUI.Button(new Rect(10, 10, 90, 20), new GUIContent("Display Info", "Click me to display Current rover information.")))
+         
         {
+            GUI.Label(new Rect(20,10,100,20), GUI.tooltip);
+
+            //GUI.Label(new Rect(10,40,200,40), GUI.tooltip);
             //toggle the sidebar
             showSidebar = !showSidebar;
              
@@ -117,6 +123,7 @@ public class UI : MonoBehaviour
         }
         if (showSidebar)
         {
+
             //display the sidebar
             //create rectangle for the sidebar
             
@@ -207,21 +214,25 @@ public class UI : MonoBehaviour
         GUILayout.EndArea(); 
 
         //move camera left button
-        if (GUI.Button(new Rect(Screen.width-60, Screen.height-30, 20, 20), "<-"))
+        if (GUI.Button(new Rect(Screen.width-60, Screen.height-30, 20, 20),new GUIContent("<-", "Click me to Rotate The camera 90° to the left of the rover")))
         {
+            
             // start coroutine to move camera out
             StartCoroutine(RotateSmoothly(25,1));
     
         }
 
+        int buttonX = Screen.width - 30;
+        int buttonY = Screen.height - 30;
         //Create right camera button
-        if (GUI.Button(new Rect(Screen.width-30, Screen.height-30, 20, 20), "->"))
+        if(GUI.Button(new Rect(buttonX, buttonY, 20, 20),new GUIContent("->", "Click me to Rotate The camera 90° to the right of the rover")))
         {
 
             // StartCoroutine(LerpCameraPositionRight(90,1.5f));
             StartCoroutine(RotateSmoothly(25,-1));
     
         }
+        GUI.Label(new Rect(buttonX - 200,buttonY - 40,200,40), GUI.tooltip);
         
     
     }
