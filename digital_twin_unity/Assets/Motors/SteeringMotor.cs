@@ -121,9 +121,10 @@ public class SteeringMotor : Device
     private void RunTarget(string message_string)
     {
         Debug.Log("Motor Run Target");
-        float max = 1.0f;
-        float min = -1.0f;
+        float max = 3.0f;
+        float min = -1.5f;
         float random_drift = (UnityEngine.Random.value * (max-min)) + min;
+        Debug.Log("Random drift : " + (int) random_drift);
         RunTargetMessage message = JsonUtility.FromJson<RunTargetMessage>(message_string);
 
         if (message.wait)

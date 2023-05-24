@@ -176,7 +176,7 @@ class DriveBase():
                  then=None,
                  wait : bool =True):
         MESSAGE_ID = 2
-        speed_to_run = 35
+        speed_to_run = 400
         if distance < 0:
             speed_to_run *= -1
             distance = abs(distance)
