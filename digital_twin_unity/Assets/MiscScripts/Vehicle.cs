@@ -7,7 +7,10 @@ public class Vehicle : MonoBehaviour
 {
 
     public List<Wheel> wheels;
+
+    public List<Wheel> drivingWheels;
     // Start is called before the first frame update
+    private bool stoppingFlag = false;
     void Start()
     {
         foreach (Wheel eachWheel in wheels)
@@ -30,16 +33,26 @@ public class Vehicle : MonoBehaviour
 
     void FixedUpdate()
     {
-        foreach (Wheel eachWheel in wheels)
+        foreach (Wheel eachWheel in drivingWheels)
         {
-            if (eachWheel.wheelCollider.brakeTorque > 0)
+            if (!stoppingFlag & Mathf.Abs(eachWheel.wheelCollider.brakeTorque) > 0)
             {
-                if (this.gameObject.GetComponent<Rigidbody>().velocity.magnitude > 0.001f){
-                    float max = 0.25f;
-                    float min = 0.05f;
+                if (this.gameObject.GetComponent<Rigidbody>().velocity.magnitude > 0.000001f){
+                    float max = 0.65f;
+                    float min = 0.15f;
                     float velocity_scalar = (UnityEngine.Random.value * (max-min)) + min;
+                    Debug.Log("Velocity scalar" + velocity_scalar);
                     this.gameObject.GetComponent<Rigidbody>().velocity *= velocity_scalar;
+                    stoppingFlag = true;
+                    Debug.Log("Setting flag");
+                    break;
                 }
+            }
+            else if (stoppingFlag & Mathf.Abs(eachWheel.wheelCollider.motorTorque) > 0)
+            {
+                Debug.Log("Resetting flag");
+                stoppingFlag = false;
+                break;
             }
             
         }

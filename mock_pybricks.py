@@ -181,10 +181,13 @@ class DriveBase():
             speed_to_run *= -1
             distance = abs(distance)
         self._ongoing_command = True
-        left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
-
         self._left_motor.run(speed_to_run)
         self._right_motor.run(speed_to_run)
+        self._run_for_distance(distance=distance)
+        self._ongoing_command = False
+
+    def _run_for_distance(self, distance):
+        left_motor_driven_distance, right_motor_driven_distance, avg_driven_distance = 0,0, 0
         left_motor_last_angle = self._left_motor.angle()
         right_motor_last_angle = self._right_motor.angle()
         left_motor_current_angle, right_motor_current_angle = left_motor_last_angle, right_motor_last_angle
@@ -201,7 +204,7 @@ class DriveBase():
         print(f"Average driven distance : {avg_driven_distance}. {distance}")
         self._left_motor.stop()
         self._right_motor.stop()
-        self._ongoing_command = False
+
 
     def _get_distance_from_angle_diff(self, last_angle, current_angle):
         return abs(((current_angle - last_angle)/ 360) * math.pi * self._wheel_diameter)
@@ -227,13 +230,21 @@ class DriveBase():
               then=None,
               wait : bool =True):
         MESSAGE_ID = 4
+        speed_to_run = 35
+        if radius < 0:
+            speed_to_run *= -1
+            radius = abs(radius)
+        inner_radius = 2 * math.pi * (radius - (self._axle_track / 2)) * (angle / 360)
+        outer_radius = 2 * math.pi * (radius + (self._axle_track / 2)) * (angle / 360)
+        power_ratio = outer_radius / inner_radius
+        print(f"Power ratio  {power_ratio}")
+        print(f"Base speed : {speed_to_run} | Ratio speed : {int(speed_to_run * power_ratio)}")
         self._ongoing_command = True
-        self._left_motor.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
-        self._right_motor.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
+        self._ongoing_command = True
+        self._left_motor.run(speed_to_run)
+        self._right_motor.run(int(speed_to_run * power_ratio))
+        self._run_for_distance(distance=(inner_radius + outer_radius) / 2)
+        self._ongoing_command = False
         self._ongoing_command = False
 
     def drive(self,
@@ -253,12 +264,14 @@ class DriveBase():
     def stop(self):
         MESSAGE_ID = 6
         self._ongoing_command = True
-        self._left_motor.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
-        self._right_motor.send_message(data=locals(),
-                          exclusions=["self", "MESSAGE_ID"],
-                          message_id=MESSAGE_ID)
+        self._left_motor.stop()
+        self._right_motor.stop()
+        # self._left_motor.send_message(data=locals(),
+        #                   exclusions=["self", "MESSAGE_ID"],
+        #                   message_id=MESSAGE_ID)
+        # self._right_motor.send_message(data=locals(),
+        #                   exclusions=["self", "MESSAGE_ID"],
+        #                   message_id=MESSAGE_ID)
         self._ongoing_command = False
 
     def distance(self):
