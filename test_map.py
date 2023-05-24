@@ -75,7 +75,7 @@ def run_test(start_x,start_y,start_angle,target_x,target_y,target_angle,resoluti
     #                 all_nodes=all_nodes,
     #                 cost_func=test.cost,
     #                 move_func=test.update_current_position_by_node)
-    #
+    
     # visualiser = MapVisualiser(map = test, pathfinding_alg=test_d_star)
 
 
@@ -87,7 +87,7 @@ rover = RoverSpikeHub(wheel_diam=constants.WHEEL_DIAMETER,
               width=constants.ROVER_WIDTH,
               depth=constants.ROVER_DEPTH)
 
-demo_map = run_test(0.75,0.25,0,3.0,0.75,90,resolution=0.25)
+demo_map = run_test(0.5,0.25,0,3.25,0.75,90,resolution=0.25)
 rover.load_map(demo_map)
 
 rover.navigate_map(cost_func=demo_map.cost)

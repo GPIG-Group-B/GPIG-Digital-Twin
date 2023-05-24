@@ -190,7 +190,9 @@ class RoverSpikeHub:
         angle_to_move = int(math.degrees(math.atan2(node.pos_x-self._current_node.pos_x, node.pos_y-self._current_node.pos_y)))
         # distance = int(math.dist([node.pos_x, node.pos_y], [self._current_node.pos_x, self._current_node.pos_y]))
         distance = int(euclidian_distance_from_nodes(node, self._current_node) * 1000 * self._map.get_resolution())  # * 1000 to convert to mm
-
+        print("MOVING")
+        print(node)
+        print(self._current_node)
         self.drive(angle=angle_to_move - self._current_angle,
                    distance=distance)
         self._current_angle = angle_to_move
@@ -211,7 +213,8 @@ class RoverSpikeHub:
         Returns:
             None
         """
-
+        # if angle != 0:
+        #     distance += int(self._wheelbase / 2)
         # Send drive command to drive hub
         self._command_id += 1
         self._radio.send("drive",

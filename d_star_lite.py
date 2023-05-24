@@ -84,6 +84,7 @@ class DStarLite:
             path_nodes.append(sp_start_node)
         return path_nodes
 
+
     def main(self):
         self.last_node = self.start_node
         self.initialise()
@@ -93,6 +94,13 @@ class DStarLite:
                 raise Exception("No computable path")
             successor_val_list = [self.cost(self.start_node,
                                             s_prime) + s_prime.get_g_val() for s_prime in self.start_node.successors]
+            # two_nodes_ahead = self.get_shortest_path_nodes()[1]
+            # if two_nodes_ahead:
+            #     angle_to_move = int(math.degrees(math.atan2(two_nodes_ahead.pos_x - self.start_node.pos_x,
+                                                            # two_nodes_ahead.pos_y - self.start_node.pos_y)))
+                # if angle_to_move == 45:
+                #     self.start_node = two_nodes_ahead
+                # else:
             self.start_node = self.start_node.successors[successor_val_list.index(min(successor_val_list))]
             self.move(self.start_node)
             # changed_edges = self.scan_grap_changed_edge_costs()

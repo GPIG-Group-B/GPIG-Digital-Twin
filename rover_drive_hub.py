@@ -1,5 +1,6 @@
 try:
     from umath import tan, radians, pi
+    import umath as math
     from pybricks.parameters import Direction
     from pybricks.pupdevices import Motor
     from pybricks.robotics import DriveBase
@@ -89,6 +90,7 @@ class RoverPoweredUpHub:
                             broadcast_func=Broadcast)
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
+        self._steering_motor.run_target(speed=100, target_angle=0)
 
         self._drive_base = DriveBase(left_motor=self._left_motor,
                                      right_motor=self._right_motor,
@@ -145,7 +147,7 @@ class RoverPoweredUpHub:
         r_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.RIGHT_MOTOR_PORT),
                         positive_direction=Direction.CLOCKWISE)
         steering_motor = Motor(port=self._powered_up_hub.get_port_from_str(constants.STEERING_MOTOR_PORT),
-                               positive_direction=Direction.CLOCKWISE)
+                               positive_direction=Direction.COUNTERCLOCKWISE)
         return l_motor, r_motor, steering_motor
 
     def run(self):
@@ -153,7 +155,7 @@ class RoverPoweredUpHub:
             data = self._radio.receive("drive")
             if data:
                 angle, distance, command_id = data
-                successful = self.drive_target(angle, distance)
+                successful = self.drive(angle, distance)
                 if successful:
                     print(f"Sending completion confirmation with command id {command_id}")
                     self._radio.send("complete", (command_id,))
@@ -188,20 +190,27 @@ class RoverPoweredUpHub:
             None
         """
 
-        if abs(angle) > self._max_turn_angle:
-            raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
+        # if abs(angle) > self._max_turn_angle:
+        #     raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
         DEFAULT_SPEED = 100
+        if angle > 0:
+            angle *= 1.4
+            distance *= 0.9
+        if angle < 0:
+            angle *= 1.2
+            distance *= 0.7
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
                                         target_angle=angle)
+        self._drive_base.straight(distance=distance, wait=False)
 
-        if angle == 0:
-            self._drive_base.straight(distance=distance, wait=False)
-        else:
-            rad = self._wheelbase / tan(radians(angle)) + self._axle_track / 2
-            arc = 360 * (distance / (2 * pi * rad))
-            self._drive_base.curve(radius=rad,
-                                   angle=arc, 
-                                   wait=False)
+        # if angle == 0:
+        #     self._drive_base.straight(distance=distance, wait=False)
+        # else:
+        #     rad = self._wheelbase / tan(radians(angle)) + self._axle_track / 2
+        #     arc = 360 * (distance / (2 * pi * rad))
+        #     self._drive_base.curve(radius=rad,
+        #                            angle=arc, 
+        #                            wait=False)
 
 
 
