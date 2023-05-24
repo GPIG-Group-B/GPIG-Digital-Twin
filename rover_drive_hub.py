@@ -92,7 +92,7 @@ class RoverPoweredUpHub:
 
         self._left_motor, self._right_motor, self._steering_motor = self._setup_motors()
         self._steering_motor.run_target(speed=100, target_angle=0)
-
+        self._last_angle = 0
         self._drive_base = DriveBase(left_motor=self._left_motor,
                                      right_motor=self._right_motor,
                                      wheel_diameter=self._wheel_diam,
@@ -156,7 +156,7 @@ class RoverPoweredUpHub:
             data = self._radio.receive("drive")
             if data:
                 angle, distance, command_id = data
-                successful = self.drive_target(angle, distance)
+                successful = self.drive(angle, distance)
                 if successful:
                     print(f"Sending completion confirmation with command id {command_id}")
                     self._radio.send("complete", (command_id,))
@@ -192,13 +192,24 @@ class RoverPoweredUpHub:
 
         # if abs(angle) > self._max_turn_angle:
         #     raise ValueError(f"Provided angle {angle} must be less than the max turn angle : {self._max_turn_angle}")
-        DEFAULT_SPEED = 100
+        DEFAULT_SPEED = 10
         if angle > 0:
-            angle *= 1.4
-            distance *= 0.9
-        if angle < 0:
-            angle *= 1.2
-            distance *= 0.7
+            # angle *= 2
+            distance *= 1.2
+            self._last_angle = angle
+        elif angle < 0:
+            # angle *= 2
+            distance *= 1.0
+            self._last_angle = angle
+        elif angle == 0:
+            if self._last_angle > 0:
+                angle = -6
+            elif self._last_angle < 0:
+                angle = 6
+            else:
+                angle = -2
+            self._last_angle = 0
+                
         self._steering_motor.run_target(speed=DEFAULT_SPEED,
                                         target_angle=angle)
         self._drive_base.straight(distance=distance, wait=False)
@@ -219,7 +230,7 @@ class RoverPoweredUpHub:
             while True:
                 drive_done = self._drive_base.done()
                 ## IMU Correction using P controller
-                P_val = 0.05
+                P_val = 0.075
                 imu_data = self.hub.imu.angular_velocity(axis=Axis.Z)
                 if(abs(angle)==0):
                     imu_offset += imu_data*P_val
@@ -236,7 +247,8 @@ class RoverPoweredUpHub:
                         print("EMERGENCY STOP!")
                         return False
                 wait(10)
-        except:
+        except Exception as e:
+            print(e)
             while True:
                 drive_done = self._drive_base.done()
                 # print(f"drive base is done = {self._drive_base.done()}")
@@ -250,5 +262,5 @@ class RoverPoweredUpHub:
                         print("EMERGENCY STOP!")
                         return False
                 wait(10)
-    
+
         # Now that we're done driving, we can return, and the run() function will send the complete message to the main hub
